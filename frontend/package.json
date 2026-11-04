@@ -1,0 +1,10 @@
+{
+  "name": "follow-motors-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check js/app.js && node --check js/api.js"
+  }
+}
