@@ -1,0 +1,26 @@
+name: Reporte de error
+description: Registrar un problema reproducible
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: ¿Qué ocurre?
+      description: Describe el resultado observado y el esperado.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Pasos para reproducir
+      description: Incluye pasos y evidencias sin datos personales.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options: [Frontend, Backend, MySQL, Documentación, Integración]
+    validations:
+      required: true
