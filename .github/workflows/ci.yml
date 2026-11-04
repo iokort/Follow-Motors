@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'feature/**', 'fix/**', 'chore/**']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend / JavaScript
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sintaxis JavaScript
+        run: npm run check
+      - name: Tests de cliente HTTP
+        run: npm test
+      - name: Validar recursos HTML
+        working-directory: .
+        run: python3 scripts/check_frontend.py
+
+  api:
+    name: API / .NET 10 y MySQL
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-only
+          MYSQL_DATABASE: follow_motors
+          MYSQL_USER: follow_app
+          MYSQL_PASSWORD: ci-only-password
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pci-root-only --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: 'Server=127.0.0.1;Port=3306;Database=follow_motors;User ID=follow_app;Password=ci-only-password;'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restaurar paquetes
+        run: dotnet restore backend/FollowMotors.Api/FollowMotors.Api.csproj
+      - name: Compilar
+        run: dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj --configuration Release --no-restore
+      - name: Publicar
+        run: dotnet publish backend/FollowMotors.Api/FollowMotors.Api.csproj --configuration Release --no-build --output ./artifacts/api
+      - name: Probar API y conexión MySQL
+        run: |
+          dotnet ./artifacts/api/FollowMotors.Api.dll --urls http://127.0.0.1:5099 > /tmp/follow-motors-api.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; cat /tmp/follow-motors-api.log' EXIT
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:5099/api/v1/health > /tmp/health.json; then
+              break
+            fi
+            sleep 2
+          done
+          python3 -c 'import json; assert json.load(open("/tmp/health.json"))["status"] == "ok"'
+          curl --fail --silent http://127.0.0.1:5099/api/v1/health/database > /tmp/database.json
+          python3 -c 'import json; assert json.load(open("/tmp/database.json"))["database"] == "mysql"'

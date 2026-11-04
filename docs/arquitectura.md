@@ -1,36 +1,38 @@
-# Arquitectura inicial
+# Arquitectura de Follow Motors
 
 ```text
-Navegador (HTML/CSS/JS)
+    Navegador
+(HTML + CSS + JavaScript)
         |
-        | HTTPS + JSON
+        | HTTP(S) / JSON
         v
-API REST (ASP.NET Core / C#)
+ ASP.NET Core Web API
+      C# / .NET 10
         |
-        | acceso parametrizado y controlado
+        | MySqlConnector / consultas parametrizadas
         v
-MySQL
+      MySQL 8.4
 ```
 
-## Responsabilidades
+## Estado implementado
+- `backend/FollowMotors.Api`: servicio web mínimo con endpoint `GET /api/v1/health`.
+- `Infrastructure/IDatabaseConnectionFactory.cs`: contrato de fábrica de conexiones, sin imponer repositorios todavía.
+- `GET /api/v1/health/database`: comprueba conectividad MySQL solo en Development; no muestra secretos.
+- `frontend/`: pantalla base y cliente HTTP en `js/api.js`; no representa el diseño final.
+- `compose.yaml`: MySQL local persistente y contenedor de API para desarrollo.
+- `.github/workflows/ci.yml`: validaciones automáticas, aún sujetas a resultados de ejecución remota.
 
-- Frontend: interfaz, formularios, validación de experiencia, presentación; sin claves de BD ni SQL en cliente.
-- API: autenticación/autorización, validación del lado servidor, casos de uso, reglas de negocio, manejo de errores y acceso a datos.
-- Base de datos: integridad referencial, índices, modelo versionado y datos semilla ficticios.
-- Documentación: requisitos, trazabilidad, casos de uso, rutas/endpoints y manuales.
+## Límites de responsabilidad
+- **Frontend:** interfaz, estado visual, interacción y consumo de API. No tiene acceso SQL.
+- **Backend:** reglas de negocio, validaciones del servidor, permisos y respuesta HTTP.
+- **MySQL:** persistencia, integridad, migraciones versionadas y restricciones.
+- **Documentación:** requisitos, casos de uso, contratos y manuales.
 
-## Aplicación de SOLID
+SOLID: separación clara de responsabilidades y dependencias cuando sean necesarias para comprobar el código. No construir controladores, servicios o entidades que aún no tienen requisitos.
 
-- SRP: separar controladores HTTP, lógica de negocio y persistencia.
-- DIP: introducir interfaces entre lógica y acceso a datos cuando faciliten pruebas y cambios reales.
-- OCP, LSP, ISP: aplicar cuando exista una necesidad concreta; no crear capas o interfaces decorativas.
-
-## Decisiones pendientes
-
-- Definir requisitos verificables de cada módulo heredado.
-- Pactar estructura real de entidades/tablas y contratos de API.
-- Elegir versión de .NET soportada y proveedor MySQL tras verificar entorno de despliegue.
-- Acordar mecanismo de autenticación y roles.
-- Determinar si el hosting actual admite el backend C#; no asumir que Hostinger PHP ejecuta ASP.NET Core.
-
-No se debe conectar la aplicación nueva al entorno de producción durante el desarrollo.
+## Riesgos y decisiones pendientes
+- Los nombres de módulos del sistema anterior no certifican su funcionamiento.
+- Primero acordar requisitos, esquema de Gael y formatos JSON con Víctor.
+- Definir autenticación/autorización antes de cualquier operación real sobre usuarios.
+- Verificar alojamiento compatible con .NET 10. El sitio actual funciona con infraestructura web existente, no constituye evidencia de que pueda hospedar un servicio ASP.NET Core.
+- Producción no debe alterarse durante la etapa de reconstrucción.

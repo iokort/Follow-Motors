@@ -1,9 +1,10 @@
 # Frontend — Víctor
 
-HTML, CSS y JavaScript.
+Punto de partida: `index.html`, `css/styles.css`, `js/app.js` y `js/api.js`.
 
-Responsabilidades: maquetación, accesibilidad, responsive, formularios, estados de carga/error y consumo de API mediante un punto de acceso configurable.
+## Ejecutar
+Con cualquier servidor HTTP estático en puerto **5500** (por ejemplo, extensión Live Server de VS Code). No abrir como `file://`.
 
-No conectar MySQL desde el navegador, no escribir secretos en JavaScript y no fijar URLs de producción en el código. Coordinar con Kort los campos y formatos de los contratos API antes de integrar.
+La página consulta `GET /api/v1/health` en `http://localhost:5099`. El URL se puede sobreescribir mediante `window.FOLLOW_MOTORS_API_URL` antes de cargar `app.js` si cambia el entorno. Para hosts separados, coordinar CORS con Kort.
 
-La implementación comenzará después de documentar las pantallas prioritarias y sus estados.
+La página es **un scaffold técnico, no el diseño final**. No incluir credenciales, llamadas directas a MySQL ni inventar respuestas definitivas. Trabajar en `feature/frontend` y acordar el contrato de API antes de implementar cada pantalla.
