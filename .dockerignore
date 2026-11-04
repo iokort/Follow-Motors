@@ -1,0 +1,12 @@
+.git
+.github
+docs
+frontend
+database
+tests
+*.md
+**/bin
+**/obj
+**/.vs
+.env
+.env.*
