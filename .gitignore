@@ -1,0 +1,29 @@
+# .NET
+**/bin/
+**/obj/
+**/.vs/
+**/TestResults/
+*.user
+*.suo
+# Secrets and local config
+.env
+.env.*
+!.env.example
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/secrets.json
+# Node/tooling
+node_modules/
+dist/
+coverage/
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+# Database exports and backups
+*.sql.gz
+*.dump
+*.bak
+*.zip
+# Keep intentional migration scripts under database/migrations/
