@@ -1,0 +1,53 @@
+name: Historia de usuario
+description: Registrar una US verificable y trazable para el backlog Scrum/Kanban
+title: "USxx: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Registrar trabajo real. Consultar docs/backlog-v5.md antes de crear duplicados."
+  - type: input
+    id: us
+    attributes:
+      label: Identificador de historia
+      placeholder: US09
+    validations:
+      required: true
+  - type: textarea
+    id: valor
+    attributes:
+      label: Historia, actor y valor
+      description: "Como [rol], quiero [resultado], para [beneficio]."
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - Alta
+        - Media
+        - Baja
+    validations:
+      required: true
+  - type: input
+    id: puntos
+    attributes:
+      label: Puntos (Fibonacci)
+      placeholder: "3, 5, 8..."
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación verificables
+      placeholder: "AC1 ...\nAC2 ...\nAC3 ..."
+    validations:
+      required: true
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: Dependencias, permisos y contratos
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia y prueba vinculada
+      description: "Completar durante la implementación; no declarar pruebas no ejecutadas."

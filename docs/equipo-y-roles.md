@@ -1,34 +1,45 @@
-# Equipo, roles y responsabilidades
+# Equipo SSC — Roles de gestión y desarrollo
 
-## Organización de trabajo
+## Organización funcional del proyecto
 
-| Integrante / GitHub | Rol del proyecto | Entrega principal | Decisiones y revisión |
+| Integrante | Cargo del equipo | Responsabilidad verificable | Presenta en la exposición |
 | --- | --- | --- | --- |
-| Kort · @kortCobein | Líder técnico e integrador de sistemas | Backend C#, API, integración frontend/API, arquitectura y releases | Define contratos con el equipo; revisa integración y cambios entre áreas |
-| Gael · @G43LEX | Responsable de datos / ingeniero de base de datos | Modelo ER, MySQL, migraciones, índices, integridad y datos de prueba | Revisa cualquier cambio de esquema o consulta relevante |
-| Vixtor Fernando · @fernandoohiti25 | Responsable de frontend | HTML, CSS, JavaScript, interfaz responsive, accesibilidad y consumo de API | Revisa cambios de interfaz y acuerda contratos JSON con Kort |
-| Aarón · @Aaron262005 | Analista funcional y responsable de documentación | Requisitos, casos de uso, criterios de aceptación, manuales y registro de decisiones | Revisa documentación y coteja requisitos con resultados, sin suplantar pruebas técnicas |
+| **Aarón** · @Aaron262005 | **Project Manager y responsable de documentación** | Coordina hitos, prioridades acordadas, reuniones, impedimentos, entregables, evidencias, documentación y trazabilidad en GitHub Projects | Objetivo del proyecto, alcance, plan, Scrum/Kanban, avance real, riesgos y evidencias |
+| **Gael** · @G43LEX | **Database Manager** y referente del enfoque de producto | Propone la dirección funcional y reglas del negocio para discutirlas con el equipo; diseña modelo ER, MySQL, migraciones, integridad y consultas | Por qué se construye así, reglas de negocio, diseño relacional y persistencia |
+| **Vixtor Fernando** · @fernandoohiti25 | **Frontend Designer & Developer** | Diseña e implementa la interfaz con Angular, TypeScript y CSS; UX, navegación, accesibilidad e integración de servicios HTTP | Maquetas, componentes Angular, estado de interfaz y experiencia del cliente |
+| **Kort** · @kortCobein | **Backend Developer** | Implementa API C# / ASP.NET Core, autenticación y autorización, casos de uso, validaciones y contratos con el frontend; coordina la integración técnica necesaria | Endpoints, principios SOLID aplicados, lógica de negocio en servidor, seguridad e integración |
 
-## Autoridad y decisiones
+## Qué significa «dirigir el proyecto»
 
-- Cada responsable decide la implementación de su área dentro de los contratos aprobados.
-- Las modificaciones entre áreas (campos, JSON, errores, migraciones) se acuerdan entre sus responsables **antes** del cambio.
-- Kort coordina el ensamblaje, pero la revisión se realiza entre pares; nadie aprueba su propio PR.
-- Aarón documenta los acuerdos y mantiene trazabilidad entre Issues, requisitos, pruebas y manuales.
-- El equipo valida la aceptación de una funcionalidad completa antes de llevarla a `main`.
+El **Project Manager** coordina **el proceso de trabajo**, no sustituye la autoridad de los especialistas sobre su código. Aarón registra acuerdos, planifica revisiones, mantiene el tablero y comprueba que cada entrega tenga responsable y evidencia. No necesita explicar detalles de POO o SQL que corresponden a otros integrantes.
 
-**Importante:** GitHub tiene roles de acceso al repositorio (Read, Triage, Write, Maintain, Admin), distintos de los roles funcionales de este documento. El equipo de desarrollo debe tener permiso `Write`; la administración del repositorio queda reservada a quienes realmente la tengan.
+Gael aporta la **visión funcional original** y es el referente del enfoque de producto. Sus propuestas se documentan como decisiones a validar; eso no significa que una persona ajena a la empresa pueda aprobar unilateralmente políticas de clientes o garantías.
 
-## Responsabilidad técnica por carpeta
+Kort se encarga de la integración técnica para conectar backend, Angular y MySQL, **sin ocupar el cargo de Project Manager**. Fernando es responsable de la solución visual y su implementación. Cada integrante responde por la calidad y decisiones de su área.
 
-- `backend/`: Kort (code review cruzada por Fernando cuando se modifiquen contratos frontend).
-- `database/`: Gael y Kort.
-- `frontend/`: Vixtor Fernando y Kort.
-- `docs/`: Aarón y Kort.
-- `.github/` y despliegue: Kort y Aarón para documentación de procesos.
+## Gobierno de decisiones
 
-`CODEOWNERS` solicita revisiones pero no bloquea a otros colaboradores para leer o proponer cambios.
+- **Organización, calendario, impedimentos y seguimiento:** Aarón coordina y registra en Projects, Issues, Discussions y actas.
+- **Alcance, prioridades y enfoque funcional:** Gael propone y el equipo acuerda; la aceptación de reglas comerciales reales requiere aprobación de la empresa.
+- **Contratos JSON, autorización y servidor:** Kort define y coordina con Fernando y Gael antes de cambios incompatibles.
+- **Diseño visual e implementación Angular:** Fernando lidera las decisiones de presentación.
+- **Esquema, integridad y migraciones MySQL:** Gael lidera las decisiones de persistencia.
+- **Revisión:** PR con revisor distinto de su autor, comprobaciones automáticas y criterios de aceptación antes de integrar.
 
-## Cómo medir avances
+## Responsables técnicos por carpeta
 
-Cada tarea debe tener: responsable, alcance, criterio de aceptación, dependencias, rama, PR vinculado y pruebas. La comprobación técnica de un cambio no equivale a la aceptación funcional del módulo.
+- `backend/` — Kort.
+- `database/` — Gael.
+- `frontend/` — Vixtor Fernando.
+- `docs/` — Aarón, con aportaciones y revisión técnica de cada especialista.
+- `.github/` y despliegue — coordinación técnica de Kort; Aarón registra el proceso y evidencias.
+
+`CODEOWNERS` configura revisores por carpetas; los cargos académicos no son los roles de permiso de GitHub (Read, Write, Maintain, Admin).
+
+## Evidencias que corresponden a cada cargo
+
+Aarón: tablero actualizado, backlog ordenado, actas reales, definición de alcance, trazabilidad y reporte de riesgos. Gael: diagrama ER, scripts/migraciones y verificaciones de integridad. Fernando: interfaz Angular, PR, pruebas y demostración. Kort: API, contratos, pruebas, seguridad e integración.
+
+**No atribuir a Aarón código que no desarrolló ni presentar como concluidas reuniones, funciones o pruebas que no ocurrieron.** Los cargos sirven para repartir la exposición y deben sostenerse con trabajo real.
+
+[Kanban SSC](https://github.com/orgs/iokort/projects/1) · [Plan](plan-de-trabajo.md) · [RACI](stakeholders-raci.md)

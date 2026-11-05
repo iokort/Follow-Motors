@@ -1,27 +1,45 @@
 # Follow Motors
 
+> **Asistencia y posventa:** el cliente se da de alta presencialmente por un asesor autorizado; no hay autorregistro ni venta en esta web. El portal privado solo muestra motocicletas vinculadas. [Alcance vigente](docs/alcance-posventa.md) · [ADR-0005](docs/adr/0005-alta-presencial-posventa.md).
+
+
 Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje, servicios y garantías. La versión previa en [iokort.com/follow-motors](https://iokort.com/follow-motors) se mantiene como **referencia funcional** y no será sobrescrita automáticamente.
+
+## Expediente académico y metodología
+
+- **[Índice de entregables](docs/00-guia-academica.md)**: acceso único para evaluación.
+- **[Scrum + Kanban](docs/scrum-kanban.md)**: sprints propuestos, Kanban, WIP, DoR y DoD.
+- **[Product Backlog V5](docs/backlog-v5.md)**: 22 historias / 145 puntos preliminares.
+- **[CRC extendidas](docs/crc/README.md)**: 180 fichas de análisis en US01–US08 y US21; [15 CRC originales](docs/tarjetas-crc.md).
+- **[MVVM y arquitectura](docs/mvvm-y-arquitectura.md)**: capas web, C#, MySQL y SOLID.
+- **[Marco teórico](docs/marco-teorico.md)**: fundamento con referencias.
+- **[Stakeholders y RACI](docs/stakeholders-raci.md)** · **[Trazabilidad](docs/trazabilidad-y-evidencias.md)**.
+- **[Kanban público SSC](https://github.com/orgs/iokort/projects/1)** · **[Discussions](https://github.com/iokort/Follow-Motors/discussions)**.
+
+- **[Guía de GitHub: Wiki, Topics, Packages y Releases](docs/github-publicacion.md)**.
 
 ## Equipo y asignación
 
-| Integrante | Encargado de | Rama de área |
-| --- | --- | --- |
-| Kort (@kortCobein) | Backend ASP.NET Core (C#) e integración con frontend; coordinación | `feature/backend` |
-| Gael (@G43LEX) | Base de datos MySQL, modelo relacional y migraciones | `feature/database` |
-| Vixtor Fernando (@fernandoohiti25) | Frontend HTML, CSS y JavaScript | `feature/frontend` |
-| Aarón (@Aaron262005) | Requisitos, casos de uso y documentación | `feature/docs` |
+| Integrante | Rol del proyecto | Especialidad y entrega | Rama de área |
+| --- | --- | --- | --- |
+| Aarón (@Aaron262005) | **Project Manager** | Gestión del proyecto, documentación, Scrum/Kanban y evidencias | `feature/docs` |
+| Gael (@G43LEX) | **Database Manager** | Visión funcional y diseño/implementación MySQL | `feature/database` |
+| Vixtor Fernando (@fernandoohiti25) | **Frontend Designer & Developer** | Diseño e implementación Angular/TypeScript | `feature/frontend` |
+| Kort (@kortCobein) | **Backend Developer** | API C# / ASP.NET Core, SOLID, seguridad e integración técnica | `feature/backend` |
+
+[Responsabilidades detalladas y reparto de la exposición](docs/equipo-y-roles.md).
 
 ## Stack preparado
 
 - Backend: **.NET 10 LTS**, ASP.NET Core Web API, MySqlConnector 2.6.2.
 - Base de datos: **MySQL 8.4**, contenedor local y almacenamiento persistente.
-- Frontend: HTML, CSS y JavaScript sin frameworks obligatorios.
-- Calidad: GitHub Actions con compilación de API, verificación de MySQL, pruebas JS y análisis CodeQL; Dependabot semanal.
+- Frontend: **Angular 22 y TypeScript**, componentes standalone, signals y HttpClient.
+- Calidad: GitHub Actions con compilación de API, verificación de MySQL, compilación Angular y pruebas frontend, más análisis CodeQL; Dependabot semanal.
 - Arquitectura: SOLID aplicado de forma pragmática, API REST bajo `/api/v1`.
 
 ## Inicio rápido
 
-Requisitos: Docker + Compose, Git. Opcional: .NET SDK 10 para desarrollar API fuera del contenedor.
+Requisitos: Docker + Compose y Git para backend/BD, Node.js 22.22.3+ o 24.15+ para Angular. Opcional: .NET SDK 10 para API fuera de Docker.
 
 ```bash
 git clone https://github.com/iokort/Follow-Motors.git
@@ -37,7 +55,7 @@ docker compose up -d --build
 | API | http://localhost:5099/api/v1/health |
 | Salud MySQL, solo Development | http://localhost:5099/api/v1/health/database |
 | MySQL | localhost:3307 (no accesible públicamente) |
-| Frontend | Servir `frontend/` por HTTP en puerto 5500 (ej. Live Server) |
+| Frontend Angular | http://localhost:4200 después de `cd frontend && npm install && npm start` |
 
 Sin Docker, la API puede iniciarse con `dotnet run --project backend/FollowMotors.Api/FollowMotors.Api.csproj`. Configurar cadena de conexión mediante variable `ConnectionStrings__Default` si necesita acceder a MySQL externo a Compose.
 
@@ -45,7 +63,7 @@ Sin Docker, la API puede iniciarse con `dotnet run --project backend/FollowMotor
 
 ```text
 backend/FollowMotors.Api/      Proyecto ASP.NET Core, salud y conexión MySQL
-frontend/                      HTML/CSS/JS inicial, cliente HTTP, pruebas
+frontend/                      Angular 22, TypeScript, estilos CSS y pruebas
 database/                      Área de diseño de Gael; tablas todavía no definidas
 docs/                          Arquitectura, API, requisitos y plan
 .github/                       CI, CodeQL, Dependabot, PR/Issues, CODEOWNERS
@@ -70,7 +88,8 @@ FollowMotors.slnx              Solución C# para IDE y línea de comandos
 ```bash
 dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj
 cd frontend
-npm run check
+npm install
+npm run build
 npm test
 ```
 
@@ -87,8 +106,12 @@ npm test
 
 ## Estado actual
 
-**Preparado:** API de salud, fábrica de conexión MySQL, entorno Docker, estructura frontend y pruebas iniciales.
+**Preparado:** API de salud, fábrica de conexión MySQL, entorno Docker y aplicación Angular inicial con pruebas de estructura.
 
 **No implementado:** modelo de datos, autenticación, CRUD, clientes, unidades, servicios, agenda y garantías. Los cuatro responsables deben acordar esos requisitos. El sitio anterior continúa independiente.
 
 No existe todavía una licencia explícita de reutilización.
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)
