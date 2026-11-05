@@ -23,7 +23,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid #42aef0; outline-offs
 .modules { margin: 2rem 0 4rem; }
 .modules h2 { font-size: 1.2rem; }
 .modules ul { padding-left: 1.3rem; line-height: 1.9; }
-footer { text-align: center; color: #637789; font-size: .85rem; padding: 1.5rem; }
+.site-footer { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: .5rem; text-align: center; color: #637789; font-size: .875rem; padding: 1.5rem; }
+.site-footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.site-footer a:hover { color: #162537; }
 @media (max-width: 600px) {
   .site-header { padding: 1rem; flex-wrap: wrap; }
   .status { flex-wrap: wrap; }

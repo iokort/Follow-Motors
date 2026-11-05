@@ -25,3 +25,7 @@ Mostrar: «No hay motocicletas vinculadas a tu cuenta. Acude a tu sucursal para 
 [Alcance completo](https://github.com/iokort/Follow-Motors/blob/main/docs/alcance-posventa.md) · [Decisión ADR-0005](https://github.com/iokort/Follow-Motors/blob/main/docs/adr/0005-alta-presencial-posventa.md)
 
 **Estado:** especificación vigente; su implementación debe demostrarse mediante PR y pruebas.
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)

@@ -108,3 +108,7 @@ npm test
 **No implementado:** modelo de datos, autenticación, CRUD, clientes, unidades, servicios, agenda y garantías. Los cuatro responsables deben acordar esos requisitos. El sitio anterior continúa independiente.
 
 No existe todavía una licencia explícita de reutilización.
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)

@@ -14,3 +14,7 @@ La decisión posterior sobre alta presencial y portal de asistencia modifica US0
 [Backlog](https://github.com/iokort/Follow-Motors/blob/main/docs/backlog-v5.md) · [180 CRC contextuales](https://github.com/iokort/Follow-Motors/blob/main/docs/crc/README.md) · [Catálogo CRC base](https://github.com/iokort/Follow-Motors/blob/main/docs/tarjetas-crc.md) · [Issues reales](https://github.com/iokort/Follow-Motors/issues)
 
 **Evidencia:** una historia completada debe tener criterios verificados y PR/test vinculados.
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)

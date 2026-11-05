@@ -15,3 +15,7 @@ Throughput, WIP, cycle time y antigüedad de tareas abiertas. Los puntos Fibonac
 [Follow Motors - SSC (público)](https://github.com/orgs/iokort/projects/1)
 
 [Reglas completas](https://github.com/iokort/Follow-Motors/blob/main/docs/scrum-kanban.md) · [Flujo Git](https://github.com/iokort/Follow-Motors/blob/main/docs/flujo-de-trabajo.md)
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)

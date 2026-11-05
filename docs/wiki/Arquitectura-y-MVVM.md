@@ -18,3 +18,7 @@ Responsabilidad única; extensibilidad justificada; contratos sustituibles; inte
 [Diagrama de clases](https://github.com/iokort/Follow-Motors/blob/main/docs/diagramas/clases.md) · [Secuencias](https://github.com/iokort/Follow-Motors/blob/main/docs/diagramas/secuencias.md) · [MVVM y arquitectura](https://github.com/iokort/Follow-Motors/blob/main/docs/mvvm-y-arquitectura.md)
 
 **Estado:** arquitectura objetivo; autenticación, permisos y operaciones de negocio aún no están completas.
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)

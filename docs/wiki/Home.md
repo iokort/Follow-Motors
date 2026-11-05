@@ -39,3 +39,7 @@
 Proyecto en **desarrollo**. La API base y el entorno de prueba existen; la lógica completa de negocio, autenticación y portal no se consideran terminados. No incluir datos reales de clientes ni secretos en esta Wiki.
 
 Esta página es índice público. Los documentos técnicos se mantienen versionados en `docs/`.
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)

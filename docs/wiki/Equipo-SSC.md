@@ -18,3 +18,7 @@
 6. Llevar a `main` exclusivamente cambios listos para versión.
 
 [Roles y RACI](https://github.com/iokort/Follow-Motors/blob/main/docs/equipo-y-roles.md) · [Issues y asignaciones](https://github.com/iokort/Follow-Motors/issues) · [Kanban](https://github.com/orgs/iokort/projects/1)
+
+---
+
+© 2026 Kurt Cobain Vázquez Sánchez · [ioKort](https://iokort.com)
