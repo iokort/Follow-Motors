@@ -82,3 +82,14 @@ Microsoft. (s. f.). *ASP.NET Core documentation*. https://learn.microsoft.com/as
 Oracle. (s. f.). *MySQL 8.4 reference manual*. https://dev.mysql.com/doc/refman/8.4/en/
 
 Martin, R. C. (2017). *Clean architecture: A craftsman's guide to software structure and design*. Prentice Hall.
+
+## Caso aplicado de SOLID: agenda (US06 y US15)
+
+- **Controller:** `backend/FollowMotors.Api/Controllers/CitasController.cs` — entrada HTTP y permisos, sin SQL.
+- **Servicio de aplicación:** `Application/Agenda/AgendaService.cs` — casos de uso y transiciones.
+- **Política de dominio:** `Application/Agenda/AgendaPolicy.cs` — validaciones reutilizables sin HTTP.
+- **Contrato:** `IAgendaRepository` — dependencia invertida; permite fake de pruebas.
+- **Adaptador MySQL:** `Infrastructure/Agenda/MySqlAgendaRepository.cs` — SQL parametrizado y auditoría.
+- **Pruebas:** `backend/FollowMotors.Api.Specs/` — reglas y, en CI, integración temporal de los scripts V3.
+
+Estas rutas no significan que la UI de Fernando esté conectada ni que exista sesión de gerente aprovisionada fuera de pruebas.

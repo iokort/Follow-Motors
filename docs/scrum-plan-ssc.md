@@ -83,3 +83,7 @@ Código/documentación coherente con la historia; pruebas realmente ejecutadas; 
 Schwaber, K., & Sutherland, J. (2020). *The Scrum guide*. https://scrumguides.org/scrum-guide.html
 
 [Backlog por épicas](epicas/README.md) · [Stakeholders](stakeholders-ssc.md) · [Políticas de contribución](../CONTRIBUTING.md).
+
+## Entrega de backend en revisión — US06 y US15
+
+**PR #48:** capa C# con Controller, servicios SOLID, persistencia y pruebas para creación/administración de citas. El esquema SQL es obra de Gael y el diseño de pantallas sigue siendo de Fernando. El incremento puede revisarse como **backend**, pero no se considera una demostración de las historias completas hasta contar con credenciales de desarrollo, frontend conectado y recorrido real. Aarón puede enlazar PR, scripts y resultados de Actions como evidencia **cuando estén aprobados**.

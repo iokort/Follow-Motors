@@ -77,7 +77,7 @@ Para CFMOTO usar `tipoMotocicleta: "CFMOTO"`, `motocicletaId` de una motocicleta
 dotnet run --project backend/FollowMotors.Api.Specs/FollowMotors.Api.Specs.csproj
 ```
 
-Las pruebas comprueban casos correctos e incorrectos con un repositorio simulado, sin acceso a usuarios reales. **No sustituyen una prueba de integración completa con una base V3 levantada ni una revisión de la interfaz Angular.**
+Las pruebas comprueban casos correctos e incorrectos con un repositorio simulado; en **CI** se ejecuta además un segundo recorrido contra MySQL 8.4 real y los scripts V3 en una base efímera. Se prueban login, permisos, cita externa/CFMOTO, reprogramación, cancelación y tres eventos de auditoría. **No sustituye la prueba con la UI Angular y credenciales de un entorno de desarrollo gestionado por el equipo.**
 
 ## Seguridad y límites
 
