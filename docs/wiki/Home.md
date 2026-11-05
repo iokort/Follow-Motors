@@ -32,7 +32,7 @@
 
 ## Equipo
 
-**SSC**: Kort (backend e integración), Gael (MySQL), Vixtor Fernando (frontend) y Aarón (análisis y documentación).
+**SSC**: Aarón (**Project Manager**), Gael (**Database Manager** y referente de producto), Vixtor Fernando (**Frontend Designer & Developer**) y Kort (**Backend Developer**).
 
 ## Estado
 

@@ -20,12 +20,14 @@ Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje,
 
 ## Equipo y asignación
 
-| Integrante | Encargado de | Rama de área |
-| --- | --- | --- |
-| Kort (@kortCobein) | Backend ASP.NET Core (C#) e integración con frontend; coordinación | `feature/backend` |
-| Gael (@G43LEX) | Base de datos MySQL, modelo relacional y migraciones | `feature/database` |
-| Vixtor Fernando (@fernandoohiti25) | Frontend Angular 22, TypeScript y CSS | `feature/frontend` |
-| Aarón (@Aaron262005) | Requisitos, casos de uso y documentación | `feature/docs` |
+| Integrante | Rol del proyecto | Especialidad y entrega | Rama de área |
+| --- | --- | --- | --- |
+| Aarón (@Aaron262005) | **Project Manager** | Gestión del proyecto, documentación, Scrum/Kanban y evidencias | `feature/docs` |
+| Gael (@G43LEX) | **Database Manager** | Visión funcional y diseño/implementación MySQL | `feature/database` |
+| Vixtor Fernando (@fernandoohiti25) | **Frontend Designer & Developer** | Diseño e implementación Angular/TypeScript | `feature/frontend` |
+| Kort (@kortCobein) | **Backend Developer** | API C# / ASP.NET Core, SOLID, seguridad e integración técnica | `feature/backend` |
+
+[Responsabilidades detalladas y reparto de la exposición](docs/equipo-y-roles.md).
 
 ## Stack preparado
 

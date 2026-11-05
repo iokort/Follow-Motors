@@ -11,14 +11,14 @@ Este plan es **secuencial por dependencias**, no tiene fechas inventadas. Se act
 - Kort: verificar CI, permisos, hospedaje compatible con ASP.NET Core, ruta de publicación futura.
 - Gael: verificar conexión local a MySQL y entorno de migraciones.
 - Fernando: verificar compilación y ejecución de Angular y consumo `/api/v1/health`.
-- Aarón: mantener roles, estructura documental y lista de criterios funcionales.
+- Aarón (Project Manager): coordinar tareas, hitos, tablero, acuerdos y documentación; publicar evidencias de avances verificables.
 - **Salida:** todos pueden clonar, ejecutar su área y abrir un PR comprobable.
 
 ## Fase 1 · Análisis y contratos (trabajo paralelo)
 
-- **Aarón:** fichas de actores cliente/gerente, casos de uso, reglas y criterios verificables para acceso, cuentas, unidades, kilometraje, agenda, servicios y garantías.
+- **Aarón:** coordinar refinamiento, documentar decisiones y criterios acordados con los responsables técnicos; mantener backlog y RACI.
 - **Fernando:** inventario de pantallas, formularios, navegación y estados de error/carga/vacío.
-- **Gael:** diagrama entidad-relación, reglas de integridad, claves, restricciones e índices basados en los requisitos.
+- **Gael:** proponer el enfoque funcional y prioridades del producto, y elaborar diagrama entidad-relación, integridad, claves, restricciones e índices acordes con los requisitos.
 - **Kort:** contratos de API (URL, método, DTO, permisos, errores) y estrategia de autenticación; acordarlos con Gael y Fernando.
 - **Salida:** primera funcionalidad vertical priorizada, contratos mínimos aprobados y tareas individuales sin bloqueos.
 
@@ -26,7 +26,7 @@ Este plan es **secuencial por dependencias**, no tiene fechas inventadas. Se act
 
 Empezar por un caso de uso acordado entre todos, **no** desarrollar todas las pantallas sin backend ni toda la BD sin consumidores.
 
-- Aarón detalla criterios y pruebas de aceptación.
+- Aarón coordina y registra criterios y evidencias aportados por quienes implementan y prueban.
 - Gael implementa migración versionada y datos ficticios del flujo.
 - Kort implementa API, validaciones, permisos y comprobaciones.
 - Fernando implementa pantalla y conexión a API, con estados de error y éxito.

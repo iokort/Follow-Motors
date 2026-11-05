@@ -21,20 +21,21 @@ Los actores de negocio no equivalen a integrantes del equipo de GitHub. La parti
 
 ## RACI del equipo SSC
 
-R = ejecuta, A = responsable final, C = consultado, I = informado. Se limita a organización del **trabajo académico**, no a decisiones de negocio externas.
+R = responsable de ejecutar; A = responsable final de ese resultado; C = consultado; I = informado. Cada fila tiene un A principal. Estas responsabilidades corresponden al **proyecto académico**, no a la dirección de la empresa.
 
-| Actividad | Kort | Gael | Vixtor Fernando | Aarón |
+| Actividad | Kort · Backend | Gael · Database | Vixtor Fernando · Frontend | Aarón · Project Manager |
 | --- | --- | --- | --- | --- |
-| Coordinación técnica y contratos | A/R | C | C | I |
-| Modelado SQL y migraciones | C | A/R | I | C |
-| Interfaz, navegación y accesibilidad | C | I | A/R | C |
-| Requisitos y criterios | C | C | C | A/R |
-| Seguridad de API y roles | A/R | C | C | I |
-| Integración y CI | A/R | C | C | I |
-| Actualización del expediente | C | C | C | A/R |
-| Preparación de demo y evidencia | A | C | C | R |
+| Planificación, seguimiento, reuniones y bloqueos | C | C | C | **A/R** |
+| Enfoque funcional y propuesta de prioridades del backlog | C | **A/R** | C | R |
+| Modelo relacional, migraciones y consultas MySQL | C | **A/R** | I | I |
+| Diseño visual, Angular, navegación y accesibilidad | C | I | **A/R** | I |
+| API C#, reglas de servidor y autorización | **A/R** | C | C | I |
+| Contratos HTTP e integración de componentes | **A/R** | C | R | I |
+| Documentación y trazabilidad del expediente | C | C | C | **A/R** |
+| Preparación de la exposición y evidencias | R | R | R | **A** |
+| Verificación técnica de cada especialidad | **A/R** (backend) | **A/R** (base de datos) | **A/R** (frontend) | I |
 
-**Aceptación funcional del negocio:** depende de un representante autorizado; no se deduce de que la tarea tenga assignee ni de un PR fusionado.
+La gerencia real debe validar reglas de negocio antes de considerarlas aceptadas. **Aarón gestiona la presentación y el proceso; cada desarrollador explica su propia implementación.** La fila de verificación técnica asigna la responsabilidad exclusivamente dentro de la especialidad de cada integrante.
 
 ## Riesgos y bloqueos iniciales
 

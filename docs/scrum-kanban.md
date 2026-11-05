@@ -8,15 +8,18 @@ Ofrecer un portal público para consultar servicios de motocicletas y módulos p
 
 Se utilizarán **sprints de dos semanas como cadencia propuesta** y **Kanban como control visual del flujo** (enfoque de Scrum con Kanban). El equipo debe registrar cuándo inicia realmente cada sprint; no se atribuyen ceremonias ni entregas que aún no hayan ocurrido.
 
-### Responsabilidades de Scrum y roles técnicos
+### Cargos de equipo y responsabilidades de Scrum
 
-| Responsabilidad | Propuesta para SSC | Atribución práctica |
+Los cargos de la exposición se documentan en [Equipo y roles](equipo-y-roles.md). **Project Manager no es una responsabilidad formal definida por Scrum**: es el cargo de coordinación académica de SSC.
+
+| Cargo del equipo | Persona | Responsabilidad operativa |
 | --- | --- | --- |
-| Product Owner (PO) | Kort como interlocutor temporal; validación funcional con gerencia/cliente y docente | Mantener el Product Backlog ordenado y negociar valor; no fingir aceptación del negocio |
-| Scrum Master (SM) | Aarón como facilitador propuesto | Facilitar las reuniones, visibilizar impedimentos y mantener transparencia |
-| Developers (equipo Scrum) | Kort, Gael, Vixtor Fernando y Aarón | Producir incremento integrado: código, datos, pruebas y documentación |
+| **Project Manager / Documentación** | Aarón | Coordinar plan, ceremonias, seguimiento Kanban, acuerdos y evidencias; facilitar el proceso, no aprobar código ajeno |
+| **Database Manager** | Gael | Diseñar y mantener MySQL; aporta la visión y prioridades funcionales originales para refinar el Product Backlog |
+| **Frontend Designer & Developer** | Vixtor Fernando | Diseñar e implementar la experiencia con Angular/TypeScript |
+| **Backend Developer** | Kort | Desarrollar API .NET/C#, reglas de servidor, seguridad y coordinar integración técnica |
 
-**Validación pendiente:** el equipo debe confirmar en un acta los cargos propuestos de PO y SM. La división de especialidades sigue vigente: Kort backend/integración, Gael datos, Fernando frontend, Aarón documentación/analítica.
+En términos de Scrum, Gael puede actuar como **referente interno de producto**, Aarón como **facilitador del proceso**, y los cuatro colaboran para lograr el incremento. **No se afirma que Gael sea Product Owner formal de la empresa ni que Aarón posea una certificación o cargo formal de Scrum Master.** Si SSC adopta esas responsabilidades en una reunión real, debe registrarlo. La empresa conserva la decisión final sobre admisión de clientes, venta, mantenimiento y garantías.
 
 ### Eventos por sprint (propuesta)
 
