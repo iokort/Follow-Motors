@@ -1,0 +1,195 @@
+
+/* ===== PANTALLA DE INICIO ===== */
+
+/* Presentación principal */
+.hero {
+    min-height: 80vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 70px 5%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 40px;
+}
+
+.hero-contenido {
+    max-width: 550px;
+}
+
+.hero-etiqueta {
+    display: inline-block;
+    color: #8DC9FF;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    color: #F8F8F2;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.hero h1 span {
+    color: #4DA6FF;
+}
+
+.hero p {
+    color: #BDC1CC;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+/* Botones */
+.hero-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: inline-block;
+    padding: 13px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-primary {
+    background-color: #4DA6FF;
+    color: #282A36;
+}
+
+.btn-primary:hover {
+    background-color: #8DC9FF;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    color: #F8F8F2;
+    border: 1px solid #4DA6FF;
+}
+
+.btn-secondary:hover {
+    background-color: #343746;
+    transform: translateY(-2px);
+}
+
+/* Imagen principal */
+.hero-imagen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-imagen img {
+    display: block;
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Beneficios */
+.beneficios {
+    padding: 70px 5%;
+    background-color: #343746;
+}
+
+.beneficios h2 {
+    text-align: center;
+    color: #F8F8F2;
+    font-size: 2rem;
+    margin-bottom: 40px;
+}
+
+.beneficios-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+/* Tarjetas */
+.beneficio-card {
+    background-color: #282A36;
+    border: 1px solid #44475A;
+    border-radius: 12px;
+    padding: 30px;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.beneficio-card:hover {
+    transform: translateY(-5px);
+    border-color: #4DA6FF;
+}
+
+.beneficio-card h3 {
+    color: #8DC9FF;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.beneficio-card p {
+    color: #BDC1CC;
+    line-height: 1.7;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+    .hero {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        padding-top: 50px;
+        text-align: center;
+    }
+
+    .hero-contenido {
+        max-width: 100%;
+    }
+
+    .hero-botones {
+        justify-content: center;
+    }
+
+    .hero-imagen img {
+        max-width: 360px;
+    }
+
+    .beneficios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .beneficios {
+        padding: 50px 5%;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-botones {
+        flex-direction: column;
+    }
+
+    .hero-botones a {
+        text-align: center;
+    }
+
+    .beneficios h2 {
+        font-size: 1.6rem;
+    }
+}
+
+/* Accesibilidad: reducir animaciones */
+@media (prefers-reduced-motion: reduce) {
+    .btn-primary,
+    .btn-secondary,
+    .beneficio-card {
+        transition: none;
+    }
+}

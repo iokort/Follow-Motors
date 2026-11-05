@@ -1,0 +1,220 @@
+
+/* =========================================
+   FOLLOW MOTORS - LOGIN Y REGISTRO
+   Tema Azul Dracula
+========================================= */
+
+/* Contenedor principal */
+.auth {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 60px 20px;
+    background-color: var(--color-fondo);
+}
+
+/* Tarjeta del formulario */
+.auth-contenedor {
+    width: 100%;
+    max-width: 460px;
+    padding: 35px;
+    background-color: var(--color-panel);
+    border: 1px solid var(--color-borde);
+    border-radius: 16px;
+}
+
+/* Encabezado */
+.auth-encabezado {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-logo {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.auth-encabezado h1 {
+    color: var(--color-texto);
+    font-size: 2rem;
+    margin: 10px 0;
+}
+
+.auth-encabezado p {
+    color: var(--color-texto-suave);
+    font-size: 0.95rem;
+}
+
+/* Campos */
+.auth-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.auth-campo label {
+    color: var(--color-texto);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.auth-campo input {
+    width: 100%;
+    padding: 13px 15px;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.auth-campo input::placeholder {
+    color: var(--color-texto-suave);
+}
+
+.auth-campo input:focus {
+    border-color: var(--color-primario);
+}
+
+.auth-campo input:focus-visible {
+    outline: 2px solid var(--color-secundario);
+    outline-offset: 2px;
+}
+
+/* Enlaces */
+.auth-enlace {
+    display: block;
+    margin-bottom: 20px;
+    text-align: right;
+    color: var(--color-secundario);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.auth-enlace:hover,
+.auth-pie a:hover {
+    text-decoration: underline;
+}
+
+/* Mensajes del formulario */
+#login-estado,
+#registro-estado {
+    color: var(--color-secundario);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+#login-estado:empty,
+#registro-estado:empty {
+    display: none;
+}
+
+/* Botón */
+.auth-boton {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--color-primario);
+    color: var(--color-fondo);
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.auth-boton:hover {
+    background-color: var(--color-secundario);
+}
+
+.auth-boton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Pie del formulario */
+.auth-pie {
+    text-align: center;
+    margin-top: 25px;
+    color: var(--color-texto-suave);
+}
+
+.auth-pie a {
+    color: var(--color-secundario);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Adaptación a celulares */
+@media (max-width: 480px) {
+    .auth {
+        padding: 30px 15px;
+    }
+
+    .auth-contenedor {
+        padding: 25px 20px;
+    }
+
+    .auth-encabezado h1 {
+        font-size: 1.7rem;
+    }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .auth-campo input,
+    .auth-boton {
+        transition: none;
+    }
+}
+
+/* =========================================
+   FOLLOW MOTORS - FORMULARIO DE CITAS
+========================================= */
+
+/* Listas desplegables y observaciones */
+.auth-campo select,
+.auth-campo textarea {
+    width: 100%;
+    padding: 13px 15px;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    font: inherit;
+}
+
+/* Campo de observaciones */
+.auth-campo textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+/* Estilo de las opciones */
+.auth-campo select option {
+    background-color: var(--color-panel);
+    color: var(--color-texto);
+}
+
+/* Cuando el usuario selecciona un campo */
+.auth-campo select:focus-visible,
+.auth-campo textarea:focus-visible {
+    outline: 2px solid var(--color-secundario);
+    outline-offset: 2px;
+}
+
+/* Mensaje de solicitud de cita */
+#cita-estado {
+    color: var(--color-secundario);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+#cita-estado:empty {
+    display: none;
+}

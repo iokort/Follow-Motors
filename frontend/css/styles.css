@@ -1,30 +1,150 @@
+
+/* =========================================
+   FOLLOW MOTORS - ESTILOS GENERALES
+   Tema Azul Dracula
+========================================= */
+
+/* Colores principales */
 :root {
-  font-family: Arial, sans-serif;
-  color: #162537;
-  background: #f7f9fb;
-  font-synthesis: none;
+    --color-fondo: #282A36;
+    --color-panel: #343746;
+    --color-primario: #4DA6FF;
+    --color-secundario: #8DC9FF;
+    --color-texto: #F8F8F2;
+    --color-texto-suave: #BDC1CC;
+    --color-borde: #44475A;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-synthesis: none;
 }
-* { box-sizing: border-box; }
-body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-.site-header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1.15rem max(5%, calc((100vw - 1080px) / 2)); background: white; border-bottom: 1px solid #e1e6ec; }
-.brand { color: #162537; font-size: 1.35rem; font-weight: 700; text-decoration: none; }
-.brand span { color: #087cab; }
-.environment, .eyebrow { color: #537287; font-size: .875rem; }
-.content { width: min(100% - 2.25rem, 1080px); margin: 0 auto; flex: 1; }
-.intro { max-width: 730px; padding: clamp(3rem, 9vw, 6rem) 0 2rem; }
-.intro h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.03em; margin: .6rem 0 1rem; }
-p { line-height: 1.6; }
-.status { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.3rem 1.6rem; border: 1px solid #dce4ed; border-radius: 16px; background: white; }
-.status h2 { margin: 0; font-size: 1rem; }
-.status p { margin: .35rem 0 0; }
-button { border: 0; border-radius: 9px; color: white; background: #0b729e; padding: .7rem 1rem; font: inherit; cursor: pointer; }
-button:hover { background: #084b73; }
-button:focus-visible, a:focus-visible { outline: 3px solid #42aef0; outline-offset: 3px; }
-.modules { margin: 2rem 0 4rem; }
-.modules h2 { font-size: 1.2rem; }
-.modules ul { padding-left: 1.3rem; line-height: 1.9; }
-footer { text-align: center; color: #637789; font-size: .85rem; padding: 1.5rem; }
-@media (max-width: 600px) {
-  .site-header { padding: 1rem; flex-wrap: wrap; }
-  .status { flex-wrap: wrap; }
+
+/* Reiniciar estilos */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    display: flex;
+    flex-direction: column;
+}
+
+#app {
+    flex: 1;
+}
+
+p {
+    line-height: 1.6;
+}
+
+/* Elementos generales */
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid var(--color-secundario);
+    outline-offset: 3px;
+}
+
+
+
+.api-section {
+    padding: 30px 5%;
+    background-color: var(--color-fondo);
+}
+
+.api-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 25px;
+    background-color: var(--color-panel);
+    border: 1px solid var(--color-borde);
+    border-radius: 12px;
+}
+
+.api-content h2 {
+    color: var(--color-secundario);
+    margin-top: 0;
+}
+
+#api-status {
+    color: var(--color-texto-suave);
+}
+
+#retry-api {
+    background-color: var(--color-primario);
+    color: var(--color-fondo);
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#retry-api:hover {
+    background-color: var(--color-secundario);
+}
+
+#retry-api:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+
+.site-footer {
+    background-color: var(--color-panel);
+    border-top: 1px solid var(--color-borde);
+    padding: 25px 5%;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+    color: var(--color-texto-suave);
+    font-size: 0.9rem;
+}
+
+
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
 }

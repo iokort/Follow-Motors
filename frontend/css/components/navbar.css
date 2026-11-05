@@ -1,0 +1,99 @@
+
+/* Barra de navegación */
+.navbar {
+    background-color: #282A36;
+    border-bottom: 1px solid #44475A;
+    padding: 15px 5%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Contenedor principal */
+.navbar-container {
+    max-width: 1200px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #F8F8F2;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navbar-logo img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+/* Enlaces */
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.navbar-links a {
+    color: #F8F8F2;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.navbar-links a:hover {
+    color: #4DA6FF;
+}
+
+/* Botón de inicio de sesión */
+.navbar-login {
+    background-color: #4DA6FF;
+    color: #282A36 !important;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.navbar-login:hover {
+    background-color: #8DC9FF;
+}
+
+/* Menú móvil */
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: 0;
+    color: #F8F8F2;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .navbar-toggle {
+        display: block;
+    }
+
+    .navbar-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #343746;
+        flex-direction: column;
+        padding: 20px;
+        gap: 20px;
+        border-bottom: 1px solid #44475A;
+    }
+
+    .navbar-links.active {
+        display: flex;
+    }
+}
