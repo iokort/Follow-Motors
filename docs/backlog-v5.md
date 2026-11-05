@@ -1,5 +1,7 @@
 # Product Backlog de referencia — 22 historias de usuario
 
+**Alcance actualizado:** se conserva la planificación V5 como referencia histórica, pero prevalece [ADR-0005](adr/0005-alta-presencial-posventa.md): alta presencial, catálogo de asistencia, portal exclusivo para unidades propias.
+
 **Línea base:** Planificación integral Follow Motors V5 (30/10/2026). Prioridad Alta/Media/Baja; puntos Fibonacci relativos (no horas); el valor y las dependencias se validan en refinamiento.
 
 | ID | Historia | Épica | Prioridad | Puntos | Dependencias |
@@ -7,13 +9,13 @@
 | US01 | Acceso del gerente | Identidad y seguridad | Alta | 5 | US21 |
 | US02 | Acceso del cliente | Identidad y seguridad | Alta | 5 | US21 |
 | US03 | Cierre de sesión seguro | Identidad y seguridad | Alta | 3 | US01, US02 |
-| US04 | Alta de cliente y motocicleta | Operación del taller | Alta | 8 | US21 |
+| US04 | Alta presencial de cliente y motocicleta | Operación del taller | Alta | 8 | US21 |
 | US05 | Administrar clientes y unidades | Operación del taller | Alta | 8 | US04 |
 | US06 | Agenda de citas | Operación del taller | Alta | 8 | US04 |
 | US07 | Seguimiento de mantenimiento | Operación del taller | Alta | 8 | US04 |
 | US08 | Panel privado del cliente | Portal del cliente | Alta | 8 | US02, US07 |
-| US09 | Portada de acceso público | Web pública | Alta | 3 | Ninguna |
-| US10 | Catálogo público de servicios | Web pública | Alta | 5 | US09 |
+| US09 | Portada pública de asistencia | Web pública | Alta | 3 | Ninguna |
+| US10 | Catálogo informativo de asistencia | Web pública | Alta | 5 | US09 |
 | US11 | Información y preguntas frecuentes | Web pública | Media | 3 | US09 |
 | US12 | Solicitud pública de contacto | Web pública | Media | 8 | US09 |
 | US13 | Actualizar kilometraje propio | Portal del cliente | Alta | 5 | US02, US04 |
@@ -47,7 +49,7 @@
 
 - **Prioridad / estimación:** Alta, 5 puntos.
 - **Dependencia:** US21.
-- **Criterios verificables:** La sesión solo consulta recursos propios; datos vacíos o incorrectos muestran errores accesibles; sesión vencida no expone datos.
+- **Criterios verificables:** Inicio de sesión solo para cuentas activadas en sucursal; no hay registro público ni acceso a motos ajenas; sesión vencida no expone información.
 - **Evidencia futura:** Issue `US02`, PR vinculado, resultado de prueba `CP-02` y demostración cuando exista.
 
 
@@ -61,13 +63,13 @@
 - **Evidencia futura:** Issue `US03`, PR vinculado, resultado de prueba `CP-03` y demostración cuando exista.
 
 
-### US04 · Alta de cliente y motocicleta
+### US04 · Alta presencial de cliente y motocicleta
 
-**Como** Gerente, **quiero** registrar y vincular clientes y motocicletas sin duplicación.
+**Como** Asesor autorizado de sucursal, **quiero** verificar, registrar y vincular clientes y motos admitidos por la empresa, sin permitir autorregistro.
 
 - **Prioridad / estimación:** Alta, 8 puntos.
 - **Dependencia:** US21.
-- **Criterios verificables:** Alta válida crea registros relacionados; datos inválidos no se guardan; cliente existente añade motocicleta sin duplicarse.
+- **Criterios verificables:** Solo un asesor autorizado registra en sucursal con comprobación de identidad y propiedad; el alta conserva actor y vínculos sin duplicación; toda alta anónima es rechazada.
 - **Evidencia futura:** Issue `US04`, PR vinculado, resultado de prueba `CP-04` y demostración cuando exista.
 
 
@@ -107,27 +109,27 @@
 
 - **Prioridad / estimación:** Alta, 8 puntos.
 - **Dependencia:** US02, US07.
-- **Criterios verificables:** Solo unidades propias; vacío explicado; próxima recomendación depende de regla documentada.
+- **Criterios verificables:** Solo unidades verificadas y vinculadas a la cuenta; si no hay ninguna, aparece estado vacío con indicación de acudir a sucursal, nunca motos ajenas.
 - **Evidencia futura:** Issue `US08`, PR vinculado, resultado de prueba `CP-08` y demostración cuando exista.
 
 
-### US09 · Portada de acceso público
+### US09 · Portada pública de asistencia
 
 **Como** Visitante, **quiero** conocer el taller sin necesidad de crear una cuenta.
 
 - **Prioridad / estimación:** Alta, 3 puntos.
 - **Dependencia:** Ninguna.
-- **Criterios verificables:** Home pública sin redirección forzosa; servicios visibles; login opcional.
+- **Criterios verificables:** Portada pública con ayuda, servicios y sucursales; login discreto para clientes habilitados, sin carrito ni registro autónomo.
 - **Evidencia futura:** Issue `US09`, PR vinculado, resultado de prueba `CP-09` y demostración cuando exista.
 
 
-### US10 · Catálogo público de servicios
+### US10 · Catálogo informativo de asistencia
 
 **Como** Visitante, **quiero** explorar tipos y descripciones de servicios.
 
 - **Prioridad / estimación:** Alta, 5 puntos.
 - **Dependencia:** US09.
-- **Criterios verificables:** Accesible sin cookie; sin datos de expedientes; navegación a contacto o regreso.
+- **Criterios verificables:** Información pública de asistencia sin cookie, stock ni expedientes; no permite comprar, registrar motos o reservar automáticamente.
 - **Evidencia futura:** Issue `US10`, PR vinculado, resultado de prueba `CP-10` y demostración cuando exista.
 
 
@@ -147,7 +149,7 @@
 
 - **Prioridad / estimación:** Media, 8 puntos.
 - **Dependencia:** US09.
-- **Criterios verificables:** Datos mínimos y privacidad; solicitud pendiente y no cita confirmada; protección ante abuso.
+- **Criterios verificables:** Contacto informativo con datos mínimos y privacidad, sin generar cuentas, ventas o citas confirmadas; protección ante abuso.
 - **Evidencia futura:** Issue `US12`, PR vinculado, resultado de prueba `CP-12` y demostración cuando exista.
 
 
@@ -262,3 +264,7 @@
 6. **Ampliaciones sujetas a decisión:** US18–US20, US22.
 
 La historia sin criterio verificable o contrato acordado permanece en Backlog/Preparado; no debe indicarse como completada.
+
+## Reglas de producto posteriores a V5
+
+US02: cuenta habilitada en sucursal. US04: asesor autorizado registra y verifica. US08: solo motos propias o estado vacío. US09/US10: asistencia pública, no venta. US12: contacto no equivale a registro/compra. US21: permisos de alta y consultas en backend.

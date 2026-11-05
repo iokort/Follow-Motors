@@ -10,8 +10,8 @@ flowchart LR
   Asesor["Asesor"]
   Mecanico["Mecánico"]
   subgraph Publica["Web pública"]
-    Inicio["US09 · Portada"]
-    Catalogo["US10 · Catálogo"]
+    Inicio["US09 · Portada de asistencia"]
+    Catalogo["US10 · Catálogo informativo"]
     FAQ["US11 · Información"]
     Contacto["US12 · Contacto"]
   end
@@ -23,7 +23,7 @@ flowchart LR
     Solicitar["US14 · Solicitar servicio"]
   end
   subgraph Taller["Operación del taller"]
-    Alta["US04 · Alta cliente y moto"]
+    Alta["US04 · Alta presencial"]
     Editar["US05 · Administración"]
     Agenda["US06 · Agenda"]
     Servicio["US07 · Mantenimiento"]
@@ -47,6 +47,7 @@ flowchart LR
   Gerente --> Agenda
   Gerente --> Servicio
   Gerente --> Resumen
+  Asesor --> Alta
   Asesor --> Asesoria
   Mecanico --> Ordenes
   Auth -.-> Login
@@ -56,3 +57,5 @@ flowchart LR
 ```
 
 Los módulos futuros US18, US19, US20 y US22 no se consideran parte del alcance mínimo hasta la aprobación del negocio.
+
+**No hay caso de uso público para autorregistro, compra ni vinculación de motos.** La web pública informa; la plataforma privada da asistencia solo a propietarios verificados.

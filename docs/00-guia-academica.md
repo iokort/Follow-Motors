@@ -6,6 +6,7 @@ Este índice presenta los entregables de ingeniería de software para revisión 
 
 | Artefacto | Archivo | Naturaleza |
 | --- | --- | --- |
+| **Alcance vigente de posventa** | [Reglas de producto](alcance-posventa.md) · [ADR-0005](adr/0005-alta-presencial-posventa.md) | Prioridad sobre planificación anterior |
 | Problema, objetivos y alcance | [Marco teórico y problema](marco-teorico.md) | Análisis |
 | Metodología y roles Scrum + Kanban | [Guía de trabajo](scrum-kanban.md) | Propuesta de operación |
 | Product backlog con 22 US | [Historias y priorización](backlog-v5.md) | Línea base V5; revalidar en refinamiento |
@@ -36,3 +37,5 @@ La base técnica contiene una API ASP.NET Core para comprobar salud, una conexi�
 ## Fuente de planificación
 
 Se tomó como línea base el documento interno *Follow Motors: planificación integral, versión 5.0* (30 de octubre de 2026), de 62 páginas. Los 22 identificadores US, estimaciones y 15 propuestas CRC proceden de esa planificación; las prioridades y estimaciones pueden cambiar tras la revisión del equipo.
+
+[Publicación GitHub](github-publicacion.md) · [Plantilla Wiki Home](wiki/Home.md).

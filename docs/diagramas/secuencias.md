@@ -60,3 +60,31 @@ sequenceDiagram
 ```
 
 Estos diagramas necesitan pruebas con datos ficticios y validación de permisos cuando exista el código.
+
+## US04 — Registro presencial por asesor
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Asesor as Asesor de sucursal
+  participant UI as Interfaz privada
+  participant API as API C#
+  participant RBAC as Autorizacion
+  participant Alta as GestorClientes
+  participant DB as MySQL
+  Asesor->>UI: Verificar cliente y motocicleta
+  UI->>API: Solicitud de alta autenticada
+  API->>RBAC: Comprobar permiso
+  alt No autorizado
+    RBAC-->>API: Denegado
+    API-->>UI: 403
+  else Autorizado
+    API->>Alta: Alta y vinculacion validada
+    Alta->>DB: Transaccion y auditoria
+    DB-->>Alta: Confirmacion
+    Alta-->>API: Registro confirmado
+    API-->>UI: Expediente habilitado
+  end
+```
+
+La verificación de identidad y entrega de credenciales son procedimientos pendientes de aprobar con sucursal.

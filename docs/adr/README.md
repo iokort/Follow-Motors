@@ -17,5 +17,6 @@ Cada decisión técnica importante se documenta en un archivo `NNNN-descripcion.
 | ADR-0002 | MySQL relacional y migraciones versionadas | Propuesta |
 | ADR-0003 | MVVM ligero en JavaScript; backend ASP.NET Core modular | Propuesta |
 | ADR-0004 | Estrategia de hosting y despliegue con rollback | Pendiente |
+| [ADR-0005](0005-alta-presencial-posventa.md) | Alta presencial y portal exclusivo de asistencia | Decisión vigente; implementación pendiente |
 
 Los ADR no son acuerdos aceptados hasta que conste revisión y responsable de decisión.

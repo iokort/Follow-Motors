@@ -1,5 +1,7 @@
 # Plan de trabajo — Follow Motors
 
+**Alcance vigente:** asistencia y posventa, sin alta pública ni ventas; asesores autorizados crean expedientes en sucursal. [ADR-0005](adr/0005-alta-presencial-posventa.md).
+
 Este plan es **secuencial por dependencias**, no tiene fechas inventadas. Se actualiza mediante Issues y PR. La versión anterior en iokort.com/follow-motors es referencia de procesos, no fuente única de requisitos.
 
 ## Fase 0 · Gobierno y entorno

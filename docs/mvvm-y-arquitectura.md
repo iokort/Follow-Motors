@@ -4,6 +4,8 @@
 
 Follow Motors es una **web HTML/CSS/JavaScript con API ASP.NET Core en C# y MySQL**, no una aplicación .NET MAUI. Se propone **MVVM ligero en el frontend** para separar vista, estado y modelo, sin introducir React, Angular o bibliotecas obligatorias. El patrón es un objetivo de refactorización, no algo ya implementado en todos los módulos.
 
+**Regla de producto vigente:** altas y vinculaciones en sucursal por asesor autorizado, nunca mediante autorregistro público; portal privado limitado a motocicletas del titular. [Alcance](alcance-posventa.md).
+
 ## Diseño lógico propuesto
 
 ```mermaid

@@ -2,7 +2,7 @@
 
 ## 1. Contexto del problema
 
-El sistema actual sirve como referencia de un taller de motocicletas que necesita gestionar clientes, vehículos, citas, kilometraje, servicios e historial. En la documentación de la versión V5 se describe persistencia en el navegador y control de roles en JavaScript. Esta arquitectura no garantiza consistencia entre dispositivos ni protección de recursos privados. El rediseño plantea navegación pública y datos centralizados con una API que autorice cada operación.
+El sistema actual sirve como referencia de un taller de motocicletas que necesita gestionar clientes, vehículos, citas, kilometraje, servicios e historial. En la documentación de la versión V5 se describe persistencia en el navegador y control de roles en JavaScript. Esta arquitectura no garantiza consistencia entre dispositivos ni protección de recursos privados. El rediseño plantea navegación pública de asistencia y posventa, y datos centralizados con una API que autorice cada operación. El cliente y sus motocicletas los registra presencialmente un asesor autorizado; no hay autorregistro por internet.
 
 **Pregunta de ingeniería:** ¿Cómo separar información pública y operaciones privadas, centralizando datos e historial, con una estructura modular y una evolución incremental verificable?
 
@@ -10,7 +10,7 @@ El sistema actual sirve como referencia de un taller de motocicletas que necesit
 
 Los requisitos funcionales expresan comportamientos del sistema; los no funcionales delimitan seguridad, accesibilidad, rendimiento, usabilidad y mantenibilidad. Las historias de usuario concretan actor, necesidad y valor esperado. Cada historia requiere criterios de aceptación reproducibles y trazabilidad `US → RF → interfaz → endpoint → prueba`.
 
-En Follow Motors, el requisito de acceso público no debe quedar condicionado por el login. Las acciones privadas requieren autenticación y autorización del servidor.
+En Follow Motors, la ayuda pública no requiere login, pero no incluye ventas ni creación de cuentas. El portal privado solo puede mostrar motocicletas vinculadas a su titular. Las acciones privadas requieren autenticación y autorización del servidor.
 
 ## 3. Desarrollo ágil, Scrum y Kanban
 

@@ -1,5 +1,8 @@
 # Follow Motors
 
+> **Asistencia y posventa:** el cliente se da de alta presencialmente por un asesor autorizado; no hay autorregistro ni venta en esta web. El portal privado solo muestra motocicletas vinculadas. [Alcance vigente](docs/alcance-posventa.md) · [ADR-0005](docs/adr/0005-alta-presencial-posventa.md).
+
+
 Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje, servicios y garantías. La versión previa en [iokort.com/follow-motors](https://iokort.com/follow-motors) se mantiene como **referencia funcional** y no será sobrescrita automáticamente.
 
 ## Expediente académico y metodología
@@ -12,6 +15,8 @@ Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje,
 - **[Marco teórico](docs/marco-teorico.md)**: fundamento con referencias.
 - **[Stakeholders y RACI](docs/stakeholders-raci.md)** · **[Trazabilidad](docs/trazabilidad-y-evidencias.md)**.
 - **[Kanban público SSC](https://github.com/orgs/iokort/projects/1)** · **[Discussions](https://github.com/iokort/Follow-Motors/discussions)**.
+
+- **[Guía de GitHub: Wiki, Topics, Packages y Releases](docs/github-publicacion.md)**.
 
 ## Equipo y asignación
 
