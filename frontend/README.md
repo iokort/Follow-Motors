@@ -1,4 +1,4 @@
-# Frontend — Víctor
+# Frontend — Vixtor Fernando
 
 Punto de partida: `index.html`, `css/styles.css`, `js/app.js` y `js/api.js`.
 

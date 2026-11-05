@@ -3,7 +3,7 @@
 Follow Motors se reconstruye por cuatro responsables, sin reemplazar la versión productiva.
 
 1. Inspeccionar archivos existentes antes de editar; intervenir solo lo indispensable.
-2. La propiedad funcional es: Kort=backend/integración, Gael=MySQL, Víctor=frontend, Aarón=documentación. No asumir cuentas GitHub hasta verificarlas.
+2. La propiedad funcional es: Kort=backend/integración, Gael=MySQL, Vixtor Fernando=frontend, Aarón=documentación. No asumir cuentas GitHub hasta verificarlas.
 3. Respetar convenciones de `CONTRIBUTING.md`, arquitectura y contratos de `docs/`.
 4. Aplicar SOLID con criterio: simplicidad y comprobabilidad por encima de capas artificiales.
 5. Antes de inventar una tabla, endpoint o regla de negocio, documentar propuesta para aprobación del equipo.
