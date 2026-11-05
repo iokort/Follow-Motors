@@ -7,6 +7,7 @@ using FollowMotors.Api.Domain.Agenda;
 var test = new AgendaSpecs();
 await test.RunAsync();
 Console.WriteLine("US06/US15: pruebas funcionales de negocio correctas.");
+await IntegrationSpecs.RunIfConfiguredAsync();
 
 internal sealed class AgendaSpecs
 {

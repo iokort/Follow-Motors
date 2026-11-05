@@ -56,7 +56,6 @@ public sealed class AuthController(IStaffAuthService authService) : ControllerBa
     /// <summary>Eliminar la sesión al terminar el trabajo en sucursal.</summary>
     [HttpPost("logout")]
     [Authorize]
-    [Consumes("application/json")]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
