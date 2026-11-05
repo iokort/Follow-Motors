@@ -5,7 +5,7 @@
 2. Desde la raíz, copiar `.env.example` a `.env` y cambiar ambas contraseñas de ejemplo.
 3. Ejecutar `docker compose up -d --build`.
 4. Abrir `http://localhost:5099/api/v1/health` y `http://localhost:5099/api/v1/health/database`.
-5. Servir `frontend/` por HTTP local en puerto 5500, por ejemplo con Live Server.
+5. **Tras integrar Angular del PR #15**, ejecutar `npm install` y `npm start` desde `frontend/` y abrir `http://localhost:4200`. El prototipo de `main` sigue siendo temporal.
 
 MySQL se publica **solo** en `127.0.0.1:3307`, la API en `127.0.0.1:5099`. No se publican credenciales. `docker compose down` detiene servicios sin borrar el volumen de MySQL. Evitar `down -v` salvo intención explícita de eliminar datos.
 

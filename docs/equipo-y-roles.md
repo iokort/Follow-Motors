@@ -4,16 +4,16 @@
 
 | Integrante / GitHub | Rol del proyecto | Entrega principal | Decisiones y revisión |
 | --- | --- | --- | --- |
-| Kort · @kortCobein | Líder técnico e integrador de sistemas | Backend C#, API, integración frontend/API, arquitectura y releases | Define contratos con el equipo; revisa integración y cambios entre áreas |
-| Gael · @G43LEX | Responsable de datos / ingeniero de base de datos | Modelo ER, MySQL, migraciones, índices, integridad y datos de prueba | Revisa cualquier cambio de esquema o consulta relevante |
-| Vixtor Fernando · @fernandoohiti25 | Responsable de frontend | HTML, CSS, JavaScript, interfaz responsive, accesibilidad y consumo de API | Revisa cambios de interfaz y acuerda contratos JSON con Kort |
-| Aarón · @Aaron262005 | Analista funcional y responsable de documentación | Requisitos, casos de uso, criterios de aceptación, manuales y registro de decisiones | Revisa documentación y coteja requisitos con resultados, sin suplantar pruebas técnicas |
+| Kort · @kortCobein | Backend Developer | Backend C#, API, integración frontend/API, arquitectura y releases | Define contratos con el equipo; revisa integración y cambios entre áreas |
+| Gael · @G43LEX | Database Manager | Modelo ER, MySQL, migraciones, índices, integridad y datos de prueba | Revisa cualquier cambio de esquema o consulta relevante |
+| Vixtor Fernando · @fernandoohiti25 | Frontend Designer & Developer | Angular 22, TypeScript, MVVM, accesibilidad y consumo de API | Revisa cambios de interfaz y acuerda contratos JSON con Kort |
+| Aarón · @Aaron262005 | Project Manager y documentación | Requisitos, casos de uso, criterios de aceptación, manuales y registro de decisiones | Revisa documentación y coteja requisitos con resultados, sin suplantar pruebas técnicas |
 
 ## Autoridad y decisiones
 
 - Cada responsable decide la implementación de su área dentro de los contratos aprobados.
 - Las modificaciones entre áreas (campos, JSON, errores, migraciones) se acuerdan entre sus responsables **antes** del cambio.
-- Kort coordina el ensamblaje, pero la revisión se realiza entre pares; nadie aprueba su propio PR.
+- Aarón coordina la gestión; Gael, el enfoque de producto; Kort, la integración técnica. Las revisiones se realizan entre pares; nadie aprueba su propio PR.
 - Aarón documenta los acuerdos y mantiene trazabilidad entre Issues, requisitos, pruebas y manuales.
 - El equipo valida la aceptación de una funcionalidad completa antes de llevarla a `main`.
 
