@@ -1,5 +1,7 @@
 # Tarjetas CRC — Follow Motors
 
+**Ampliación por historias:** [180 fichas contextuales, 20 para cada US01–US08 y US21](crc/README.md). Este documento conserva las 15 CRC originales como línea base compartida.
+
 **CRC** significa *Class, Responsibility, Collaborator*. Cada tarjeta representa responsabilidades y relaciones entre componentes; **no garantiza que ya exista la clase en C#**. Estas 15 tarjetas son propuestas de diseño derivadas del expediente V5 y deben revisarse conforme se implementen los módulos.
 
 ## Conjunto de tarjetas
