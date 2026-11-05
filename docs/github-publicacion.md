@@ -7,7 +7,7 @@ Todos los comandos siguientes están pensados para **Git CMD** y son independien
 GitHub organiza repositorios con Topics; son diferentes de las etiquetas de Issues y de los Git tags de versiones.
 
 ```cmd
-gh repo edit iokort/Follow-Motors --add-topic "follow-motors,ssc,software-engineering,after-sales,motorcycles,aspnetcore,csharp,mysql,javascript,scrum,kanban,mvvm"
+gh repo edit iokort/Follow-Motors --add-topic "follow-motors,ssc,software-engineering,after-sales,motorcycles,aspnetcore,csharp,mysql,angular,typescript,scrum,kanban,mvvm"
 ```
 
 Este comando añade Topics sin sustituir los existentes.

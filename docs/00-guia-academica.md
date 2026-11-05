@@ -12,6 +12,7 @@ Este índice presenta los entregables de ingeniería de software para revisión 
 | Product backlog con 22 US | [Historias y priorización](backlog-v5.md) | Línea base V5; revalidar en refinamiento |
 | Diseño orientado a objetos | [15 CRC base](tarjetas-crc.md) · [180 fichas contextuales](crc/README.md) | Ampliación de 9 historias, diseño propuesto |
 | [Diagramas de casos de uso, clases y secuencias](diagramas/README.md) | Modelos propuestos | Referencia para revisión | 
+| **Stack definitivo: Angular + C# + MySQL** | [ADR-0006](adr/0006-angular-frontend.md) | Decisión técnica |
 | Arquitectura y MVVM | [Arquitectura de presentación y API](mvvm-y-arquitectura.md) | Diseño, no implementación terminada |
 | Actores y RACI | [Stakeholders y responsabilidades](stakeholders-raci.md) | Análisis |
 | Plan y fases técnicas | [Plan existente](plan-de-trabajo.md) | Planificación |

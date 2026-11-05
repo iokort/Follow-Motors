@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | Kort | @kortCobein | Arquitectura, backend C# e integración |
 | Gael | @G43LEX | MySQL, datos y migraciones |
-| Vixtor Fernando | @fernandoohiti25 | Frontend HTML/CSS/JS |
+| Vixtor Fernando | @fernandoohiti25 | Frontend Angular/TypeScript |
 | Aarón | @Aaron262005 | Análisis, documentación y seguimiento |
 
 ## Cómo colaboramos
