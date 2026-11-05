@@ -1,5 +1,7 @@
 # Plan de trabajo — Follow Motors
 
+> **Plan vigente para exponer y desarrollar:** [Scrum SSC](scrum-plan-ssc.md), [4 épicas / 12 US / 144 CRC](epicas/README.md), [reglas confirmadas](reglas-negocio-ssc.md). El contenido de esta página es un plan anterior conservado como referencia de fases; no prevalece sobre las reglas de noviembre de 2026.
+
 Este plan es **secuencial por dependencias**, no tiene fechas inventadas. Se actualiza mediante Issues y PR. La versión anterior en iokort.com/follow-motors es referencia de procesos, no fuente única de requisitos.
 
 ## Fase 0 · Gobierno y entorno
