@@ -2,12 +2,33 @@
 
 **Responsable:** Kort · **Base de datos MySQL V3:** Gael · **Frontend Angular/MVVM:** Fernando.
 
-La API incluye los endpoints de salud existentes y dos historias implementadas en C# bajo el plan Scrum del equipo:
+La API incluye los endpoints de salud existentes, autenticación de gerente demostrable sin base de datos (**US01**) y las operaciones de agenda de dos historias ya existentes:
 
 - **US06 (#21):** crear citas del taller para CFMOTO ya registrada o motocicleta de otra marca (`EXTERNA`), sin crear cuentas/motos ajenas en la base.
 - **US15 (#30):** consultar agenda diaria, consultar detalle, reprogramar y cancelar citas, guardando auditoría.
 
 El cliente sigue solicitando por WhatsApp; **solo el personal autorizado** usa las operaciones de agenda.
+
+## US01 — login de gerente de demostración (sin MySQL)
+
+La US01 [incluye sus 12 CRC y enlaces al código](../docs/epicas/E01-identidad-acceso/US01.md). **El modo demo solo se activa en Development** y requiere definir una cuenta ficticia al ejecutar. No incluye contraseñas en Git, no crea una base de datos y no modifica el login MySQL que utiliza el resto del sistema.
+
+Desde **PowerShell** en la raíz del repositorio:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+$env:Auth__Demo__Enabled = "true"
+$env:Auth__Demo__Correo = "gerente@example.invalid"
+$env:Auth__Demo__Contrasena = "SoloPrueba123!"
+$env:Auth__Demo__Nombre = "Gerente de demostración"
+dotnet run --project backend/FollowMotors.Api/FollowMotors.Api.csproj
+```
+
+Enviar `POST http://localhost:5099/api/v1/auth/staff-login` con JSON `{"correo":"gerente@example.invalid","contrasena":"SoloPrueba123!"}`. El servidor genera una cookie de sesión; `GET /api/v1/auth/me` requiere enviar esa cookie y devuelve nombre/permisos. Una contraseña incorrecta, otro correo o una cuenta inactiva (`Auth__Demo__Activo=false`) devuelve 401. `POST /api/v1/auth/logout` cierra la sesión. No se implementa un login separado ni se conecta todavía la vista Angular.
+
+Para volver al login MySQL, quitar `Auth__Demo__Enabled` (o establecer `false`) y configurar la conexión de desarrollo. **Nunca usar este usuario ficticio en un despliegue real**: en Production el código siempre utiliza `MySqlStaffAuthService`.
+
+Pruebas automáticas sin MySQL: `dotnet run --project backend/FollowMotors.Api.Specs/FollowMotors.Api.Specs.csproj`.
 
 ## Ejecutar localmente
 
