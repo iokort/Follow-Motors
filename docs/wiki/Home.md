@@ -2,6 +2,14 @@
 
 **Portal de asistencia y posventa para clientes y motocicletas admitidos por la empresa.** El alta de clientes se realiza únicamente con personal autorizado en sucursal. La información pública es de soporte, **no una página de ventas**.
 
+## Contenidos de la Wiki
+
+- [Alcance y operación de sucursal](Alcance-y-Sucursal)
+- [Scrum y Kanban](Scrum-y-Kanban)
+- [Arquitectura y MVVM](Arquitectura-y-MVVM)
+- [Historias y CRC](Historias-y-CRC)
+- [Equipo SSC](Equipo-SSC)
+
 ## Acceso al proyecto
 
 - [Repositorio y código](https://github.com/iokort/Follow-Motors)

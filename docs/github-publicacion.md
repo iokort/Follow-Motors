@@ -21,9 +21,9 @@ Después de crear Home, los cambios posteriores podrán actualizarse desde Git C
 ```cmd
 cd ..
 git clone https://github.com/iokort/Follow-Motors.wiki.git
-copy Follow-Motors\docs\wiki\Home.md Follow-Motors.wiki\Home.md
+xcopy Follow-Motors\docs\wiki\*.md Follow-Motors.wiki\ /Y
 cd Follow-Motors.wiki
-git add Home.md
+git add .
 git commit -m "docs(wiki): portal academico Follow Motors"
 git push
 ```
