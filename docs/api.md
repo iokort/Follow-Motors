@@ -13,11 +13,11 @@ Versión inicial de rutas: `/api/v1`; cuerpo y respuestas en JSON.
 ## Por diseñar con el equipo
 | Área | Contrato | Responsable |
 | --- | --- | --- |
-| Login/registro | Pendiente | Kort, Víctor |
-| Clientes y cuentas | Pendiente | Kort, Gael, Víctor |
-| Unidades | Pendiente | Kort, Gael, Víctor |
-| Kilometraje | Pendiente | Kort, Gael, Víctor |
-| Agenda y servicios | Pendiente | Kort, Gael, Víctor |
-| Garantías | Pendiente | Kort, Gael, Víctor |
+| Login/registro | Pendiente | Kort, Vixtor Fernando |
+| Clientes y cuentas | Pendiente | Kort, Gael, Vixtor Fernando |
+| Unidades | Pendiente | Kort, Gael, Vixtor Fernando |
+| Kilometraje | Pendiente | Kort, Gael, Vixtor Fernando |
+| Agenda y servicios | Pendiente | Kort, Gael, Vixtor Fernando |
+| Garantías | Pendiente | Kort, Gael, Vixtor Fernando |
 
 Para cada ruta se documentará método, URL, actor/rol, parámetros, DTO JSON, respuesta exitosa, validaciones, errores HTTP y pruebas. No introducir rutas especulativas como si estuvieran aprobadas.

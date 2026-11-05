@@ -3,7 +3,7 @@
 ## Responsables
 - **Kort:** API ASP.NET Core, integración con frontend y coordinación técnica.
 - **Gael:** MySQL, modelo relacional, migraciones y consultas.
-- **Víctor:** HTML, CSS, JavaScript, accesibilidad y componentes de interfaz.
+- **Vixtor Fernando:** HTML, CSS, JavaScript, accesibilidad y componentes de interfaz.
 - **Aarón:** requisitos, casos de uso, manuales y documentos del proyecto.
 
 `main` = estable, `develop` = integración; las ramas `feature/backend`, `feature/database`, `feature/frontend`, `feature/docs` son áreas de referencia. Se recomiendan ramas por tarea (`feature/<descripcion>`, `fix/<descripcion>`, `docs/<descripcion>`) nacidas de `develop` cuando existan trabajos simultáneos.

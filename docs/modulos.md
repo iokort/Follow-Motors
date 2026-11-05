@@ -12,7 +12,7 @@ Vistas observadas en el sitio actual de Follow Motors (Hostinger):
 ## Trabajo previo a implementación
 
 Aarón documenta propósito, actores, entradas/salidas, reglas y criterios de aceptación de cada flujo.
-Víctor define interfaz y campos necesarios.
+Vixtor Fernando define interfaz y campos necesarios.
 Gael propone entidades y relaciones.
 Kort consolida el contrato de API y conecta frontend con backend.
 

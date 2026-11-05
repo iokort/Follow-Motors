@@ -1,2 +1,11 @@
-# Revisión general. Ajustar al conocer las cuentas GitHub del equipo.
+# Follow Motors - responsables de revisión
+# La propiedad del código requiere acceso de escritura.
+# No implica permisos exclusivos para modificar las ramas.
 * @kortCobein
+
+/backend/ @kortCobein @fernandoohiti25
+/database/ @G43LEX @kortCobein
+/frontend/ @fernandoohiti25 @kortCobein
+/docs/ @Aaron262005 @kortCobein
+/.github/ @kortCobein @Aaron262005
+/scripts/ @kortCobein
