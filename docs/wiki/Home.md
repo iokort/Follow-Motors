@@ -14,13 +14,13 @@
 
 ## Documentación académica
 
-- [Guía de entregables](https://github.com/iokort/Follow-Motors/blob/docs/academia-scrum-kanban-crc/docs/00-guia-academica.md)
-- [Decisión de negocio: alta presencial](https://github.com/iokort/Follow-Motors/blob/docs/academia-scrum-kanban-crc/docs/adr/0005-alta-presencial-posventa.md)
-- [Scrum y Kanban](https://github.com/iokort/Follow-Motors/blob/docs/academia-scrum-kanban-crc/docs/scrum-kanban.md)
-- [Backlog de 22 US](https://github.com/iokort/Follow-Motors/blob/docs/academia-scrum-kanban-crc/docs/backlog-v5.md)
-- [CRC: 180 fichas de análisis](https://github.com/iokort/Follow-Motors/blob/docs/academia-scrum-kanban-crc/docs/crc/README.md)
-- [MVVM, SOLID, API y MySQL](https://github.com/iokort/Follow-Motors/blob/docs/academia-scrum-kanban-crc/docs/mvvm-y-arquitectura.md)
-- [Marco teórico con referencias](https://github.com/iokort/Follow-Motors/blob/docs/academia-scrum-kanban-crc/docs/marco-teorico.md)
+- [Guía de entregables](https://github.com/iokort/Follow-Motors/blob/main/docs/00-guia-academica.md)
+- [Decisión de negocio: alta presencial](https://github.com/iokort/Follow-Motors/blob/main/docs/adr/0005-alta-presencial-posventa.md)
+- [Scrum y Kanban](https://github.com/iokort/Follow-Motors/blob/main/docs/scrum-kanban.md)
+- [Backlog de 22 US](https://github.com/iokort/Follow-Motors/blob/main/docs/backlog-v5.md)
+- [CRC: 180 fichas de análisis](https://github.com/iokort/Follow-Motors/blob/main/docs/crc/README.md)
+- [MVVM, SOLID, API y MySQL](https://github.com/iokort/Follow-Motors/blob/main/docs/mvvm-y-arquitectura.md)
+- [Marco teórico con referencias](https://github.com/iokort/Follow-Motors/blob/main/docs/marco-teorico.md)
 
 ## Equipo
 

@@ -2,7 +2,7 @@
 
 El [catálogo inicial de 15 CRC](../tarjetas-crc.md) procedía de la planificación y el catálogo original. La ampliación organiza **20 fichas contextuales por cada historia US01–US08**, más **US21** como control transversal.
 
-**9 historias × 20 asociaciones = 180 fichas**, construidas sobre **104 componentes/conceptos reutilizables**. Las fichas repetidas de una misma clase comparten definición; **no son 180 clases diferentes ni 180 archivos C# implementados**.
+**9 historias × 20 asociaciones = 180 fichas**, construidas sobre **105 componentes/conceptos reutilizables**. Las fichas repetidas de una misma clase comparten definición; **no son 180 clases diferentes ni 180 archivos C# implementados**.
 
 | Historia | Área | Fichas CRC |
 | --- | --- | ---: |
