@@ -2,7 +2,7 @@
 
 ```text
     Navegador
-(HTML + CSS + JavaScript)
+(Angular 22 + TypeScript + MVVM)
         |
         | HTTP(S) / JSON
         v
@@ -18,12 +18,12 @@
 - `backend/FollowMotors.Api`: servicio web mínimo con endpoint `GET /api/v1/health`.
 - `Infrastructure/IDatabaseConnectionFactory.cs`: contrato de fábrica de conexiones, sin imponer repositorios todavía.
 - `GET /api/v1/health/database`: comprueba conectividad MySQL solo en Development; no muestra secretos.
-- `frontend/`: pantalla base y cliente HTTP en `js/api.js`; no representa el diseño final.
+- `frontend/` en `main` conserva un prototipo HTML/JS temporal. La base Angular con MVVM está en el PR #15, pendiente de integración.
 - `compose.yaml`: MySQL local persistente y contenedor de API para desarrollo.
 - `.github/workflows/ci.yml`: validaciones automáticas, aún sujetas a resultados de ejecución remota.
 
 ## Límites de responsabilidad
-- **Frontend:** interfaz, estado visual, interacción y consumo de API. No tiene acceso SQL.
+- **Frontend Angular MVVM:** View en plantillas/componentes; ViewModel con signals y acciones; Model mediante DTO y HttpClient. No tiene acceso SQL.
 - **Backend:** reglas de negocio, validaciones del servidor, permisos y respuesta HTTP.
 - **MySQL:** persistencia, integridad, migraciones versionadas y restricciones.
 - **Documentación:** requisitos, casos de uso, contratos y manuales.

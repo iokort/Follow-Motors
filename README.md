@@ -6,18 +6,20 @@ Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje,
 
 | Integrante | Encargado de | Rama de área |
 | --- | --- | --- |
-| Kort (@kortCobein) | Backend ASP.NET Core (C#) e integración con frontend; coordinación | `feature/backend` |
-| Gael (@G43LEX) | Base de datos MySQL, modelo relacional y migraciones | `feature/database` |
-| Vixtor Fernando (@fernandoohiti25) | Frontend HTML, CSS y JavaScript | `feature/frontend` |
-| Aarón (@Aaron262005) | Requisitos, casos de uso y documentación | `feature/docs` |
+| Kort (@kortCobein) | **Backend Developer:** C# y ASP.NET Core .NET 10; integración técnica | `feature/backend` |
+| Gael (@G43LEX) | **Database Manager:** MySQL y enfoque del producto | `feature/database` |
+| Vixtor Fernando (@fernandoohiti25) | **Frontend Designer & Developer:** Angular 22, TypeScript, MVVM y CSS | `feature/frontend` |
+| Aarón (@Aaron262005) | **Project Manager:** gestión y documentación | `feature/docs` |
 
-## Stack preparado
+## Stack definitivo acordado
 
 - Backend: **.NET 10 LTS**, ASP.NET Core Web API, MySqlConnector 2.6.2.
 - Base de datos: **MySQL 8.4**, contenedor local y almacenamiento persistente.
-- Frontend: HTML, CSS y JavaScript sin frameworks obligatorios.
-- Calidad: GitHub Actions con compilación de API, verificación de MySQL, pruebas JS y análisis CodeQL; Dependabot semanal.
-- Arquitectura: SOLID aplicado de forma pragmática, API REST bajo `/api/v1`.
+- **Frontend definitivo: Angular 22 + TypeScript con arquitectura MVVM** (plantillas HTML/CSS y estado reactivo con signals).
+- Calidad: CI de .NET/MySQL y CodeQL; compilación Angular/TypeScript preparada en PR #15.
+- Arquitectura: **MVVM en Angular** y **SOLID aplicado pragmáticamente en C#**; API REST bajo `/api/v1`.
+
+**Estado:** `main` aún contiene el prototipo HTML/JS anterior, **no es el stack final**. Angular está implementado en la rama del [PR #15](https://github.com/iokort/Follow-Motors/pull/15), pendiente de revisión e integración. El [PR #14](https://github.com/iokort/Follow-Motors/pull/14) también requiere adaptación al stack acordado.
 
 ## Inicio rápido
 
@@ -37,7 +39,7 @@ docker compose up -d --build
 | API | http://localhost:5099/api/v1/health |
 | Salud MySQL, solo Development | http://localhost:5099/api/v1/health/database |
 | MySQL | localhost:3307 (no accesible públicamente) |
-| Frontend | Servir `frontend/` por HTTP en puerto 5500 (ej. Live Server) |
+| Frontend Angular (tras aprobar PR #15) | `cd frontend`, `npm install`, `npm start` → http://localhost:4200 |
 
 Sin Docker, la API puede iniciarse con `dotnet run --project backend/FollowMotors.Api/FollowMotors.Api.csproj`. Configurar cadena de conexión mediante variable `ConnectionStrings__Default` si necesita acceder a MySQL externo a Compose.
 
@@ -45,7 +47,7 @@ Sin Docker, la API puede iniciarse con `dotnet run --project backend/FollowMotor
 
 ```text
 backend/FollowMotors.Api/      Proyecto ASP.NET Core, salud y conexión MySQL
-frontend/                      HTML/CSS/JS inicial, cliente HTTP, pruebas
+frontend/                      Prototipo temporal en main; Angular/MVVM propuesto en PR #15
 database/                      Área de diseño de Gael; tablas todavía no definidas
 docs/                          Arquitectura, API, requisitos y plan
 .github/                       CI, CodeQL, Dependabot, PR/Issues, CODEOWNERS
@@ -87,7 +89,9 @@ npm test
 
 ## Estado actual
 
-**Preparado:** API de salud, fábrica de conexión MySQL, entorno Docker, estructura frontend y pruebas iniciales.
+**Preparado en `main`:** API de salud, fábrica de conexión MySQL, Docker y frontend temporal.
+
+**Preparado en PR #15:** proyecto Angular 22 con MVVM, pendiente de integrar.
 
 **No implementado:** modelo de datos, autenticación, CRUD, clientes, unidades, servicios, agenda y garantías. Los cuatro responsables deben acordar esos requisitos. El sitio anterior continúa independiente.
 

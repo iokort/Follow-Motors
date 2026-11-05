@@ -1,10 +1,16 @@
 # Guía de colaboración
 
 ## Responsables
-- **Kort:** API ASP.NET Core, integración con frontend y coordinación técnica.
-- **Gael:** MySQL, modelo relacional, migraciones y consultas.
-- **Vixtor Fernando:** HTML, CSS, JavaScript, accesibilidad y componentes de interfaz.
-- **Aarón:** requisitos, casos de uso, manuales y documentos del proyecto.
+- **Aarón — Project Manager:** coordinación del proyecto y documentación.
+- **Gael — Database Manager:** MySQL y visión funcional.
+- **Vixtor Fernando — Frontend Designer & Developer:** **Angular 22 con TypeScript y MVVM**, componentes y estilos HTML/CSS.
+- **Kort — Backend Developer:** **ASP.NET Core .NET 10 (C#)** y coordinación de integración técnica.
+
+## Tecnologías obligatorias
+
+**Angular 22 + TypeScript + MVVM** para el frontend; **C# / .NET 10 + SOLID** para backend; **MySQL 8.4** para datos. HTML y CSS se emplean dentro de Angular, no como sustituto del framework.
+
+**Situación:** en `main` queda un prototipo antiguo de JavaScript; la implementación Angular está en el [PR #15](https://github.com/iokort/Follow-Motors/pull/15), todavía no integrada. El PR #14 de frontend debe revisarse contra esta decisión.
 
 `main` = estable, `develop` = integración; las ramas `feature/backend`, `feature/database`, `feature/frontend`, `feature/docs` son áreas de referencia. Se recomiendan ramas por tarea (`feature/<descripcion>`, `fix/<descripcion>`, `docs/<descripcion>`) nacidas de `develop` cuando existan trabajos simultáneos.
 
@@ -24,9 +30,9 @@ Rutas: `/api/v1`. Contratos: solicitudes/respuestas JSON con códigos HTTP. El f
 
 ## Comprobaciones locales
 - Backend: `dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj`.
-- Frontend: `cd frontend && npm run check && npm test`.
+- Frontend Angular tras integrar PR #15: en `frontend` ejecutar `npm install`, `npm run build` y `npm test`. En `main` aún permanece el prototipo anterior.
 - Integración local: `docker compose up -d --build` tras crear `.env`.
-- CI ejecuta compilación, pruebas JS, salud de API y salud de MySQL.
+- CI de `main` comprueba el prototipo actual; el PR #15 incorpora compilación Angular/TypeScript. La API se prueba con MySQL.
 
 ## Restricciones
 No subir credenciales, datos de clientes, respaldos o `.env`. No modificar producción desde `develop`, ni forzar pushes a ramas estables. No hacer migraciones destructivas sin plan de respaldo y aprobación expresa. No crear endpoints, tablas o funciones de negocio sin especificación.
