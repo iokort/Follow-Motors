@@ -51,34 +51,142 @@ internal static class IntegrationSpecs
         var factory = new MySqlConnectionFactory(config);
         var repository = new MySqlAgendaRepository(factory);
         var agenda = new AgendaService(repository, new AgendaPolicy(TimeProvider.System));
+        // PSEUDOCÓDIGO | Datos: declarar la variable de este escenario.
         var login = new MySqlStaffAuthService(factory);
+        // PSEUDOCÓDIGO | Datos: generar identificador distinto para una cuenta de prueba.
         var usuario = Guid.NewGuid();
+        // PSEUDOCÓDIGO | Datos: declarar la variable de este escenario.
         var correo = $"ci-agenda-{usuario:N}@example.invalid";
+        // PSEUDOCÓDIGO | Datos: generar identificador distinto para una cuenta de prueba.
         var password = Guid.NewGuid().ToString("N") + "$-solo-CI";
 
         // Este hash tiene el mismo formato ASP.NET Core Identity que comprueba
         // MySqlStaffAuthService. Se crea solo en la base efímera de pruebas.
+        // PSEUDOCÓDIGO | Proceso: crear el hash de contraseña para la base de CI.
         var hash = new PasswordHasher<object>().HashPassword(new object(), password);
+        // PSEUDOCÓDIGO | INICIO: utilizar recurso de MySQL que se libera al concluir.
         await using (var conn = factory.Create())
+        // PSEUDOCÓDIGO | INICIO: comenzar las instrucciones de esta prueba.
         {
+            // PSEUDOCÓDIGO | Proceso: abrir la conexión SQL del entorno temporal.
             await conn.OpenAsync();
+            // PSEUDOCÓDIGO | Proceso: preparar una sentencia para la base MySQL de CI.
             await using var cmd = new MySqlCommand("""
                 INSERT INTO usuarios(id, nombre, correo, hash_password)
                 VALUES (@Id, 'Gerente de integración', @Correo, @Hash);
                 INSERT INTO usuarios_roles(usuario_id, rol_codigo) VALUES (@Id, 'GERENTE');
                 """, conn);
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
             cmd.Parameters.AddWithValue("@Id", usuario.ToString());
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
             cmd.Parameters.AddWithValue("@Correo", correo);
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
             cmd.Parameters.AddWithValue("@Hash", hash);
+            // PSEUDOCÓDIGO | Proceso: ejecutar la consulta SQL de esta prueba.
             await cmd.ExecuteNonQueryAsync();
+        // PSEUDOCÓDIGO | FIN: terminar el bloque actual.
         }
 
+        // PSEUDOCÓDIGO | Proceso: solicitar al servicio una autenticación real con MySQL.
         var identidad = await login.LoginAsync(new StaffLoginRequest(correo, password), default);
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
         Check(identidad?.Id == usuario, "La sesión usa el ID del usuario real de V3.");
-        Check(identidad!.Permisos.Contains("agenda.crear"), "La autorización lee agenda.crear desde roles_permisos.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(identidad!.Roles.Contains("GERENTE"), "US01: rol GERENTE leído de MySQL V3.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(identidad.Permisos.Contains("agenda.crear"), "La autorización lee agenda.crear desde roles_permisos.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
         Check(identidad.Permisos.Contains("agenda.modificar"), "La autorización lee agenda.modificar desde roles_permisos.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
         Check(await login.LoginAsync(new StaffLoginRequest(correo, "Incorrecta"), default) is null,
-            "Contraseña inválida no genera sesión.");
+            // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+            "US01: contraseña inválida no genera sesión.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(await login.LoginAsync(new StaffLoginRequest("desconocido@example.invalid", password), default) is null,
+            // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+            "US01: correo inexistente no genera sesión.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(await login.LoginAsync(new StaffLoginRequest("", password), default) is null,
+            // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+            "US01: correo vacío no genera sesión.");
+
+        // Las dos cuentas siguientes existen SOLAMENTE en la base efímera de CI;
+        // no se generan usuarios predeterminados ni credenciales en producción.
+        // PSEUDOCÓDIGO | Datos: generar identificador distinto para una cuenta de prueba.
+        var asesorId = Guid.NewGuid();
+        // PSEUDOCÓDIGO | Datos: declarar la variable de este escenario.
+        var asesorCorreo = $"ci-asesor-{asesorId:N}@example.invalid";
+        // PSEUDOCÓDIGO | Datos: generar identificador distinto para una cuenta de prueba.
+        var inactivoId = Guid.NewGuid();
+        // PSEUDOCÓDIGO | Datos: declarar la variable de este escenario.
+        var inactivoCorreo = $"ci-inactivo-{inactivoId:N}@example.invalid";
+        // PSEUDOCÓDIGO | INICIO: utilizar recurso de MySQL que se libera al concluir.
+        await using (var conn = factory.Create())
+        // PSEUDOCÓDIGO | INICIO: comenzar las instrucciones de esta prueba.
+        {
+            // PSEUDOCÓDIGO | Proceso: abrir la conexión SQL del entorno temporal.
+            await conn.OpenAsync();
+            // PSEUDOCÓDIGO | Proceso: preparar una sentencia para la base MySQL de CI.
+            await using var cmd = new MySqlCommand("""
+                INSERT INTO usuarios(id, nombre, correo, hash_password)
+                VALUES (@Asesor, 'Asesor de CI', @CorreoAsesor, @Hash);
+                INSERT INTO usuarios_roles(usuario_id, rol_codigo)
+                VALUES (@Asesor, 'ASESOR');
+                INSERT INTO usuarios(id, nombre, correo, hash_password, activo)
+                VALUES (@Inactivo, 'Gerente inactivo CI', @CorreoInactivo, @Hash, 0);
+                INSERT INTO usuarios_roles(usuario_id, rol_codigo)
+                VALUES (@Inactivo, 'GERENTE');
+                """, conn);
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
+            cmd.Parameters.AddWithValue("@Asesor", asesorId.ToString());
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
+            cmd.Parameters.AddWithValue("@CorreoAsesor", asesorCorreo);
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
+            cmd.Parameters.AddWithValue("@Inactivo", inactivoId.ToString());
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
+            cmd.Parameters.AddWithValue("@CorreoInactivo", inactivoCorreo);
+            // PSEUDOCÓDIGO | Dato: asignar valor seguro a un parámetro SQL.
+            cmd.Parameters.AddWithValue("@Hash", hash);
+            // PSEUDOCÓDIGO | Proceso: ejecutar la consulta SQL de esta prueba.
+            await cmd.ExecuteNonQueryAsync();
+        // PSEUDOCÓDIGO | FIN: terminar el bloque actual.
+        }
+
+        // US01 / US21: tener acceso a la agenda no equivale al rol GERENTE.
+        // PSEUDOCÓDIGO | Proceso: solicitar al servicio una autenticación real con MySQL.
+        var asesor = await login.LoginAsync(new StaffLoginRequest(asesorCorreo, password), default);
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(asesor is not null && asesor.Roles.Contains("ASESOR") && !asesor.Roles.Contains("GERENTE"),
+            // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+            "US01: el asesor no recibe el rol GERENTE.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(asesor!.Permisos.Contains("agenda.ver"),
+            // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+            "US01: los permisos se conservan independientemente del rol.");
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(await login.LoginAsync(new StaffLoginRequest(inactivoCorreo, password), default) is null,
+            // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+            "US01: una cuenta inactiva no puede iniciar sesión.");
+
+        // Si un rol se desactiva en MySQL, ya no concede una sesión nueva.
+        // PSEUDOCÓDIGO | INICIO: utilizar recurso de MySQL que se libera al concluir.
+        await using (var conn = factory.Create())
+        // PSEUDOCÓDIGO | INICIO: comenzar las instrucciones de esta prueba.
+        {
+            // PSEUDOCÓDIGO | Proceso: abrir la conexión SQL del entorno temporal.
+            await conn.OpenAsync();
+            // PSEUDOCÓDIGO | Proceso: preparar una sentencia para la base MySQL de CI.
+            await using var cmd = new MySqlCommand(
+                // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+                "UPDATE roles SET activo = 0 WHERE codigo = 'ASESOR'", conn);
+            // PSEUDOCÓDIGO | Proceso: ejecutar la consulta SQL de esta prueba.
+            await cmd.ExecuteNonQueryAsync();
+        // PSEUDOCÓDIGO | FIN: terminar el bloque actual.
+        }
+        // PSEUDOCÓDIGO | Comparar SI: comprobar que se cumpla la condición esperada.
+        Check(await login.LoginAsync(new StaffLoginRequest(asesorCorreo, password), default) is null,
+            // PSEUDOCÓDIGO | FIN PROCESO: completar esta instrucción.
+            "US01: un rol desactivado no concede acceso.");
 
         var zona = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
         var inicio = TimeZoneInfo.ConvertTime(TimeProvider.System.GetUtcNow(), zona).DateTime

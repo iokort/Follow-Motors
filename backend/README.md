@@ -2,12 +2,31 @@
 
 **Responsable:** Kort · **Base de datos MySQL V3:** Gael · **Frontend Angular/MVVM:** Fernando.
 
-La API incluye los endpoints de salud existentes y dos historias implementadas en C# bajo el plan Scrum del equipo:
+La API incluye autenticación gerencial real (US01), endpoints de salud y dos historias de agenda en C# bajo el plan Scrum del equipo:
 
 - **US06 (#21):** crear citas del taller para CFMOTO ya registrada o motocicleta de otra marca (`EXTERNA`), sin crear cuentas/motos ajenas en la base.
 - **US15 (#30):** consultar agenda diaria, consultar detalle, reprogramar y cancelar citas, guardando auditoría.
 
 El cliente sigue solicitando por WhatsApp; **solo el personal autorizado** usa las operaciones de agenda.
+
+## US01 — Autenticación del gerente con MySQL V3
+
+**Documentación didáctica para capacitación del equipo SSC:** cada instrucción relevante del flujo de login contiene comentarios `// PSEUDOCÓDIGO` en español (datos, comparaciones, procesos, ciclos e inicio/fin). Los comentarios permiten estudiar cómo funciona el backend antes de integrar el frontend. No se cambió MySQL ni se introdujeron usuarios artificiales en el producto.
+
+
+[Historia US01 con 12 tarjetas CRC y enlaces al código](../docs/epicas/E01-identidad-acceso/US01.md).
+
+El inicio de sesión utiliza las tablas reales `usuarios`, `usuarios_roles`, `roles` y `roles_permisos` de Gael. No hay usuarios ni contraseñas de demostración en la API: la cuenta debe existir, estar activa y tener un hash `PasswordHasher<T>` válido. `GERENTE` y `ASESOR` no son lo mismo; el acceso gerencial requiere expresamente el rol `GERENTE`.
+
+1. Ejecutar los SQL V3 (00–05) en la base de desarrollo aislada. **No aplicar sobre producción sin coordinación**.
+2. Configurar `ConnectionStrings__Default` con el servidor, usuario y contraseña MySQL de tu entorno local (no subir secretos a Git).
+3. Iniciar la API con el comando de la sección siguiente.
+4. Consumir `POST /api/v1/auth/staff-login` con JSON `{"correo":"correo_registrado","contrasena":"contraseña_registrada"}`; el servidor devuelve la cookie firmada.
+5. Con esa cookie, consultar `GET /api/v1/auth/me` o `GET /api/v1/auth/gerencia/acceso`. Esta última devuelve **200** para GERENTE, **403** para otros roles y **401** sin sesión. Cerrar con `POST /api/v1/auth/logout`.
+
+La cookie es `HttpOnly`, `SameSite=Strict`, `Secure` en producción y caduca a las 6 horas. Angular consumirá la API desde el mismo origen; la UI todavía no está conectada. El backend no crea cuentas: el alta administrativa es otro caso de uso.
+
+**Pruebas de integración:** [`IntegrationSpecs.cs`](FollowMotors.Api.Specs/IntegrationSpecs.cs) valida la autenticación con MySQL V3 real en CI, incluyendo roles, permisos, cuentas activas/inactivas y contraseñas incorrectas.
 
 ## Ejecutar localmente
 
