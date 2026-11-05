@@ -19,17 +19,11 @@ builder.Services.AddSingleton<IDatabaseConnectionFactory, MySqlConnectionFactory
 builder.Services.AddScoped<IAgendaRepository, MySqlAgendaRepository>();
 builder.Services.AddScoped<IAgendaService, AgendaService>();
 builder.Services.AddScoped<AgendaPolicy>();
-// US01: para la exposición escolar, una cuenta temporal funciona sin base de datos.
-// Modo DEMO exclusivamente en Development y opt-in con variables de entorno.
-// En cualquier otro caso se conserva el login MySQL existente para US06/US15.
-if (builder.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("Auth:Demo:Enabled"))
-    builder.Services.AddScoped<IStaffAuthService, DemoStaffAuthService>();
-else
-    builder.Services.AddScoped<IStaffAuthService, MySqlStaffAuthService>();
+builder.Services.AddScoped<IStaffAuthService, MySqlStaffAuthService>();
 
 // ================================================================
 // Autenticación con cookies firmadas por ASP.NET Core.
-// - No se incrustan credenciales. La cuenta temporal de US01 requiere variables de entorno.
+// - No hay usuarios de ejemplo ni contraseñas incrustadas en código.
 // - Requiere una cuenta vigente de MySQL V3 con hash Identity PBKDF2.
 // - SameSite Strict, HttpOnly y Secure en producción.
 // - 401/403 en API en vez de redirección HTML a formulario.
@@ -61,7 +55,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // No confiar en los botones ocultos ni en roles enviados por el navegador.
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AgendaVer", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.ver"));
+    // US01: el servidor valida que el rol GERENTE exista en MySQL V3.\n    options.AddPolicy("Gerencia", p => p.RequireAuthenticatedUser().RequireRole("GERENTE"));\n    options.AddPolicy("AgendaVer", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.ver"));
     options.AddPolicy("AgendaCrear", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.crear"));
     options.AddPolicy("AgendaModificar", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.modificar"));
 });
