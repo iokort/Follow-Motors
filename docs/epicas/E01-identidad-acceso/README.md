@@ -10,4 +10,4 @@
 
 **US01:** [Código C# y trazabilidad de las 12 CRC](US01.md#implementación-en-c-y-trazabilidad) · [Pruebas sin MySQL](../../../backend/FollowMotors.Api.Specs/DemoAuthSpecs.cs). El login de demostración solo se activa en desarrollo; Angular sigue pendiente.
 
-**Trazabilidad:** las tarjetas son propuestas de responsabilidades y colaboraciones; no prueban que exista una clase física por tarjeta. [Volver al mapa de épicas](../README.md).
+**US01:** [Autenticación real MySQL V3, 12 CRC y pruebas](US01.md#implementación-y-vínculo-con-las-12-crc). Angular pendiente.\n\n**Trazabilidad:** las tarjetas son propuestas de responsabilidades y colaboraciones; no prueban que exista una clase física por tarjeta. [Volver al mapa de épicas](../README.md).
