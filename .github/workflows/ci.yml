@@ -62,6 +62,8 @@ jobs:
         run: dotnet restore backend/FollowMotors.Api/FollowMotors.Api.csproj
       - name: Compilar
         run: dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj --configuration Release --no-restore
+      - name: Pruebas C# US06/US15 y SOLID
+        run: dotnet run --project backend/FollowMotors.Api.Specs/FollowMotors.Api.Specs.csproj --configuration Release
       - name: Publicar
         run: dotnet publish backend/FollowMotors.Api/FollowMotors.Api.csproj --configuration Release --no-build --output ./artifacts/api
       - name: Probar API y conexión MySQL
