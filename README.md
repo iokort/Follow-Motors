@@ -79,12 +79,12 @@ El plan priorizado se organiza en **4 épicas, 12 historias de usuario (3 por é
 
 | Épica | Historias con sus 12 CRC por US | Resultado |
 | --- | --- | --- |
-| **[E01 · Identidad y permisos](docs/epicas/E01-identidad-acceso/README.md)** | [US01](docs/epicas/E01-identidad-acceso/US01.md) · [US02](docs/epicas/E01-identidad-acceso/US02.md) · [US21](docs/epicas/E01-identidad-acceso/US21.md) | Acceso gerencial/cliente y autorización |
-| **[E02 · Expedientes y unidades](docs/epicas/E02-expedientes-unidades/README.md)** | [US04](docs/epicas/E02-expedientes-unidades/US04.md) · [US05](docs/epicas/E02-expedientes-unidades/US05.md) · [US13](docs/epicas/E02-expedientes-unidades/US13.md) | Altas y kilometraje confiable |
-| **[E03 · Agenda y taller](docs/epicas/E03-agenda-operacion/README.md)** | [US06](docs/epicas/E03-agenda-operacion/US06.md) · [US15](docs/epicas/E03-agenda-operacion/US15.md) · [US16](docs/epicas/E03-agenda-operacion/US16.md) | Citas internas y trabajos del taller |
-| **[E04 · Garantías y cliente](docs/epicas/E04-mantenimiento-garantias-portal/README.md)** | [US07](docs/epicas/E04-mantenimiento-garantias-portal/US07.md) · [US08](docs/epicas/E04-mantenimiento-garantias-portal/US08.md) · [US23](docs/epicas/E04-mantenimiento-garantias-portal/US23.md) | Tres servicios, garantía y consulta privada |
+| **[E01 · Identidad y permisos](docs/epicas/E01-identidad-acceso/README.md) [#43](https://github.com/iokort/Follow-Motors/issues/43)** | [US01](docs/epicas/E01-identidad-acceso/US01.md) · [US02](docs/epicas/E01-identidad-acceso/US02.md) · [US21](docs/epicas/E01-identidad-acceso/US21.md) | Acceso gerencial/cliente y autorización |
+| **[E02 · Expedientes y unidades](docs/epicas/E02-expedientes-unidades/README.md) [#44](https://github.com/iokort/Follow-Motors/issues/44)** | [US04](docs/epicas/E02-expedientes-unidades/US04.md) · [US05](docs/epicas/E02-expedientes-unidades/US05.md) · [US13](docs/epicas/E02-expedientes-unidades/US13.md) | Altas y kilometraje confiable |
+| **[E03 · Agenda y taller](docs/epicas/E03-agenda-operacion/README.md) [#45](https://github.com/iokort/Follow-Motors/issues/45)** | [US06](docs/epicas/E03-agenda-operacion/US06.md) · [US15](docs/epicas/E03-agenda-operacion/US15.md) · [US16](docs/epicas/E03-agenda-operacion/US16.md) | Citas internas y trabajos del taller |
+| **[E04 · Garantías y cliente](docs/epicas/E04-mantenimiento-garantias-portal/README.md) [#46](https://github.com/iokort/Follow-Motors/issues/46)** | [US07](docs/epicas/E04-mantenimiento-garantias-portal/US07.md) · [US08](docs/epicas/E04-mantenimiento-garantias-portal/US08.md) · [US23](docs/epicas/E04-mantenimiento-garantias-portal/US23.md) | Tres servicios, garantía y consulta privada |
 
-Cada historia enlaza su **Issue real**, criterios de aceptación y archivos relevantes del proyecto. Los otros elementos de la planificación original (22 US) siguen disponibles en [backlog V5](docs/backlog-v5.md) cuando se integren los documentos académicos históricos; el nuevo [mapa priorizado de 12 historias](docs/epicas/README.md) es el que guía la primera entrega.
+Cada historia enlaza su **Issue real**, criterios de aceptación y archivos relevantes del proyecto. Los otros elementos de la planificación original (22 US) siguen disponibles en [backlog V5](docs/backlog-v5.md) como referencia histórica; el [mapa priorizado de 12 historias](docs/epicas/README.md) es el que guía la primera entrega.
 
 ## Plan Scrum y avance real
 

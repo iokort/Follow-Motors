@@ -6,10 +6,10 @@ Este es el **plan funcional priorizado** de SSC. Conserva los identificadores de
 
 | Épica | Resultado | Historias | CRC |
 | --- | --- | --- | ---: |
-| [E01 · Identidad y permisos](E01-identidad-acceso/README.md) | Acceso seguro y autorizaciones | [US01](E01-identidad-acceso/US01.md) · [US02](E01-identidad-acceso/US02.md) · [US21](E01-identidad-acceso/US21.md) | 36 |
-| [E02 · Expedientes y motocicletas](E02-expedientes-unidades/README.md) | Alta presencial, gestión y odómetro | [US04](E02-expedientes-unidades/US04.md) · [US05](E02-expedientes-unidades/US05.md) · [US13](E02-expedientes-unidades/US13.md) | 36 |
-| [E03 · Agenda y operación](E03-agenda-operacion/README.md) | Citas internas, otras marcas y taller | [US06](E03-agenda-operacion/US06.md) · [US15](E03-agenda-operacion/US15.md) · [US16](E03-agenda-operacion/US16.md) | 36 |
-| [E04 · Mantenimiento, garantías y cliente](E04-mantenimiento-garantias-portal/README.md) | Etapas, decisiones y consulta privada | [US07](E04-mantenimiento-garantias-portal/US07.md) · [US08](E04-mantenimiento-garantias-portal/US08.md) · [US23](E04-mantenimiento-garantias-portal/US23.md) | 36 |
+| [E01 · Identidad y permisos](E01-identidad-acceso/README.md) · [Épica #43](https://github.com/iokort/Follow-Motors/issues/43) | Acceso seguro y autorizaciones | [US01](E01-identidad-acceso/US01.md) · [US02](E01-identidad-acceso/US02.md) · [US21](E01-identidad-acceso/US21.md) | 36 |
+| [E02 · Expedientes y motocicletas](E02-expedientes-unidades/README.md) · [Épica #44](https://github.com/iokort/Follow-Motors/issues/44) | Alta presencial, gestión y odómetro | [US04](E02-expedientes-unidades/US04.md) · [US05](E02-expedientes-unidades/US05.md) · [US13](E02-expedientes-unidades/US13.md) | 36 |
+| [E03 · Agenda y operación](E03-agenda-operacion/README.md) · [Épica #45](https://github.com/iokort/Follow-Motors/issues/45) | Citas internas, otras marcas y taller | [US06](E03-agenda-operacion/US06.md) · [US15](E03-agenda-operacion/US15.md) · [US16](E03-agenda-operacion/US16.md) | 36 |
+| [E04 · Mantenimiento, garantías y cliente](E04-mantenimiento-garantias-portal/README.md) · [Épica #46](https://github.com/iokort/Follow-Motors/issues/46) | Etapas, decisiones y consulta privada | [US07](E04-mantenimiento-garantias-portal/US07.md) · [US08](E04-mantenimiento-garantias-portal/US08.md) · [US23](E04-mantenimiento-garantias-portal/US23.md) | 36 |
 | **Total** | | **12 historias** | **144** |
 
 ## Prioridades reales de la entrega escolar
