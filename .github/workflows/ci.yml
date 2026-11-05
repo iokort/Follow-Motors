@@ -62,7 +62,7 @@ jobs:
         run: dotnet restore backend/FollowMotors.Api/FollowMotors.Api.csproj
       - name: Compilar
         run: dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj --configuration Release --no-restore
-      - name: Pruebas C# US06/US15 y SOLID
+      - name: Pruebas C# US01/US06/US15 y SOLID
         run: dotnet run --project backend/FollowMotors.Api.Specs/FollowMotors.Api.Specs.csproj --configuration Release
       - name: Probar US06/US15 con esquema MySQL V3 real
         env:
