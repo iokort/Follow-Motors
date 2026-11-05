@@ -33,7 +33,9 @@ R = responsable de ejecutar; A = responsable final de ese resultado; C = consult
 | Contratos HTTP e integración de componentes | **A/R** | C | R | I |
 | Documentación y trazabilidad del expediente | C | C | C | **A/R** |
 | Preparación de la exposición y evidencias | R | R | R | **A** |
-| Verificación técnica de cada especialidad | **A/R** (backend) | **A/R** (base de datos) | **A/R** (frontend) | I |
+| Verificación técnica de API y seguridad | **A/R** | C | C | I |
+| Verificación de esquema MySQL | C | **A/R** | I | I |
+| Verificación de interfaz Angular | C | I | **A/R** | I |
 
 La gerencia real debe validar reglas de negocio antes de considerarlas aceptadas. **Aarón gestiona la presentación y el proceso; cada desarrollador explica su propia implementación.** La fila de verificación técnica asigna la responsabilidad exclusivamente dentro de la especialidad de cada integrante.
 
