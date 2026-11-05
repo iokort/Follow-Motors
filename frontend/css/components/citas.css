@@ -1,0 +1,62 @@
+
+/* Tabla de citas del cliente */
+
+.tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--color-borde);
+    border-radius: 12px;
+}
+
+.tabla-citas {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+    background-color: var(--color-panel);
+}
+
+.tabla-citas th,
+.tabla-citas td {
+    padding: 17px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.tabla-citas th {
+    background-color: var(--color-fondo);
+    color: var(--color-secundario);
+    font-weight: 700;
+}
+
+.tabla-citas td {
+    color: var(--color-texto);
+}
+
+.tabla-citas tbody tr:hover {
+    background-color: var(--color-fondo);
+}
+
+.cita-estado {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: 20px;
+    color: var(--color-secundario);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.dashboard-acciones a.dashboard-boton,
+.dashboard-acciones a.dashboard-boton-secundario {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .tabla-citas th,
+    .tabla-citas td {
+        padding: 12px;
+    }
+}

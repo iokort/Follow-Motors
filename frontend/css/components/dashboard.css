@@ -1,0 +1,292 @@
+
+/* =========================================
+   FOLLOW MOTORS - DASHBOARD
+   Panel Cliente y Gerente
+========================================= */
+
+/* Contenedor principal */
+.dashboard {
+    min-height: 80vh;
+    padding: 60px 5%;
+    background-color: var(--color-fondo);
+}
+
+.dashboard-contenedor {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Encabezado */
+.dashboard-encabezado {
+    margin-bottom: 45px;
+}
+
+.dashboard-etiqueta {
+    color: var(--color-secundario);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.dashboard-encabezado h1 {
+    color: var(--color-texto);
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin: 15px 0;
+}
+
+.dashboard-encabezado p {
+    color: var(--color-texto-suave);
+}
+
+.dashboard-subtitulo {
+    color: var(--color-texto);
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+}
+
+/* Cuadrícula de tarjetas */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px;
+}
+
+/* Tarjeta reutilizable */
+.dashboard-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 25px;
+    background-color: var(--color-panel);
+    border: 1px solid var(--color-borde);
+    border-radius: 14px;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-primario);
+}
+
+.dashboard-card-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.dashboard-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    background-color: var(--color-fondo);
+    border-radius: 12px;
+    font-size: 1.8rem;
+}
+
+.dashboard-cantidad {
+    color: var(--color-secundario);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.dashboard-card h2 {
+    color: var(--color-texto);
+    font-size: 1.2rem;
+    margin: 0 0 12px;
+}
+
+.dashboard-card p {
+    flex: 1;
+    color: var(--color-texto-suave);
+    margin-bottom: 24px;
+}
+
+/* Botones */
+.dashboard-boton,
+.dashboard-boton-secundario {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.dashboard-boton {
+    background-color: var(--color-primario);
+    color: var(--color-fondo);
+    border: 1px solid var(--color-primario);
+}
+
+.dashboard-boton:hover {
+    background-color: var(--color-secundario);
+}
+
+.dashboard-boton-secundario {
+    background-color: transparent;
+    color: var(--color-secundario);
+    border: 1px solid var(--color-primario);
+}
+
+.dashboard-boton-secundario:hover {
+    background-color: var(--color-fondo);
+}
+
+/* Acciones rápidas */
+.dashboard-acciones {
+    margin-top: 45px;
+    padding: 30px;
+    background-color: var(--color-panel);
+    border: 1px solid var(--color-borde);
+    border-radius: 14px;
+}
+
+.dashboard-acciones h2 {
+    color: var(--color-texto);
+    margin-top: 0;
+}
+
+.dashboard-acciones p {
+    color: var(--color-texto-suave);
+}
+
+.dashboard-acciones-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Estados de carga y error */
+.dashboard-estado {
+    color: var(--color-texto-suave);
+    margin-bottom: 20px;
+}
+
+.dashboard-estado:empty {
+    display: none;
+}
+
+/* Adaptación a tabletas */
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Adaptación a celulares */
+@media (max-width: 600px) {
+    .dashboard {
+        padding: 40px 5%;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-acciones {
+        padding: 22px;
+    }
+
+    .dashboard-acciones-botones {
+        flex-direction: column;
+    }
+
+    .dashboard-acciones-botones button {
+        width: 100%;
+    }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-card {
+        transition: none;
+    }
+}
+
+/* Buscador de clientes del gerente */
+#buscar-cliente {
+    width: 100%;
+    max-width: 350px;
+    padding: 12px 15px;
+    background-color: var(--color-panel);
+    color: var(--color-texto);
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    font: inherit;
+}
+
+#buscar-cliente::placeholder {
+    color: var(--color-texto-suave);
+}
+
+#buscar-cliente:focus-visible {
+    outline: 2px solid var(--color-secundario);
+    outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+    #buscar-cliente {
+        max-width: 100%;
+    }
+}
+
+/* Buscador reutilizable del Gerente */
+.dashboard-buscador {
+    width: 100%;
+    max-width: 350px;
+    padding: 12px 15px;
+    background-color: var(--color-panel);
+    color: var(--color-texto);
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    font: inherit;
+}
+
+.dashboard-buscador::placeholder {
+    color: var(--color-texto-suave);
+}
+
+.dashboard-buscador:focus-visible {
+    outline: 2px solid var(--color-secundario);
+    outline-offset: 2px;
+}
+
+/* Imagen de detalles de motocicleta */
+.unidad-detalle-imagen {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    height: 200px;
+    object-fit: contain;
+    margin: 15px 0;
+    background-color: var(--color-fondo);
+    border-radius: 12px;
+}
+
+@media (max-width: 600px) {
+    .dashboard-buscador {
+        max-width: 100%;
+    }
+}
+
+/* Acciones de Gestion de Citas */
+.gestion-citas-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.gestion-citas-acciones button {
+    cursor: pointer;
+    font: inherit;
+    white-space: nowrap;
+}
+
+.gestion-citas-acciones button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
