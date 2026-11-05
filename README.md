@@ -2,6 +2,17 @@
 
 Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje, servicios y garantías. La versión previa en [iokort.com/follow-motors](https://iokort.com/follow-motors) se mantiene como **referencia funcional** y no será sobrescrita automáticamente.
 
+## Expediente académico y metodología
+
+- **[Índice de entregables](docs/00-guia-academica.md)**: acceso único para evaluación.
+- **[Scrum + Kanban](docs/scrum-kanban.md)**: sprints propuestos, Kanban, WIP, DoR y DoD.
+- **[Product Backlog V5](docs/backlog-v5.md)**: 22 historias / 145 puntos preliminares.
+- **[Tarjetas CRC](docs/tarjetas-crc.md)**: 15 componentes y colaboraciones propuestas.
+- **[MVVM y arquitectura](docs/mvvm-y-arquitectura.md)**: capas web, C#, MySQL y SOLID.
+- **[Marco teórico](docs/marco-teorico.md)**: fundamento con referencias.
+- **[Stakeholders y RACI](docs/stakeholders-raci.md)** · **[Trazabilidad](docs/trazabilidad-y-evidencias.md)**.
+- **[Kanban público SSC](https://github.com/orgs/iokort/projects/1)** · **[Discussions](https://github.com/iokort/Follow-Motors/discussions)**.
+
 ## Equipo y asignación
 
 | Integrante | Encargado de | Rama de área |
