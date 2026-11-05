@@ -11,6 +11,9 @@ El cliente sigue solicitando por WhatsApp; **solo el personal autorizado** usa l
 
 ## US01 — Autenticación del gerente con MySQL V3
 
+**Documentación didáctica para capacitación del equipo SSC:** cada instrucción relevante del flujo de login contiene comentarios `// PSEUDOCÓDIGO` en español (datos, comparaciones, procesos, ciclos e inicio/fin). Los comentarios permiten estudiar cómo funciona el backend antes de integrar el frontend. No se cambió MySQL ni se introdujeron usuarios artificiales en el producto.
+
+
 [Historia US01 con 12 tarjetas CRC y enlaces al código](../docs/epicas/E01-identidad-acceso/US01.md).
 
 El inicio de sesión utiliza las tablas reales `usuarios`, `usuarios_roles`, `roles` y `roles_permisos` de Gael. No hay usuarios ni contraseñas de demostración en la API: la cuenta debe existir, estar activa y tener un hash `PasswordHasher<T>` válido. `GERENTE` y `ASESOR` no son lo mismo; el acceso gerencial requiere expresamente el rol `GERENTE`.
