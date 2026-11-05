@@ -64,7 +64,7 @@ jobs:
         run: dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj --configuration Release --no-restore
       - name: Pruebas C# US01/US06/US15 y SOLID
         run: dotnet run --project backend/FollowMotors.Api.Specs/FollowMotors.Api.Specs.csproj --configuration Release
-      - name: Probar US06/US15 con esquema MySQL V3 real
+      - name: Probar US01/US06/US15 con esquema MySQL V3 real
         env:
           FOLLOW_MOTORS_TEST_MYSQL_ROOT: 'Server=127.0.0.1;Port=3306;User ID=root;Password=ci-root-only;'
         run: dotnet run --project backend/FollowMotors.Api.Specs/FollowMotors.Api.Specs.csproj --configuration Release
