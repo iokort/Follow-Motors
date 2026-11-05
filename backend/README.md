@@ -2,33 +2,28 @@
 
 **Responsable:** Kort · **Base de datos MySQL V3:** Gael · **Frontend Angular/MVVM:** Fernando.
 
-La API incluye los endpoints de salud existentes, autenticación de gerente demostrable sin base de datos (**US01**) y las operaciones de agenda de dos historias ya existentes:
+La API incluye autenticación gerencial real (US01), endpoints de salud y dos historias de agenda en C# bajo el plan Scrum del equipo:
 
 - **US06 (#21):** crear citas del taller para CFMOTO ya registrada o motocicleta de otra marca (`EXTERNA`), sin crear cuentas/motos ajenas en la base.
 - **US15 (#30):** consultar agenda diaria, consultar detalle, reprogramar y cancelar citas, guardando auditoría.
 
 El cliente sigue solicitando por WhatsApp; **solo el personal autorizado** usa las operaciones de agenda.
 
-## US01 — login de gerente de demostración (sin MySQL)
+## US01 — Autenticación del gerente con MySQL V3
 
-La US01 [incluye sus 12 CRC y enlaces al código](../docs/epicas/E01-identidad-acceso/US01.md). **El modo demo solo se activa en Development** y requiere definir una cuenta ficticia al ejecutar. No incluye contraseñas en Git, no crea una base de datos y no modifica el login MySQL que utiliza el resto del sistema.
+[Historia US01 con 12 tarjetas CRC y enlaces al código](../docs/epicas/E01-identidad-acceso/US01.md).
 
-Desde **PowerShell** en la raíz del repositorio:
+El inicio de sesión utiliza las tablas reales `usuarios`, `usuarios_roles`, `roles` y `roles_permisos` de Gael. No hay usuarios ni contraseñas de demostración en la API: la cuenta debe existir, estar activa y tener un hash `PasswordHasher<T>` válido. `GERENTE` y `ASESOR` no son lo mismo; el acceso gerencial requiere expresamente el rol `GERENTE`.
 
-```powershell
-$env:ASPNETCORE_ENVIRONMENT = "Development"
-$env:Auth__Demo__Enabled = "true"
-$env:Auth__Demo__Correo = "gerente@example.invalid"
-$env:Auth__Demo__Contrasena = "SoloPrueba123!"
-$env:Auth__Demo__Nombre = "Gerente de demostración"
-dotnet run --project backend/FollowMotors.Api/FollowMotors.Api.csproj
-```
+1. Ejecutar los SQL V3 (00–05) en la base de desarrollo aislada. **No aplicar sobre producción sin coordinación**.
+2. Configurar `ConnectionStrings__Default` con el servidor, usuario y contraseña MySQL de tu entorno local (no subir secretos a Git).
+3. Iniciar la API con el comando de la sección siguiente.
+4. Consumir `POST /api/v1/auth/staff-login` con JSON `{"correo":"correo_registrado","contrasena":"contraseña_registrada"}`; el servidor devuelve la cookie firmada.
+5. Con esa cookie, consultar `GET /api/v1/auth/me` o `GET /api/v1/auth/gerencia/acceso`. Esta última devuelve **200** para GERENTE, **403** para otros roles y **401** sin sesión. Cerrar con `POST /api/v1/auth/logout`.
 
-Enviar `POST http://localhost:5099/api/v1/auth/staff-login` con JSON `{"correo":"gerente@example.invalid","contrasena":"SoloPrueba123!"}`. El servidor genera una cookie de sesión; `GET /api/v1/auth/me` requiere enviar esa cookie y devuelve nombre/permisos. Una contraseña incorrecta, otro correo o una cuenta inactiva (`Auth__Demo__Activo=false`) devuelve 401. `POST /api/v1/auth/logout` cierra la sesión. No se implementa un login separado ni se conecta todavía la vista Angular.
+La cookie es `HttpOnly`, `SameSite=Strict`, `Secure` en producción y caduca a las 6 horas. Angular consumirá la API desde el mismo origen; la UI todavía no está conectada. El backend no crea cuentas: el alta administrativa es otro caso de uso.
 
-Para volver al login MySQL, quitar `Auth__Demo__Enabled` (o establecer `false`) y configurar la conexión de desarrollo. **Nunca usar este usuario ficticio en un despliegue real**: en Production el código siempre utiliza `MySqlStaffAuthService`.
-
-Pruebas automáticas sin MySQL: `dotnet run --project backend/FollowMotors.Api.Specs/FollowMotors.Api.Specs.csproj`.
+**Pruebas de integración:** [`IntegrationSpecs.cs`](FollowMotors.Api.Specs/IntegrationSpecs.cs) valida la autenticación con MySQL V3 real en CI, incluyendo roles, permisos, cuentas activas/inactivas y contraseñas incorrectas.
 
 ## Ejecutar localmente
 
