@@ -8,13 +8,13 @@ namespace FollowMotors.Api.Infrastructure;
 public sealed class MySqlConnectionFactory(IConfiguration configuration) : IDatabaseConnectionFactory
 // PSEUDOCÓDIGO | INICIO BLOQUE: ejecutar las instrucciones del conjunto.
 {
-    // PSEUDOCÓDIGO | PROCESO: ejecutar la instrucción correspondiente a este paso del flujo.
+    // PSEUDOCÓDIGO | INICIO FUNCIÓN: obtener una conexión a MySQL usando la configuración del servidor.
     public MySqlConnection Create()
     // PSEUDOCÓDIGO | INICIO BLOQUE: ejecutar las instrucciones del conjunto.
     {
-        // PSEUDOCÓDIGO | PROCESO: ejecutar la instrucción correspondiente a este paso del flujo.
+        // PSEUDOCÓDIGO | DATO: leer cadena de conexión desde configuración externa; no incluir claves en el código.
         var connectionString = configuration.GetConnectionString("Default");
-        // PSEUDOCÓDIGO | PROCESO: ejecutar la instrucción correspondiente a este paso del flujo.
+        // PSEUDOCÓDIGO | COMPARAR SI: no se proporcionó una cadena de conexión válida.
         if (string.IsNullOrWhiteSpace(connectionString))
         // PSEUDOCÓDIGO | INICIO BLOQUE: ejecutar las instrucciones del conjunto.
         {
