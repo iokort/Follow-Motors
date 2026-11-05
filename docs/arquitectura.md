@@ -32,7 +32,7 @@ SOLID: separación clara de responsabilidades y dependencias cuando sean necesar
 
 ## Riesgos y decisiones pendientes
 - Los nombres de módulos del sistema anterior no certifican su funcionamiento.
-- Primero acordar requisitos, esquema de Gael y formatos JSON con Víctor.
+- Primero acordar requisitos, esquema de Gael y formatos JSON con Vixtor Fernando.
 - Definir autenticación/autorización antes de cualquier operación real sobre usuarios.
 - Verificar alojamiento compatible con .NET 10. El sitio actual funciona con infraestructura web existente, no constituye evidencia de que pueda hospedar un servicio ASP.NET Core.
 - Producción no debe alterarse durante la etapa de reconstrucción.
