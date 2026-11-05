@@ -22,7 +22,7 @@ Las tarjetas Clase–Responsabilidad–Colaborador ayudan a descubrir responsabi
 
 ## 5. MVVM y separación de responsabilidades
 
-MVVM aísla la interfaz de la lógica de presentación y los modelos, facilitando pruebas y cambio de vista. En Angular, las plantillas HTML/CSS funcionan como View, los componentes y signals mantienen el estado de presentación y los servicios HttpClient consumen la API C#. Se adoptan principios MVVM sin exigir clases ViewModel redundantes ni cambiar a .NET MAUI.
+MVVM aísla la interfaz de la lógica de presentación y los modelos, facilitando pruebas y cambio de vista. En Angular, las plantillas HTML/CSS funcionan como View, los componentes y signals mantienen el estado de presentación y los servicios HttpClient consumen la API C#. El proyecto adopta MVVM en Angular, separando View, ViewModel y Model sin cambiar a .NET MAUI.
 
 ## 6. Principios SOLID, modularidad y datos
 

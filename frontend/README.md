@@ -28,7 +28,7 @@ La compilación produce `dist/follow-motors/browser`. El frontend no se publica 
 
 ## Arquitectura
 
-Los componentes standalone y sus templates presentan la UI; los signals mantienen estado y los servicios con `HttpClient` consultan la API. Se aplica separación inspirada en MVVM sin capas innecesarias.
+El frontend adopta **MVVM**: los templates y componentes son la View; los ViewModels inyectables mantienen signals y acciones; los modelos TypeScript y servicios `HttpClient` proporcionan datos de la API. La base implementa `src/app/viewmodels/health.viewmodel.ts` como ejemplo real. Se mantienen solo las abstracciones que aporten una responsabilidad clara.
 
 **Alcance:** portal de asistencia y posventa, sin registro público de clientes, motos ni venta. Solo un asesor de sucursal puede dar de alta y vincular unidades. No se conectará MySQL desde Angular.
 

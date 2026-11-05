@@ -11,7 +11,7 @@
 
 ## Motivos y aplicación
 
-Se sustituye el prototipo inicial sin framework por Angular, con componentes tipados y un cliente HTTP inyectable. El esquema de presentación se inspira en MVVM: vista en templates, estado/reactividad mediante signals y modelos como DTO. No se crean clases ViewModel redundantes por obligación. SOLID se aplica de forma proporcional.
+Se sustituye el prototipo inicial sin framework por Angular, con componentes tipados y un cliente HTTP inyectable. El patrón de presentación adoptado es **MVVM** (Modelo–Vista–ViewModel): templates Angular como View, un servicio ViewModel que expone señales y comandos, y modelos/servicios HttpClient como capa de datos. La pantalla de conectividad ya incluye `HealthViewModel` independiente del componente visual. Se aplicará a las pantallas con lógica de presentación, sin generar abstracciones innecesarias. SOLID se aplica de forma proporcional.
 
 ## Efectos de la decisión
 

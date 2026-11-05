@@ -8,7 +8,7 @@ El stack definitivo es **Angular 22 + TypeScript**, **ASP.NET Core .NET 10 / C#*
 flowchart TB
   subgraph FE["Angular 22"]
     V["Plantillas y componentes (View)"]
-    VM["Signals y estado de presentación (MVVM inspirado)"]
+    VM["HealthViewModel · estado y acciones (MVVM)"]
     HTTP["Servicio HttpClient"]
     V <--> VM
     VM --> HTTP
@@ -20,12 +20,13 @@ flowchart TB
   REPO --> DB[("MySQL 8.4")]
 ```
 
-La base Angular emplea componentes standalone, signals y HttpClient. **MVVM es una guía de separación de vista/estado/modelos, no un requisito para añadir una clase ViewModel en cada pantalla.** Angular no se conecta a MySQL y no decide autorización.
+La arquitectura de presentación elegida es **MVVM (Model–View–ViewModel)**. En Angular, la plantilla representa la View, un servicio de presentación independiente concentra el estado y las acciones del ViewModel y los servicios HTTP y DTO conforman el acceso a datos del Model. Se implementó esta separación en la pantalla inicial de conectividad. Angular no accede a MySQL ni decide autorización; se crearán ViewModels independientes cuando la pantalla necesite estado o lógica de presentación, sin duplicar clases innecesariamente.
 
 ## Ejemplos reales de la base
 
 - View: `frontend/src/app/app.html` y estilos `src/styles.css`.
-- Estado: `frontend/src/app/app.ts` (signal de conectividad).
+- ViewModel: `frontend/src/app/viewmodels/health.viewmodel.ts` (signal de conectividad y acción de comprobación).
+- Componente: `frontend/src/app/app.ts` (inyecta el ViewModel y coordina el ciclo de vida).
 - API: `frontend/src/app/services/health.service.ts`.
 - Backend: `backend/FollowMotors.Api/`.
 - Desarrollo: proxy `frontend/proxy.conf.json` para `/api`.
@@ -38,7 +39,7 @@ Los componentes y los servicios conservan responsabilidades diferenciadas, y los
 
 ## Estado de implementación
 
-Existe una pantalla técnica Angular y comprobación de salud de la API. El esquema de negocio MySQL, login real, alta presencial, agenda, historial y garantías **no se consideran implementados**. El catálogo CRC es diseño propuesto, no clases ya desarrolladas.
+Existe una pantalla técnica Angular **separada mediante MVVM** y comprobación de salud de la API. El esquema de negocio MySQL, login real, alta presencial, agenda, historial y garantías **no se consideran implementados**. El catálogo CRC es diseño propuesto, no clases ya desarrolladas.
 
 ## Referencias
 

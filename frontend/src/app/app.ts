@@ -1,8 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { HealthService } from './services/health.service';
-
-type ApiStatus = 'loading' | 'available' | 'unavailable';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { HealthViewModel } from './viewmodels/health.viewmodel';
 
 @Component({
   selector: 'app-root',
@@ -10,20 +7,9 @@ type ApiStatus = 'loading' | 'available' | 'unavailable';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
-  private readonly health = inject(HealthService);
-  readonly apiStatus = signal<ApiStatus>('loading');
+  readonly vm = inject(HealthViewModel);
 
   constructor() {
-    void this.checkApi();
-  }
-
-  async checkApi(): Promise<void> {
-    this.apiStatus.set('loading');
-    try {
-      const result = await firstValueFrom(this.health.check());
-      this.apiStatus.set(result.status === 'ok' ? 'available' : 'unavailable');
-    } catch {
-      this.apiStatus.set('unavailable');
-    }
+    void this.vm.checkApi();
   }
 }

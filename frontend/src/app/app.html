@@ -12,14 +12,14 @@
     <div>
       <h2 id="status-title">Conectividad de API</h2>
       <p role="status" aria-live="polite">
-        @switch (apiStatus()) {
+        @switch (vm.apiStatus()) {
           @case ('loading') { Comprobando conexión… }
           @case ('available') { API disponible. Los módulos de negocio siguen en desarrollo. }
           @default { API sin conexión. Inicia el backend e inténtalo nuevamente. }
         }
       </p>
     </div>
-    <button type="button" (click)="checkApi()" [disabled]="apiStatus() === 'loading'">Reintentar</button>
+    <button type="button" (click)="vm.checkApi()" [disabled]="vm.apiStatus() === 'loading'">Reintentar</button>
   </section>
   <section class="modules" aria-labelledby="modules-title">
     <h2 id="modules-title">Módulos por desarrollar</h2>

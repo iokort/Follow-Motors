@@ -5,9 +5,9 @@
 ## Tecnologías
 Frontend **Angular 22 con TypeScript**, API **ASP.NET Core .NET 10 (C#)** y persistencia **MySQL 8.4**. Se prefiere monolito modular, no microservicios prematuros.
 
-## MVVM ligero
+## MVVM — patrón de presentación adoptado
 - **View**: templates de componentes Angular HTML/CSS y accesibilidad.
-- **ViewModel conceptual**: signals y estado en componentes o servicios de presentación Angular.
+- **ViewModel**: servicios de presentación Angular con signals y acciones; ejemplo `HealthViewModel` separado de `AppComponent`.
 - **Model**: interfaces/DTO TypeScript y servicios HttpClient; el dominio de negocio y los permisos se aplican en el servidor C#.
 - El **backend** valida identidad, rol y relación cliente–motocicleta. La vista jamás autoriza.
 

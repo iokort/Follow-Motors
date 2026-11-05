@@ -20,3 +20,14 @@ test('el footer pertenece a ioKort', () => {
   assert.match(html, /© 2026 Kurt Cobain Vázquez Sánchez/);
   assert.match(html, /https:\/\/iokort\.com/);
 });
+
+test('MVVM: el componente delega estado y acciones al ViewModel', () => {
+  const component = read('src/app/app.ts');
+  const viewmodel = read('src/app/viewmodels/health.viewmodel.ts');
+  const view = read('src/app/app.html');
+  assert.match(component, /inject\(HealthViewModel\)/);
+  assert.match(viewmodel, /signal<ApiStatus>/);
+  assert.match(viewmodel, /HealthService/);
+  assert.match(view, /vm\.apiStatus\(\)/);
+  assert.match(view, /vm\.checkApi\(\)/);
+});
