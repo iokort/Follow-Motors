@@ -55,7 +55,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // No confiar en los botones ocultos ni en roles enviados por el navegador.
 builder.Services.AddAuthorization(options =>
 {
-    // US01: el servidor valida que el rol GERENTE exista en MySQL V3.\n    options.AddPolicy("Gerencia", p => p.RequireAuthenticatedUser().RequireRole("GERENTE"));\n    options.AddPolicy("AgendaVer", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.ver"));
+    // US01: el servidor valida que el rol GERENTE exista en MySQL V3.
+    options.AddPolicy("Gerencia", p => p.RequireAuthenticatedUser().RequireRole("GERENTE"));
+    options.AddPolicy("AgendaVer", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.ver"));
     options.AddPolicy("AgendaCrear", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.crear"));
     options.AddPolicy("AgendaModificar", p => p.RequireAuthenticatedUser().RequireClaim("permission", "agenda.modificar"));
 });
