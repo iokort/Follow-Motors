@@ -6,7 +6,7 @@ Closes #
 ## Área
 - [ ] Backend — Kort
 - [ ] Base de datos — Gael
-- [ ] Frontend — Víctor
+- [ ] Frontend — Vixtor Fernando
 - [ ] Documentación — Aarón
 
 ## Comprobación

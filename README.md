@@ -6,10 +6,10 @@ Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje,
 
 | Integrante | Encargado de | Rama de área |
 | --- | --- | --- |
-| Kort | Backend ASP.NET Core (C#) e integración con frontend; coordinación | `feature/backend` |
-| Gael | Base de datos MySQL, modelo relacional y migraciones | `feature/database` |
-| Víctor | Frontend HTML, CSS y JavaScript | `feature/frontend` |
-| Aarón | Requisitos, casos de uso y documentación | `feature/docs` |
+| Kort (@kortCobein) | Backend ASP.NET Core (C#) e integración con frontend; coordinación | `feature/backend` |
+| Gael (@G43LEX) | Base de datos MySQL, modelo relacional y migraciones | `feature/database` |
+| Vixtor Fernando (@fernandoohiti25) | Frontend HTML, CSS y JavaScript | `feature/frontend` |
+| Aarón (@Aaron262005) | Requisitos, casos de uso y documentación | `feature/docs` |
 
 ## Stack preparado
 
@@ -58,7 +58,7 @@ FollowMotors.slnx              Solución C# para IDE y línea de comandos
 1. **`main`** solo recibe versiones aprobadas; **`develop`** integra los cambios revisados.
 2. Trabajar en ramas de área o por Issue (`feature/...`, `fix/...`, `docs/...`) nacidas de `develop`.
 3. Para integrar, abrir PR a `develop`, asociar Issue y solicitar al menos una revisión. Describir pruebas y dependencias.
-4. Antes de cambiar campos del frontend, endpoints o estructura MySQL, acordar el contrato entre Kort, Gael y Víctor; Aarón actualiza la documentación.
+4. Antes de cambiar campos del frontend, endpoints o estructura MySQL, acordar el contrato entre Kort, Gael y Vixtor Fernando; Aarón actualiza la documentación.
 5. No hacer force push ni integrar cambios sin CI; nadie trabaja directamente en `main`. Publicar requiere aprobación y rollback.
 6. No subir `.env`, contraseñas, respaldos, datos personales ni código que conecte MySQL desde el navegador.
 7. SOLID no significa crear capas innecesarias; cada dependencia debe justificarse.
@@ -73,6 +73,13 @@ cd frontend
 npm run check
 npm test
 ```
+
+## Organización y colaboración
+
+- [Roles y responsables](docs/equipo-y-roles.md)
+- [Flujo Git y reglas](docs/flujo-de-trabajo.md)
+- [Plan de trabajo por fases](docs/plan-de-trabajo.md)
+- [Configuración administrativa desde Git CMD](scripts/configurar-equipo.cmd)
 
 ## Documentación
 
