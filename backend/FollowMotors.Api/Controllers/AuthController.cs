@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace FollowMotors.Api.Controllers;
 
 /// <summary>
-/// Acceso del personal a funciones protegidas. Es una dependencia técnica de
-/// US06 y US15; NO implica que toda la US01 esté acabada (falta gestión de cuentas).
+/// US01: autenticación REAL del gerente/asesor desde el esquema MySQL V3.
+/// Se reutilizan las mismas rutas de sesión para US06 y US15.
 /// </summary>
 [ApiController]
 [Route("api/v1/auth")]
-public sealed class AuthController(IStaffAuthService authService) : ControllerBase
+public sealed class AuthController(IStaffAuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
     /// <summary>
     /// Sesión de personal con cookie HttpOnly, SameSite Strict y expiración;
@@ -26,12 +26,16 @@ public sealed class AuthController(IStaffAuthService authService) : ControllerBa
     {
         var user = await authService.LoginAsync(request, ct);
         if (user is null)
+        {
+            // CRC-US01-12: no registrar el correo ni el secreto en la bitácora.
+            logger.LogWarning("US01: intento de inicio de sesión rechazado");
             return Unauthorized(new ProblemDetails
             {
                 Title = "No se pudo iniciar sesión",
                 Detail = "Credenciales inválidas o cuenta sin permisos.",
                 Status = StatusCodes.Status401Unauthorized
             });
+        }
 
         var claims = new List<Claim>
         {
@@ -39,6 +43,8 @@ public sealed class AuthController(IStaffAuthService authService) : ControllerBa
             new(ClaimTypes.Name, user.Nombre)
         };
         claims.AddRange(user.Permisos.Select(p => new Claim("permission", p)));
+        // Rol obtenido de usuarios_roles y roles activos; no del navegador.
+        claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
@@ -49,8 +55,9 @@ public sealed class AuthController(IStaffAuthService authService) : ControllerBa
                 ExpiresUtc = DateTimeOffset.UtcNow.AddHours(6)
             });
 
+        logger.LogInformation("US01: sesión de personal creada");
         // Nunca devolver contraseña, hash ni secretos en el JSON.
-        return Ok(new { usuario = user.Nombre, permisos = user.Permisos });
+        return Ok(new { usuario = user.Nombre, roles = user.Roles, permisos = user.Permisos });
     }
 
     /// <summary>Eliminar la sesión al terminar el trabajo en sucursal.</summary>
@@ -62,12 +69,22 @@ public sealed class AuthController(IStaffAuthService authService) : ControllerBa
         return NoContent();
     }
 
+    /// <summary>
+    /// US01: comprueba el permiso de entrar al área de GERENCIA.
+    /// Devuelve 401 sin sesión, 403 para cuentas con otro rol y 200 al gerente.
+    /// </summary>
+    [HttpGet("gerencia/acceso")]
+    [Authorize(Policy = "Gerencia")]
+    public IActionResult VerificarAccesoGerencia() =>
+        Ok(new { acceso = "GERENTE", usuario = User.Identity?.Name });
+
     /// <summary>Consulta mínima de identidad para un frontend Angular.</summary>
     [HttpGet("me")]
     [Authorize]
     public IActionResult Me() => Ok(new
     {
         usuario = User.Identity?.Name,
+        roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray(),
         permisos = User.FindAll("permission").Select(c => c.Value).ToArray()
     });
 }
