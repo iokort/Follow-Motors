@@ -75,10 +75,62 @@ internal static class IntegrationSpecs
 
         var identidad = await login.LoginAsync(new StaffLoginRequest(correo, password), default);
         Check(identidad?.Id == usuario, "La sesión usa el ID del usuario real de V3.");
-        Check(identidad!.Permisos.Contains("agenda.crear"), "La autorización lee agenda.crear desde roles_permisos.");
+        Check(identidad!.Roles.Contains("GERENTE"), "US01: rol GERENTE leído de MySQL V3.");
+        Check(identidad.Permisos.Contains("agenda.crear"), "La autorización lee agenda.crear desde roles_permisos.");
         Check(identidad.Permisos.Contains("agenda.modificar"), "La autorización lee agenda.modificar desde roles_permisos.");
         Check(await login.LoginAsync(new StaffLoginRequest(correo, "Incorrecta"), default) is null,
-            "Contraseña inválida no genera sesión.");
+            "US01: contraseña inválida no genera sesión.");
+        Check(await login.LoginAsync(new StaffLoginRequest("desconocido@example.invalid", password), default) is null,
+            "US01: correo inexistente no genera sesión.");
+        Check(await login.LoginAsync(new StaffLoginRequest("", password), default) is null,
+            "US01: correo vacío no genera sesión.");
+
+        // Las dos cuentas siguientes existen SOLAMENTE en la base efímera de CI;
+        // no se generan usuarios predeterminados ni credenciales en producción.
+        var asesorId = Guid.NewGuid();
+        var asesorCorreo = $"ci-asesor-{asesorId:N}@example.invalid";
+        var inactivoId = Guid.NewGuid();
+        var inactivoCorreo = $"ci-inactivo-{inactivoId:N}@example.invalid";
+        await using (var conn = factory.Create())
+        {
+            await conn.OpenAsync();
+            await using var cmd = new MySqlCommand("""
+                INSERT INTO usuarios(id, nombre, correo, hash_password)
+                VALUES (@Asesor, 'Asesor de CI', @CorreoAsesor, @Hash);
+                INSERT INTO usuarios_roles(usuario_id, rol_codigo)
+                VALUES (@Asesor, 'ASESOR');
+                INSERT INTO usuarios(id, nombre, correo, hash_password, activo)
+                VALUES (@Inactivo, 'Gerente inactivo CI', @CorreoInactivo, @Hash, 0);
+                INSERT INTO usuarios_roles(usuario_id, rol_codigo)
+                VALUES (@Inactivo, 'GERENTE');
+                """, conn);
+            cmd.Parameters.AddWithValue("@Asesor", asesorId.ToString());
+            cmd.Parameters.AddWithValue("@CorreoAsesor", asesorCorreo);
+            cmd.Parameters.AddWithValue("@Inactivo", inactivoId.ToString());
+            cmd.Parameters.AddWithValue("@CorreoInactivo", inactivoCorreo);
+            cmd.Parameters.AddWithValue("@Hash", hash);
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        // US01 / US21: tener acceso a la agenda no equivale al rol GERENTE.
+        var asesor = await login.LoginAsync(new StaffLoginRequest(asesorCorreo, password), default);
+        Check(asesor is not null && asesor.Roles.Contains("ASESOR") && !asesor.Roles.Contains("GERENTE"),
+            "US01: el asesor no recibe el rol GERENTE.");
+        Check(asesor!.Permisos.Contains("agenda.ver"),
+            "US01: los permisos se conservan independientemente del rol.");
+        Check(await login.LoginAsync(new StaffLoginRequest(inactivoCorreo, password), default) is null,
+            "US01: una cuenta inactiva no puede iniciar sesión.");
+
+        // Si un rol se desactiva en MySQL, ya no concede una sesión nueva.
+        await using (var conn = factory.Create())
+        {
+            await conn.OpenAsync();
+            await using var cmd = new MySqlCommand(
+                "UPDATE roles SET activo = 0 WHERE codigo = 'ASESOR'", conn);
+            await cmd.ExecuteNonQueryAsync();
+        }
+        Check(await login.LoginAsync(new StaffLoginRequest(asesorCorreo, password), default) is null,
+            "US01: un rol desactivado no concede acceso.");
 
         var zona = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
         var inicio = TimeZoneInfo.ConvertTime(TimeProvider.System.GetUtcNow(), zona).DateTime
