@@ -55,7 +55,7 @@ jobs:
       ConnectionStrings__Default: 'Server=127.0.0.1;Port=3306;Database=follow_motors;User ID=follow_app;Password=ci-only-password;'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
       - name: Restaurar paquetes
