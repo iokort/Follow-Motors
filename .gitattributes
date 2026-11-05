@@ -1,0 +1,3 @@
+# SQL del esquema de Gael: mostrar su presencia en las estadísticas de lenguaje.
+# GitHub Linguist excluye SQL (tipo data) de manera predeterminada.
+database/v3/sql/*.sql linguist-detectable=true
