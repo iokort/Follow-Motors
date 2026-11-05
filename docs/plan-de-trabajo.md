@@ -10,7 +10,7 @@ Este plan es **secuencial por dependencias**, no tiene fechas inventadas. Se act
 
 - Kort: verificar CI, permisos, hospedaje compatible con ASP.NET Core, ruta de publicación futura.
 - Gael: verificar conexión local a MySQL y entorno de migraciones.
-- Fernando: verificar ejecución local del frontend y consumo `/api/v1/health`.
+- Fernando: verificar compilación y ejecución de Angular y consumo `/api/v1/health`.
 - Aarón: mantener roles, estructura documental y lista de criterios funcionales.
 - **Salida:** todos pueden clonar, ejecutar su área y abrir un PR comprobable.
 

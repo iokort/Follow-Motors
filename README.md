@@ -24,20 +24,20 @@ Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje,
 | --- | --- | --- |
 | Kort (@kortCobein) | Backend ASP.NET Core (C#) e integración con frontend; coordinación | `feature/backend` |
 | Gael (@G43LEX) | Base de datos MySQL, modelo relacional y migraciones | `feature/database` |
-| Vixtor Fernando (@fernandoohiti25) | Frontend HTML, CSS y JavaScript | `feature/frontend` |
+| Vixtor Fernando (@fernandoohiti25) | Frontend Angular 22, TypeScript y CSS | `feature/frontend` |
 | Aarón (@Aaron262005) | Requisitos, casos de uso y documentación | `feature/docs` |
 
 ## Stack preparado
 
 - Backend: **.NET 10 LTS**, ASP.NET Core Web API, MySqlConnector 2.6.2.
 - Base de datos: **MySQL 8.4**, contenedor local y almacenamiento persistente.
-- Frontend: HTML, CSS y JavaScript sin frameworks obligatorios.
-- Calidad: GitHub Actions con compilación de API, verificación de MySQL, pruebas JS y análisis CodeQL; Dependabot semanal.
+- Frontend: **Angular 22 y TypeScript**, componentes standalone, signals y HttpClient.
+- Calidad: GitHub Actions con compilación de API, verificación de MySQL, compilación Angular y pruebas frontend, más análisis CodeQL; Dependabot semanal.
 - Arquitectura: SOLID aplicado de forma pragmática, API REST bajo `/api/v1`.
 
 ## Inicio rápido
 
-Requisitos: Docker + Compose, Git. Opcional: .NET SDK 10 para desarrollar API fuera del contenedor.
+Requisitos: Docker + Compose y Git para backend/BD, Node.js 22.22.3+ o 24.15+ para Angular. Opcional: .NET SDK 10 para API fuera de Docker.
 
 ```bash
 git clone https://github.com/iokort/Follow-Motors.git
@@ -53,7 +53,7 @@ docker compose up -d --build
 | API | http://localhost:5099/api/v1/health |
 | Salud MySQL, solo Development | http://localhost:5099/api/v1/health/database |
 | MySQL | localhost:3307 (no accesible públicamente) |
-| Frontend | Servir `frontend/` por HTTP en puerto 5500 (ej. Live Server) |
+| Frontend Angular | http://localhost:4200 después de `cd frontend && npm install && npm start` |
 
 Sin Docker, la API puede iniciarse con `dotnet run --project backend/FollowMotors.Api/FollowMotors.Api.csproj`. Configurar cadena de conexión mediante variable `ConnectionStrings__Default` si necesita acceder a MySQL externo a Compose.
 
@@ -61,7 +61,7 @@ Sin Docker, la API puede iniciarse con `dotnet run --project backend/FollowMotor
 
 ```text
 backend/FollowMotors.Api/      Proyecto ASP.NET Core, salud y conexión MySQL
-frontend/                      HTML/CSS/JS inicial, cliente HTTP, pruebas
+frontend/                      Angular 22, TypeScript, estilos CSS y pruebas
 database/                      Área de diseño de Gael; tablas todavía no definidas
 docs/                          Arquitectura, API, requisitos y plan
 .github/                       CI, CodeQL, Dependabot, PR/Issues, CODEOWNERS
@@ -86,7 +86,8 @@ FollowMotors.slnx              Solución C# para IDE y línea de comandos
 ```bash
 dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj
 cd frontend
-npm run check
+npm install
+npm run build
 npm test
 ```
 
@@ -103,7 +104,7 @@ npm test
 
 ## Estado actual
 
-**Preparado:** API de salud, fábrica de conexión MySQL, entorno Docker, estructura frontend y pruebas iniciales.
+**Preparado:** API de salud, fábrica de conexión MySQL, entorno Docker y aplicación Angular inicial con pruebas de estructura.
 
 **No implementado:** modelo de datos, autenticación, CRUD, clientes, unidades, servicios, agenda y garantías. Los cuatro responsables deben acordar esos requisitos. El sitio anterior continúa independiente.
 

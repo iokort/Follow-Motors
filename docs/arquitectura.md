@@ -2,7 +2,7 @@
 
 ```text
     Navegador
-(HTML + CSS + JavaScript)
+(Angular 22 + TypeScript)
         |
         | HTTP(S) / JSON
         v
@@ -18,7 +18,7 @@
 - `backend/FollowMotors.Api`: servicio web mínimo con endpoint `GET /api/v1/health`.
 - `Infrastructure/IDatabaseConnectionFactory.cs`: contrato de fábrica de conexiones, sin imponer repositorios todavía.
 - `GET /api/v1/health/database`: comprueba conectividad MySQL solo en Development; no muestra secretos.
-- `frontend/`: pantalla base y cliente HTTP en `js/api.js`; no representa el diseño final.
+- `frontend/`: aplicación Angular y servicio HTTP en `src/app/services/health.service.ts`; no representa el diseño final.
 - `compose.yaml`: MySQL local persistente y contenedor de API para desarrollo.
 - `.github/workflows/ci.yml`: validaciones automáticas, aún sujetas a resultados de ejecución remota.
 

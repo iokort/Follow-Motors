@@ -3,12 +3,12 @@
 [Inicio](Home) · [Historias y CRC](Historias-y-CRC) · [Alcance](Alcance-y-Sucursal)
 
 ## Tecnologías
-Frontend **HTML/CSS/JavaScript**, API **ASP.NET Core C#**, persistencia **MySQL**. Se prefiere monolito modular, no microservicios prematuros.
+Frontend **Angular 22 con TypeScript**, API **ASP.NET Core .NET 10 (C#)** y persistencia **MySQL 8.4**. Se prefiere monolito modular, no microservicios prematuros.
 
 ## MVVM ligero
-- **View**: HTML/CSS y accesibilidad.
-- **ViewModel**: estado, carga, errores y comandos de interacción JS.
-- **Model**: información intercambiada con la API mediante un cliente HTTP desacoplado.
+- **View**: templates de componentes Angular HTML/CSS y accesibilidad.
+- **ViewModel conceptual**: signals y estado en componentes o servicios de presentación Angular.
+- **Model**: interfaces/DTO TypeScript y servicios HttpClient; el dominio de negocio y los permisos se aplican en el servidor C#.
 - El **backend** valida identidad, rol y relación cliente–motocicleta. La vista jamás autoriza.
 
 ## SOLID

@@ -1,10 +1,35 @@
-# Frontend — Vixtor Fernando
+# Frontend Angular — Vixtor Fernando
 
-Punto de partida: `index.html`, `css/styles.css`, `js/app.js` y `js/api.js`.
+Stack definitivo: **Angular 22 + TypeScript**, backend **C# / ASP.NET Core .NET 10**, base **MySQL 8.4**.
 
-## Ejecutar
-Con cualquier servidor HTTP estático en puerto **5500** (por ejemplo, extensión Live Server de VS Code). No abrir como `file://`.
+## Requisitos
 
-La página consulta `GET /api/v1/health` en `http://localhost:5099`. El URL se puede sobreescribir mediante `window.FOLLOW_MOTORS_API_URL` antes de cargar `app.js` si cambia el entorno. Para hosts separados, coordinar CORS con Kort.
+Node.js 22.22.3+, 24.15+ o 26+. Consultar https://angular.dev/reference/versions.
 
-La página es **un scaffold técnico, no el diseño final**. No incluir credenciales, llamadas directas a MySQL ni inventar respuestas definitivas. Trabajar en `feature/frontend` y acordar el contrato de API antes de implementar cada pantalla.
+## Git CMD
+
+Desde `frontend/`:
+
+```cmd
+npm install
+npm start
+```
+
+Abre http://localhost:4200. El servidor de desarrollo reenvía `/api` a http://localhost:5099 mediante `proxy.conf.json`; ejecuta también el backend.
+
+Para compilar y probar:
+
+```cmd
+npm run build
+npm test
+```
+
+La compilación produce `dist/follow-motors/browser`. El frontend no se publica en producción automáticamente.
+
+## Arquitectura
+
+Los componentes standalone y sus templates presentan la UI; los signals mantienen estado y los servicios con `HttpClient` consultan la API. Se aplica separación inspirada en MVVM sin capas innecesarias.
+
+**Alcance:** portal de asistencia y posventa, sin registro público de clientes, motos ni venta. Solo un asesor de sucursal puede dar de alta y vincular unidades. No se conectará MySQL desde Angular.
+
+**Estado:** solo base inicial Angular y comprobación de salud de API. El portal privado, autenticación y operaciones de negocio siguen pendientes.

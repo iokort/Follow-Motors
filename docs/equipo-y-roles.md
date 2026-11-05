@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | Kort · @kortCobein | Líder técnico e integrador de sistemas | Backend C#, API, integración frontend/API, arquitectura y releases | Define contratos con el equipo; revisa integración y cambios entre áreas |
 | Gael · @G43LEX | Responsable de datos / ingeniero de base de datos | Modelo ER, MySQL, migraciones, índices, integridad y datos de prueba | Revisa cualquier cambio de esquema o consulta relevante |
-| Vixtor Fernando · @fernandoohiti25 | Responsable de frontend | HTML, CSS, JavaScript, interfaz responsive, accesibilidad y consumo de API | Revisa cambios de interfaz y acuerda contratos JSON con Kort |
+| Vixtor Fernando · @fernandoohiti25 | Responsable de frontend | Angular, TypeScript, componentes y CSS, interfaz responsive, accesibilidad y consumo de API | Revisa cambios de interfaz y acuerda contratos JSON con Kort |
 | Aarón · @Aaron262005 | Analista funcional y responsable de documentación | Requisitos, casos de uso, criterios de aceptación, manuales y registro de decisiones | Revisa documentación y coteja requisitos con resultados, sin suplantar pruebas técnicas |
 
 ## Autoridad y decisiones

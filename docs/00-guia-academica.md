@@ -32,7 +32,7 @@ Este índice presenta los entregables de ingeniería de software para revisión 
 
 ## Estado comprobado en la rama de partida
 
-La base técnica contiene una API ASP.NET Core para comprobar salud, una conexión MySQL local, un frontend inicial, CI y CodeQL. **No se consideran desarrollados** los módulos de negocio, el esquema relacional definitivo ni la autenticación completa. Los documentos describen el diseño esperado.
+La base técnica contiene una API ASP.NET Core para comprobar salud, una conexión MySQL local, un frontend Angular inicial, CI y CodeQL. **No se consideran desarrollados** los módulos de negocio, el esquema relacional definitivo ni la autenticación completa. Los documentos describen el diseño esperado.
 
 ## Fuente de planificación
 

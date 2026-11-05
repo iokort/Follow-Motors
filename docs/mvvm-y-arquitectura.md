@@ -1,70 +1,49 @@
-# Diseño de arquitectura y separación MVVM
+# Arquitectura — Angular, ASP.NET Core y MySQL
 
-## Alcance
+El stack definitivo es **Angular 22 + TypeScript**, **ASP.NET Core .NET 10 / C#** y **MySQL 8.4**.
 
-Follow Motors es una **web HTML/CSS/JavaScript con API ASP.NET Core en C# y MySQL**, no una aplicación .NET MAUI. Se propone **MVVM ligero en el frontend** para separar vista, estado y modelo, sin introducir React, Angular o bibliotecas obligatorias. El patrón es un objetivo de refactorización, no algo ya implementado en todos los módulos.
-
-**Regla de producto vigente:** altas y vinculaciones en sucursal por asesor autorizado, nunca mediante autorregistro público; portal privado limitado a motocicletas del titular. [Alcance](alcance-posventa.md).
-
-## Diseño lógico propuesto
+## Arquitectura
 
 ```mermaid
 flowchart TB
-  subgraph Publico["Sitio publico y portal privado (frontend)"]
-    V["Views HTML/CSS"]
-    VM["ViewModels JS: estado, validacion visual, comandos"]
-    APIClient["Cliente HTTP JS"]
+  subgraph FE["Angular 22"]
+    V["Plantillas y componentes (View)"]
+    VM["Signals y estado de presentación (MVVM inspirado)"]
+    HTTP["Servicio HttpClient"]
     V <--> VM
-    VM --> APIClient
+    VM --> HTTP
   end
-  APIClient -->|HTTPS / JSON| HTTP["ASP.NET Core /api/v1"]
-  HTTP --> App["Casos de uso y contratos"]
-  App --> Dom["Dominio: reglas y entidades"]
-  App --> Port["Puertos / interfaces de persistencia"]
-  SQL["Adaptadores MySQL"] --> Port
-  SQL --> DB[("MySQL")]
+  HTTP -->|"HTTPS /api/v1 JSON"| API["ASP.NET Core / C#"]
+  API --> CASE["Casos de uso / contratos"]
+  CASE --> DOM["Entidades y reglas de dominio"]
+  CASE --> REPO["Adaptadores MySQL"]
+  REPO --> DB[("MySQL 8.4")]
 ```
 
-## Responsabilidades MVVM
+La base Angular emplea componentes standalone, signals y HttpClient. **MVVM es una guía de separación de vista/estado/modelos, no un requisito para añadir una clase ViewModel en cada pantalla.** Angular no se conecta a MySQL y no decide autorización.
 
-| Componente | Contenido | Ejemplo |
-| --- | --- | --- |
-| **View** | Maquetación, accesibilidad, interacción visual | `frontend/views/motocicletas.html` (ruta futura) |
-| **ViewModel** | Estado de carga, errores, comandos, selección y datos transformados | `frontend/js/viewmodels/motocicletas-viewmodel.js` (futuro) |
-| **Model** | DTO de API, reglas de dominio tratadas en servidor; datos para presentar | `GET /api/v1/motorcycles` (contrato propuesto, no implementado) |
+## Ejemplos reales de la base
 
-**Flujo de ejemplo:** el cliente selecciona una motocicleta → View llama al ViewModel → ViewModel pide datos al cliente HTTP → API valida sesión y pertenencia → MySQL responde → ViewModel convierte el resultado a un estado visible → View actualiza su presentación.
+- View: `frontend/src/app/app.html` y estilos `src/styles.css`.
+- Estado: `frontend/src/app/app.ts` (signal de conectividad).
+- API: `frontend/src/app/services/health.service.ts`.
+- Backend: `backend/FollowMotors.Api/`.
+- Desarrollo: proxy `frontend/proxy.conf.json` para `/api`.
 
-**Seguridad:** jamás confiar en visibilidad de un botón para autorizar acciones; el backend controla roles y pertenencia de cada recurso.
+## Políticas y SOLID
 
-## SOLID, DRY, KISS y arquitectura modular
+Los componentes y los servicios conservan responsabilidades diferenciadas, y los contratos TypeScript representan DTO HTTP. La API C# valida sesión, permisos y pertenencia de motos, mediante reglas de negocio y repositorios detrás de interfaces cuando aportan valor.
 
-- **S:** identidad, agenda, motocicletas y mantenimiento tienen responsabilidades separadas.
-- **O:** nuevas reglas de servicio deben poder agregarse sin alterar áreas ajenas.
-- **L:** implementaciones de repositorios cumplen los contratos definidos.
-- **I:** interfaces pequeñas por caso de uso, no una interfaz enorme.
-- **D:** aplicación depende de abstracciones; infraestructura implementa acceso MySQL.
-- **DRY:** validaciones de dominio compartidas de forma consistente.
-- **KISS/YAGNI:** modularidad proporcional; no introducir microservicios ni CQRS complejo para CRUD trivial.
+**Decisión comercial:** portal de asistencia/posventa, catálogo público solo informativo, alta presencial por asesor autorizado y portal privado para motos propias. [ADR-0005](adr/0005-alta-presencial-posventa.md).
 
-**CQRS ligero:** la separación de consultas y comandos es opcional donde simplifique reglas difíciles; no requiere dos bases ni event sourcing.
+## Estado de implementación
 
-## Estado real frente al diseño
-
-| Elemento | Estado |
-| --- | --- |
-| API de salud y prueba de conexión MySQL | Base funcional creada |
-| HTML/CSS/JS y cliente HTTP inicial | Base creada |
-| Estructura MVVM para todas las pantallas | Propuesta, no implementada |
-| Servicios completos y permisos RBAC | Pendientes |
-| Migraciones y modelo relacional de negocio | Pendientes de diseño y revisión |
-
-## Decisiones que requieren aprobación
-
-Estrategia de autenticación/sesión; reglas de propiedad y roles; disponibilidad de agenda; reglas de mantenimiento; migración de datos existentes; alojamiento del backend C#.
+Existe una pantalla técnica Angular y comprobación de salud de la API. El esquema de negocio MySQL, login real, alta presencial, agenda, historial y garantías **no se consideran implementados**. El catálogo CRC es diseño propuesto, no clases ya desarrolladas.
 
 ## Referencias
 
-Microsoft. (s. f.). *Model-View-ViewModel (MVVM)*. Microsoft Learn. https://learn.microsoft.com/dotnet/architecture/maui/mvvm
+Angular. (2026). *Version compatibility*. https://angular.dev/reference/versions
 
-OWASP Foundation. (s. f.). *Authorization cheat sheet*. OWASP Cheat Sheet Series. https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html
+Angular. (s. f.). *Building Angular apps*. https://angular.dev/tools/cli/build
+
+OWASP Foundation. (s. f.). *Authorization cheat sheet*. https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html
