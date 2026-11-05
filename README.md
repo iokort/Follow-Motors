@@ -7,7 +7,7 @@ Reconstrucción de la plataforma de gestión de clientes, unidades, kilometraje,
 - **[Índice de entregables](docs/00-guia-academica.md)**: acceso único para evaluación.
 - **[Scrum + Kanban](docs/scrum-kanban.md)**: sprints propuestos, Kanban, WIP, DoR y DoD.
 - **[Product Backlog V5](docs/backlog-v5.md)**: 22 historias / 145 puntos preliminares.
-- **[Tarjetas CRC](docs/tarjetas-crc.md)**: 15 componentes y colaboraciones propuestas.
+- **[CRC extendidas](docs/crc/README.md)**: 180 fichas de análisis en US01–US08 y US21; [15 CRC originales](docs/tarjetas-crc.md).
 - **[MVVM y arquitectura](docs/mvvm-y-arquitectura.md)**: capas web, C#, MySQL y SOLID.
 - **[Marco teórico](docs/marco-teorico.md)**: fundamento con referencias.
 - **[Stakeholders y RACI](docs/stakeholders-raci.md)** · **[Trazabilidad](docs/trazabilidad-y-evidencias.md)**.
