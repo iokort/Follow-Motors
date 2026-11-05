@@ -1,0 +1,38 @@
+<header class="site-header">
+  <a class="brand" href="/">Follow <span>Motors</span></a>
+  <span class="environment">Entorno de desarrollo</span>
+</header>
+<main class="content">
+  <section class="intro" aria-labelledby="page-title">
+    <p class="eyebrow">Asistencia y posventa</p>
+    <h1 id="page-title">Follow Motors</h1>
+    <p>Portal para propietarios registrados en sucursal por personal autorizado. El acceso privado mostrará exclusivamente sus motocicletas vinculadas.</p>
+  </section>
+  <section class="status" aria-labelledby="status-title">
+    <div>
+      <h2 id="status-title">Conectividad de API</h2>
+      <p role="status" aria-live="polite">
+        @switch (apiStatus()) {
+          @case ('loading') { Comprobando conexión… }
+          @case ('available') { API disponible. Los módulos de negocio siguen en desarrollo. }
+          @default { API sin conexión. Inicia el backend e inténtalo nuevamente. }
+        }
+      </p>
+    </div>
+    <button type="button" (click)="checkApi()" [disabled]="apiStatus() === 'loading'">Reintentar</button>
+  </section>
+  <section class="modules" aria-labelledby="modules-title">
+    <h2 id="modules-title">Módulos por desarrollar</h2>
+    <ul>
+      <li>Acceso de cuentas habilitadas en sucursal</li>
+      <li>Alta y vinculación por asesor autorizado</li>
+      <li>Mis motocicletas, kilometraje e historial privado</li>
+      <li>Agenda, mantenimiento y garantías</li>
+    </ul>
+  </section>
+</main>
+<footer class="site-footer">
+  <span>© 2026 Kurt Cobain Vázquez Sánchez</span>
+  <span aria-hidden="true">·</span>
+  <a href="https://iokort.com" target="_blank" rel="noopener noreferrer">ioKort</a>
+</footer>
