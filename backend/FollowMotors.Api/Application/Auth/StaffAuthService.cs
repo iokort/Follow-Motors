@@ -10,7 +10,11 @@ namespace FollowMotors.Api.Application.Auth;
 public sealed record StaffLoginRequest(string Correo, string Contrasena);
 
 /// <summary>Identidad validada y permisos obtenidos de las tablas de Gael.</summary>
-public sealed record StaffIdentity(Guid Id, string Nombre, IReadOnlyList<string> Permisos);
+/// <summary>
+/// Cuenta validada desde MySQL: roles y permisos vienen de sus tablas, no de Angular.
+/// </summary>
+public sealed record StaffIdentity(
+    Guid Id, string Nombre, IReadOnlyList<string> Permisos, IReadOnlyList<string> Roles);
 
 /// <summary>
 /// Puerto de autenticación; el controlador no conoce MySQL ni los hashes.
@@ -63,7 +67,7 @@ public sealed class MySqlStaffAuthService(IDatabaseConnectionFactory factory) : 
         // Autorización respaldada por roles_permisos, no por un campo editable
         // recibido del navegador. Mismo usuario puede tener varios roles.
         await using var rolesSql = new MySqlConnector.MySqlCommand("""
-            SELECT DISTINCT rp.permiso_codigo
+            SELECT DISTINCT r.codigo, rp.permiso_codigo
             FROM usuarios_roles ur
             JOIN roles r ON r.codigo = ur.rol_codigo AND r.activo = 1
             JOIN roles_permisos rp ON rp.rol_codigo = ur.rol_codigo
@@ -72,15 +76,21 @@ public sealed class MySqlStaffAuthService(IDatabaseConnectionFactory factory) : 
             """, connection);
         rolesSql.Parameters.AddWithValue("@Id", account.Id.ToString());
 
-        var perms = new List<string>();
+        // US01: obtener roles ACTIVOS y permisos directamente de MySQL V3.
+        // Un usuario con agenda.ver no se convierte por eso en gerente.
+        var roles = new HashSet<string>(StringComparer.Ordinal);
+        var perms = new HashSet<string>(StringComparer.Ordinal);
         await using (var reader = await rolesSql.ExecuteReaderAsync(ct))
         {
             while (await reader.ReadAsync(ct))
-                perms.Add(reader.GetString(0));
+            {
+                roles.Add(reader.GetString(0));
+                perms.Add(reader.GetString(1));
+            }
         }
 
-        // Solo personal que tenga permisos de agenda obtiene esta sesión.
+        // Solo personal con permisos obtiene sesión en esta ruta.
         if (perms.Count == 0) return null;
-        return new StaffIdentity(account.Id, account.Nombre, perms);
+        return new StaffIdentity(account.Id, account.Nombre, perms.ToArray(), roles.ToArray());
     }
 }
