@@ -209,11 +209,14 @@ public sealed class MySqlAgendaRepository(IDatabaseConnectionFactory factory) : 
             return row.IsDBNull(index) ? null : row.GetString(index);
         }
 
-        var moto = Optional("motocicleta_id");
+        // MySqlConnector convierte CHAR(36) a Guid automáticamente por defecto.
+        // Usar GetGuid evita InvalidCastException: Guid no es String.
+        var motoIndex = row.GetOrdinal("motocicleta_id");
+        Guid? moto = row.IsDBNull(motoIndex) ? null : row.GetGuid(motoIndex);
         return new Cita(
-            Guid.Parse(row.GetString("id")),
+            row.GetGuid("id"),
             row.GetString("tipo_motocicleta"),
-            moto is null ? null : Guid.Parse(moto),
+            moto,
             Optional("marca_externa"),
             Optional("modelo_externo"),
             Optional("contacto_externo"),
@@ -222,6 +225,6 @@ public sealed class MySqlAgendaRepository(IDatabaseConnectionFactory factory) : 
             row.GetInt32("duracion_minutos"),
             row.GetString("motivo"),
             row.GetString("estado"),
-            Guid.Parse(row.GetString("registrada_por")));
+            row.GetGuid("registrada_por"));
     }
 }

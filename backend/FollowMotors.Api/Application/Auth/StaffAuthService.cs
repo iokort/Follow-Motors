@@ -51,7 +51,7 @@ public sealed class MySqlStaffAuthService(IDatabaseConnectionFactory factory) : 
         await using (var reader = await userSql.ExecuteReaderAsync(ct))
         {
             account = await reader.ReadAsync(ct)
-                ? new StaffAccount(Guid.Parse(reader.GetString(0)), reader.GetString(1), reader.GetString(2))
+                ? new StaffAccount(reader.GetGuid(0), reader.GetString(1), reader.GetString(2))
                 : null;
         }
         if (account is null) return null;
