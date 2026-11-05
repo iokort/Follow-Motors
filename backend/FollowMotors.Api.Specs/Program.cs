@@ -7,6 +7,8 @@ using FollowMotors.Api.Domain.Agenda;
 var test = new AgendaSpecs();
 await test.RunAsync();
 Console.WriteLine("US06/US15: pruebas funcionales de negocio correctas.");
+await DemoAuthSpecs.RunAsync();
+Console.WriteLine("US01: pruebas de autenticación sin MySQL correctas.");
 await IntegrationSpecs.RunIfConfiguredAsync();
 
 internal sealed class AgendaSpecs
