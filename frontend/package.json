@@ -1,10 +1,25 @@
 {
   "name": "follow-motors-frontend",
+  "version": "0.2.0",
   "private": true,
-  "version": "0.1.0",
-  "type": "module",
   "scripts": {
-    "test": "node --test",
-    "check": "node --check js/app.js && node --check js/api.js"
-  }
+    "start": "ng serve --host 127.0.0.1 --port 4200",
+    "build": "ng build",
+    "check": "ng build",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@angular/common": "~22.2.4",
+    "@angular/compiler": "~22.2.4",
+    "@angular/core": "~22.2.4",
+    "@angular/platform-browser": "~22.2.4",
+    "rxjs": "~7.8.0"
+  },
+  "devDependencies": {
+    "@angular/build": "~22.2.4",
+    "@angular/cli": "~22.2.4",
+    "@angular/compiler-cli": "~22.2.4",
+    "typescript": "~6.0.0"
+  },
+  "type": "module"
 }

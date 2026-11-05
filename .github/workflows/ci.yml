@@ -21,10 +21,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      - name: Sintaxis JavaScript
-        run: npm run check
-      - name: Tests de cliente HTTP
+          node-version: '24.15.0'
+      # Mantener el nombre del job mientras siga siendo una comprobación requerida en branch protection.
+      - name: Instalar dependencias Angular
+        run: npm install --no-audit --no-fund
+      - name: Compilar Angular con vistas originales de Fernando
+        run: npm run build
+      - name: Pruebas de frontend y MVVM
         run: npm test
       - name: Validar recursos HTML
         working-directory: .

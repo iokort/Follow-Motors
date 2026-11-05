@@ -1,0 +1,14 @@
+<!-- Los contenedores conservan exactamente el contrato DOM de las vistas de Fernando. -->
+<div id="navbar"></div>
+<div id="app"></div>
+<section class="api-section" aria-labelledby="api-title">
+  <div class="api-content">
+    <h2 id="api-title">Estado del sistema</h2>
+    <p id="api-status" role="status" aria-live="polite">Comprobando conexión…</p>
+    <button id="retry-api" type="button">Reintentar conexión</button>
+  </div>
+</section>
+<div id="footer"></div>
+@if (vm.error()) {
+  <p class="angular-integration-error" role="alert">{{ vm.error() }}</p>
+}
