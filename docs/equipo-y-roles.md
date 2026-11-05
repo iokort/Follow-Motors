@@ -1,5 +1,7 @@
 # Equipo, roles y responsabilidades
 
+La distribución de responsabilidades y cargos de exposición se amplía en [Stakeholders y RACI](stakeholders-ssc.md).
+
 ## Organización de trabajo
 
 | Integrante / GitHub | Rol del proyecto | Entrega principal | Decisiones y revisión |
