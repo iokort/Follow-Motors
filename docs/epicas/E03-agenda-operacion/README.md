@@ -9,3 +9,7 @@
 | [US16: Registrar órdenes y trabajos de mecánico](US16.md) | [#31](https://github.com/iokort/Follow-Motors/issues/31) | Media | 12 |
 
 **Trazabilidad:** responsabilidades candidatas, no clases ya implementadas. [Volver al índice](../README.md).
+
+## Avance técnico del backend
+
+El [PR #48](https://github.com/iokort/Follow-Motors/pull/48) implementa los endpoints C# de US06 y US15, con servicio, política, repositorio MySQL V3 y pruebas. La integración Angular, el aprovisionamiento de cuentas y la demo extremo a extremo siguen pendientes; las US **no están cerradas**.

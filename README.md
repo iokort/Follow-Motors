@@ -52,7 +52,7 @@ Aarón coordina el trabajo; Gael propone y aclara reglas del producto; Fernando 
 | **MySQL 8.4** | Clientes, usuarios, motos, citas, trabajos y garantías | Claves, relaciones, integridad e historial transaccional |
 | **GitHub / Actions / Projects** | Código, PR, revisiones, CI y Scrum/Kanban | Trazabilidad comprobable para el equipo escolar |
 
-**Estado técnico actual:** Angular ya compila y aloja las **pantallas originales de Fernando mediante un adaptador**. El traslado progresivo de cada pantalla a componentes Angular nativos todavía está pendiente; no hemos reemplazado su diseño. Los **ocho scripts SQL V3 de Gael** ya están incorporados al repositorio, pero eso no demuestra que una base de datos productiva esté creada. La API C# tiene una base técnica y conexión de prueba a MySQL; la mayor parte de las funciones de negocio aún debe desarrollarse.
+**Estado técnico actual:** Angular ya compila y aloja las **pantallas originales de Fernando mediante un adaptador**. El traslado progresivo de cada pantalla a componentes Angular nativos todavía está pendiente; no hemos reemplazado su diseño. Los **ocho scripts SQL V3 de Gael** ya están incorporados al repositorio, pero eso no demuestra que una base de datos productiva esté creada. La API C# tiene una base técnica y conexión de prueba a MySQL. **Las historias US06 y US15 disponen de backend C#** para registrar, consultar, reprogramar y cancelar citas con la base MySQL V3, permisos de personal, auditoría y pruebas. **No** está conectado aún con los formularios Angular de Fernando, ni se han implementado los demás módulos de negocio.
 
 [Arquitectura y motivos](docs/arquitectura-objetivo-ssc.md) · [Frontend de Fernando integrado con Angular](frontend/README.md) · [Scripts SQL V3 de Gael](database/v3/sql/).
 
@@ -100,7 +100,9 @@ Usaremos **Scrum con apoyo visual de GitHub Projects**. Se proponen sprints esco
 
 Tablero real: **[Follow Motors — SSC](https://github.com/orgs/iokort/projects/1)**. Estados disponibles: `Sin Iniciar`, `Ready`, `Working`, `Waiting`, `Done` y `Canceled`. No atribuir progresos ni reuniones que no estén comprobados.
 
-**Definition of Done:** criterios de la US probados, PR revisado e integrado, CI correcto, permisos verificados y evidencia enlazada. Las pruebas automáticas de la base **no** significan que las funciones de negocio estén terminadas.
+**Definition of Done:** criterios de la US probados, PR revisado e integrado, CI correcto, permisos verificados y evidencia enlazada.
+
+**Avance de backend (E03):** [US06](docs/epicas/E03-agenda-operacion/US06.md) y [US15](docs/epicas/E03-agenda-operacion/US15.md) cuentan con [Controller, servicios SOLID, SQL y pruebas](backend/README.md). **Aún no se marcan como Done las historias completas** hasta validar la UI y el flujo real. Las pruebas automáticas de la base **no** significan que las funciones de negocio estén terminadas.
 
 [Plan Scrum completo con tareas, iteraciones, DoR, DoD y riesgos](docs/scrum-plan-ssc.md) · [Issues](https://github.com/iokort/Follow-Motors/issues) · [Pull requests](https://github.com/iokort/Follow-Motors/pulls).
 
