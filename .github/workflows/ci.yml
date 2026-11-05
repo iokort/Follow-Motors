@@ -84,3 +84,8 @@ jobs:
           python3 -c 'import json; assert json.load(open("/tmp/health.json"))["status"] == "ok"'
           curl --fail --silent http://127.0.0.1:5099/api/v1/health/database > /tmp/database.json
           python3 -c 'import json; assert json.load(open("/tmp/database.json"))["database"] == "mysql"'
+          # Seguridad de US06/US15: ni lectura ni escritura de agenda sin sesión.
+          get_code=$(curl --silent --output /tmp/unauthorized-get.json --write-out '%{http_code}' http://127.0.0.1:5099/api/v1/citas)
+          test "$get_code" = "401"
+          post_code=$(curl --silent --output /tmp/unauthorized-post.json --write-out '%{http_code}' --header 'Content-Type: application/json' --data '{"tipoMotocicleta":"EXTERNA"}' http://127.0.0.1:5099/api/v1/citas)
+          test "$post_code" = "401"
