@@ -1,12 +1,19 @@
 # Guía de colaboración
 
 ## Responsables
-- **Kort:** API ASP.NET Core, integración con frontend y coordinación técnica.
-- **Gael:** MySQL, modelo relacional, migraciones y consultas.
-- **Vixtor Fernando:** HTML, CSS, JavaScript, accesibilidad y componentes de interfaz.
-- **Aarón:** requisitos, casos de uso, manuales y documentos del proyecto.
+- **Aarón — Project Manager:** coordinación de entregas, tablero Scrum/Kanban, requisitos, documentación y evidencias.
+- **Gael — Database Manager:** visión del producto, modelo relacional, migraciones, integridad y consultas MySQL.
+- **Vixtor Fernando — Frontend Designer & Developer:** diseño UI, **Angular 22 con TypeScript**, componentes, plantillas HTML/CSS, accesibilidad y servicios HttpClient.
+- **Kort — Backend Developer:** **C# / ASP.NET Core .NET 10**, API REST, reglas, validación, seguridad e integración técnica.
 
 `main` = estable, `develop` = integración; las ramas `feature/backend`, `feature/database`, `feature/frontend`, `feature/docs` son áreas de referencia. Se recomiendan ramas por tarea (`feature/<descripcion>`, `fix/<descripcion>`, `docs/<descripcion>`) nacidas de `develop` cuando existan trabajos simultáneos.
+
+## Stack definitivo
+
+- **Frontend:** Angular 22, TypeScript y CSS. HTML es el lenguaje de las plantillas de Angular; no se desarrolla un sitio independiente en JavaScript sin framework.
+- **Backend:** C# y ASP.NET Core (.NET 10).
+- **Base de datos:** MySQL 8.4. El navegador no se conecta directamente a MySQL.
+- **Alcance:** asistencia y posventa; los clientes y motos se dan de alta en sucursal por un asesor autorizado. Sin autorregistro ni venta pública.
 
 ## De Issue a PR
 1. Elegir Issue y dejar definidos objetivo, alcance, dependencias y criterios de aceptación.
@@ -24,9 +31,9 @@ Rutas: `/api/v1`. Contratos: solicitudes/respuestas JSON con códigos HTTP. El f
 
 ## Comprobaciones locales
 - Backend: `dotnet build backend/FollowMotors.Api/FollowMotors.Api.csproj`.
-- Frontend: `cd frontend && npm run check && npm test`.
+- Frontend Angular: `cd frontend`, `npm install`, `npm run build`, `npm test` (Node.js compatible con Angular 22).
 - Integración local: `docker compose up -d --build` tras crear `.env`.
-- CI ejecuta compilación, pruebas JS, salud de API y salud de MySQL.
+- CI compila Angular/TypeScript, ejecuta pruebas de estructura y verifica la API .NET con MySQL. El check conserva temporalmente el identificador histórico `Frontend / JavaScript` para no romper las reglas de protección.
 
 ## Restricciones
-No subir credenciales, datos de clientes, respaldos o `.env`. No modificar producción desde `develop`, ni forzar pushes a ramas estables. No hacer migraciones destructivas sin plan de respaldo y aprobación expresa. No crear endpoints, tablas o funciones de negocio sin especificación.
+No subir credenciales, datos de clientes, respaldos o `.env`. La lógica de autorización y pertenencia de motocicletas reside en ASP.NET Core, no en Angular. No modificar producción desde `develop`, ni forzar pushes a ramas estables. No hacer migraciones destructivas sin plan de respaldo y aprobación expresa. No crear endpoints, tablas o funciones de negocio sin especificación.
