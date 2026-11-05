@@ -19,11 +19,17 @@ builder.Services.AddSingleton<IDatabaseConnectionFactory, MySqlConnectionFactory
 builder.Services.AddScoped<IAgendaRepository, MySqlAgendaRepository>();
 builder.Services.AddScoped<IAgendaService, AgendaService>();
 builder.Services.AddScoped<AgendaPolicy>();
-builder.Services.AddScoped<IStaffAuthService, MySqlStaffAuthService>();
+// US01: para la exposición escolar, una cuenta temporal funciona sin base de datos.
+// Modo DEMO exclusivamente en Development y opt-in con variables de entorno.
+// En cualquier otro caso se conserva el login MySQL existente para US06/US15.
+if (builder.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("Auth:Demo:Enabled"))
+    builder.Services.AddScoped<IStaffAuthService, DemoStaffAuthService>();
+else
+    builder.Services.AddScoped<IStaffAuthService, MySqlStaffAuthService>();
 
 // ================================================================
 // Autenticación con cookies firmadas por ASP.NET Core.
-// - No hay usuarios de ejemplo ni contraseñas incrustadas en código.
+// - No se incrustan credenciales. La cuenta temporal de US01 requiere variables de entorno.
 // - Requiere una cuenta vigente de MySQL V3 con hash Identity PBKDF2.
 // - SameSite Strict, HttpOnly y Secure en producción.
 // - 401/403 en API en vez de redirección HTML a formulario.
