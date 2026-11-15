@@ -1,0 +1,240 @@
+erDiagram
+    usuarios {
+        bigint id PK
+        varchar identificador
+        varchar hash_contrasena
+        enum rol
+        boolean activo
+        datetime creado_en
+        datetime actualizado_en
+    }
+    clientes {
+        bigint id PK
+        bigint usuario_id FK
+        varchar nombres
+        varchar apellidos
+        varchar telefono
+        bigint registrado_por_usuario_id FK
+        datetime creado_en
+    }
+    empleados {
+        bigint id PK
+        bigint usuario_id FK
+        varchar nombres
+        varchar apellidos
+        boolean es_mecanico
+        boolean disponible
+    }
+    motocicletas {
+        bigint id PK
+        bigint cliente_id FK
+        varchar numero_serie
+        varchar placa
+        varchar marca
+        varchar modelo
+        smallint anio
+        varchar color
+        int kilometraje_actual
+        datetime registrada_en
+    }
+    franjas_citas {
+        bigint id PK
+        datetime inicio
+        datetime fin
+        smallint capacidad
+        boolean habilitada
+        bigint creada_por_usuario_id FK
+    }
+    citas {
+        bigint id PK
+        bigint franja_id FK
+        bigint cliente_id FK
+        bigint motocicleta_id FK
+        varchar motivo
+        enum origen
+        enum estado
+        datetime registrada_en
+    }
+    tarifas_revision {
+        bigint id PK
+        decimal importe
+        datetime vigente_desde
+        datetime vigente_hasta
+    }
+    atenciones {
+        bigint id PK
+        bigint cliente_id FK
+        bigint motocicleta_id FK
+        bigint cita_id FK
+        bigint mecanico_id FK
+        text motivo
+        int kilometraje_ingreso
+        text diagnostico
+        enum estado
+        datetime ingresada_en
+        datetime diagnosticada_en
+    }
+    cobros_revision {
+        bigint id PK
+        bigint atencion_id FK
+        bigint tarifa_id FK
+        decimal importe_cobrado
+        bigint registrado_por_usuario_id FK
+        datetime cobrado_en
+        varchar referencia_comprobante
+    }
+    tipos_servicio {
+        bigint id PK
+        varchar nombre
+        text descripcion
+        smallint garantia_dias
+        text cobertura
+        boolean activo
+    }
+    presupuestos {
+        bigint id PK
+        bigint atencion_id FK
+        bigint tipo_servicio_id FK
+        text descripcion_trabajo
+        decimal mano_obra_acordada
+        decimal refacciones_acordadas
+        decimal total_acordado
+        datetime entrega_estimada
+        enum estado
+        bigint registrado_por_usuario_id FK
+        datetime acordado_en
+        datetime creado_en
+    }
+    tareas_servicio {
+        bigint id PK
+        bigint presupuesto_id FK
+        varchar descripcion
+        smallint orden
+        decimal peso_porcentual
+        decimal avance_tarea
+        enum estado
+        text evidencia
+        datetime actualizada_en
+    }
+    refacciones_servicio {
+        bigint id PK
+        bigint presupuesto_id FK
+        varchar descripcion
+        smallint cantidad_solicitada
+        smallint cantidad_recibida
+        smallint cantidad_utilizada
+        smallint cantidad_devuelta
+        decimal precio_unitario_cliente
+        decimal costo_unitario_proveedor
+        varchar referencia_factura_proveedor
+        datetime solicitada_en
+        datetime recibida_en
+        datetime devuelta_en
+    }
+    ordenes_servicio {
+        bigint id PK
+        bigint presupuesto_id FK
+        enum estado
+        datetime iniciada_en
+        datetime aviso_avance_25_en
+        datetime terminada_en
+        datetime entregada_en
+        int version
+        datetime creada_en
+    }
+    anticipos_reparacion {
+        bigint id PK
+        bigint orden_id FK
+        decimal monto_mano_obra
+        decimal monto_refacciones
+        decimal total_pagado
+        varchar referencia_comprobante
+        bigint registrado_por_usuario_id FK
+        datetime pagado_en
+    }
+    garantias_servicio {
+        bigint id PK
+        bigint orden_id FK
+        boolean aplica
+        smallint duracion_dias
+        text condiciones
+        datetime informada_en
+        datetime inicia_en
+        datetime vence_en
+        varchar referencia_comprobante
+    }
+    solicitudes_cancelacion {
+        bigint id PK
+        bigint orden_id FK
+        bigint cliente_id FK
+        enum estado
+        decimal progreso_al_resolver
+        decimal costo_mano_obra_realizada
+        decimal costo_refacciones_usadas
+        decimal monto_reembolsado
+        varchar motivo_rechazo
+        datetime solicitada_en
+        datetime resuelta_en
+        datetime reembolsada_en
+    }
+    mantenimientos_programados {
+        bigint id PK
+        bigint motocicleta_id FK
+        bigint orden_origen_id FK
+        varchar descripcion
+        date fecha_estimada
+        int kilometraje_objetivo
+        enum estado
+    }
+    notificaciones {
+        bigint id PK
+        bigint cliente_id FK
+        bigint orden_id FK
+        bigint cita_id FK
+        enum tipo
+        varchar mensaje
+        datetime creada_en
+        datetime leida_en
+    }
+    auditoria {
+        bigint id PK
+        bigint usuario_id FK
+        varchar entidad
+        bigint registro_id
+        varchar accion
+        json antes
+        json despues
+        datetime registrada_en
+    }
+    usuarios ||--o| clientes : "usuario_id"
+    usuarios ||--o{ clientes : "registrado_por_usuario_id"
+    usuarios ||--o| empleados : "usuario_id"
+    clientes ||--o{ motocicletas : "cliente_id"
+    usuarios ||--o{ franjas_citas : "creada_por_usuario_id"
+    franjas_citas ||--o{ citas : "franja_id"
+    clientes ||--o{ citas : "cliente_id"
+    motocicletas ||--o{ citas : "motocicleta_id"
+    clientes ||--o{ atenciones : "cliente_id"
+    motocicletas ||--o{ atenciones : "motocicleta_id"
+    citas ||--o| atenciones : "cita_id"
+    empleados ||--o{ atenciones : "mecanico_id"
+    atenciones ||--o| cobros_revision : "atencion_id"
+    tarifas_revision ||--o{ cobros_revision : "tarifa_id"
+    usuarios ||--o{ cobros_revision : "registrado_por_usuario_id"
+    atenciones ||--o| presupuestos : "atencion_id"
+    tipos_servicio ||--o{ presupuestos : "tipo_servicio_id"
+    usuarios ||--o{ presupuestos : "registrado_por_usuario_id"
+    presupuestos ||--o{ tareas_servicio : "presupuesto_id"
+    presupuestos ||--o{ refacciones_servicio : "presupuesto_id"
+    presupuestos ||--o| ordenes_servicio : "presupuesto_id"
+    ordenes_servicio ||--o| anticipos_reparacion : "orden_id"
+    usuarios ||--o{ anticipos_reparacion : "registrado_por_usuario_id"
+    ordenes_servicio ||--o| garantias_servicio : "orden_id"
+    ordenes_servicio ||--o| solicitudes_cancelacion : "orden_id"
+    clientes ||--o{ solicitudes_cancelacion : "cliente_id"
+    motocicletas ||--o{ mantenimientos_programados : "motocicleta_id"
+    ordenes_servicio ||--o{ mantenimientos_programados : "orden_origen_id"
+    clientes ||--o{ notificaciones : "cliente_id"
+    ordenes_servicio ||--o{ notificaciones : "orden_id"
+    citas ||--o{ notificaciones : "cita_id"
+    usuarios ||--o{ auditoria : "usuario_id"

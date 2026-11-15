@@ -42,3 +42,7 @@ Cada historia contiene propósito, criterios de aceptación, flujo y **entre 5 y
 Este reinicio documenta **análisis y diseño funcional**. No implica código implementado, pruebas ejecutadas ni despliegue. El historial de ramas, PR e Issues anteriores es antecedente; no acredita que estas 12 historias estén terminadas.
 
 El proyecto se entrega al finalizar el cuatrimestre; no se planifica una fase posterior de producción.
+
+## Base de datos
+
+El modelo relacional, los SQL para Workbench y Hostinger y la guía de EER se encuentran en [database/](database/README.md).
