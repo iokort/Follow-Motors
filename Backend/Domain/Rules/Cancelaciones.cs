@@ -1,24 +1,23 @@
 namespace FollowMotors.Domain.Rules.Cancelaciones;
 
-/// <summary>Calcula el reembolso de anticipo sin incluir el cobro del diagnóstico.</summary>
-public sealed class CalculadoraReembolso
-{
-    /// <summary>Devuelve el reembolso disponible descontando trabajo y piezas usados.</summary>
-    public decimal Calcular(decimal anticipoReparacion, decimal manoObraAcordada,
-        decimal fraccionTrabajoRealizada, decimal piezasUsadas)
-    {
-        if (anticipoReparacion < 0 || manoObraAcordada < 0 || piezasUsadas < 0 ||
-            fraccionTrabajoRealizada is < 0m or > 1m)
-            throw new ArgumentOutOfRangeException(nameof(fraccionTrabajoRealizada), "Los importes y el avance deben ser válidos.");
-        decimal retencion = manoObraAcordada * fraccionTrabajoRealizada + piezasUsadas;
-        return Math.Clamp(anticipoReparacion - retencion, 0m, anticipoReparacion);
-    }
-}
+using FollowMotors.Domain.Rules.Operaciones;
 
-/// <summary>Establece el límite de cancelación de una reparación contratada.</summary>
-public sealed class PoliticaCancelacion
+/// <summary>Desglose de la liquidación del anticipo de reparación.</summary>
+public sealed record LiquidacionCancelacion(decimal ManoObraEjecutada, decimal PiezasUsadas, decimal Reembolso);
+
+/// <summary>Calcula el límite de cancelación y el reintegro sin incorporar la revisión fija.</summary>
+public static class PoliticaCancelacion
 {
-    /// <summary>Permite cancelar un trabajo únicamente con avance verificable de hasta 60 %.</summary>
-    public bool SePuedeCancelar(decimal avance, bool yaTerminada) =>
-        !yaTerminada && avance is >= 0m and <= 60m;
+    /// <summary>Permite aprobar cancelación hasta 60 % verificado, inclusive.</summary>
+    public static bool AvanceCancelable(decimal avance) => avance is >= 0m and <= 60m;
+
+    /// <summary>Descuenta mano de obra verificada y piezas consumidas del monto efectivamente pagado.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">Los importes o el avance no representan una liquidación válida.</exception>
+    public static LiquidacionCancelacion Liquidar(decimal pagado, decimal manoObra, decimal avance, decimal piezasUsadas)
+    {
+        if (pagado < 0 || manoObra < 0 || piezasUsadas < 0 || !AvanceCancelable(avance))
+            throw new ArgumentOutOfRangeException(nameof(avance), "La cancelación contiene importes o un avance no válidos.");
+        decimal trabajo = ImportesReparacion.Redondear(manoObra * avance / 100m);
+        return new LiquidacionCancelacion(trabajo, piezasUsadas, Math.Max(0m, pagado - trabajo - piezasUsadas));
+    }
 }

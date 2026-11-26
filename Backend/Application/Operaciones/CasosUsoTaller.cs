@@ -1,18 +1,19 @@
 namespace FollowMotors.Application.Operaciones;
 
 using FollowMotors.Application.Abstractions.Autenticacion;
-using FollowMotors.Domain.Rules.Operaciones;
 using MediatR;
 
 /// <summary>Centraliza identidad y permisos de los casos de uso, sin repetirlos en controladores.</summary>
 public abstract class CasoUsoTaller(IUsuarioActual usuario)
 {
+    /// <summary>Obtiene la identidad firmada de la sesión.</summary>
     protected ActorTaller Actor()
     {
         if (usuario.UsuarioId is null) throw new UnauthorizedAccessException("La sesión es obligatoria.");
         return new ActorTaller(usuario.UsuarioId.Value, usuario.Rol);
     }
 
+    /// <summary>Limita la operación a personal del taller.</summary>
     protected ActorTaller Empleado()
     {
         var actor = Actor();
@@ -21,6 +22,7 @@ public abstract class CasoUsoTaller(IUsuarioActual usuario)
         return actor;
     }
 
+    /// <summary>Limita la operación a gerencia.</summary>
     protected ActorTaller Gerente()
     {
         var actor = Actor();
@@ -30,134 +32,144 @@ public abstract class CasoUsoTaller(IUsuarioActual usuario)
     }
 }
 
-/// <summary>Casos de uso de presupuestos y contratación; validan el dominio antes de persistir.</summary>
+/// <summary>Orquesta el presupuesto, el acuerdo presencial y el anticipo de reparación.</summary>
 public sealed class PresupuestosTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
     IRequestHandler<CrearPresupuestoCommand, ulong>, IRequestHandler<DecidirPresupuestoCommand, bool>,
-    IRequestHandler<ConsultarPresupuestoQuery, PresupuestoVista?>, IRequestHandler<ContratarServicioCommand, ulong>
+    IRequestHandler<ConsultarPresupuestoQuery, PresupuestoVista?>, IRequestHandler<ContratarServicioCommand, ulong>,
+    IRequestHandler<RegistrarAnticipoCommand, ulong>, IRequestHandler<RegistrarTipoServicioCommand, ulong>,
+    IRequestHandler<TiposServicioQuery, IReadOnlyList<TipoServicioVista>>
 {
-    /// <summary>Valida importes y pesos antes de crear un presupuesto transaccional.</summary>
-    public Task<ulong> Handle(CrearPresupuestoCommand c, CancellationToken ct)
+    /// <summary>Registra el presupuesto con las tareas validadas del servicio.</summary>
+    public Task<ulong> Handle(CrearPresupuestoCommand solicitud, CancellationToken ct) =>
+        repositorio.CrearPresupuesto(solicitud, Empleado(), ct);
+
+    /// <summary>Registra la decisión que el personal verificó presencialmente.</summary>
+    public Task<bool> Handle(DecidirPresupuestoCommand solicitud, CancellationToken ct) =>
+        repositorio.DecidirPresupuesto(solicitud, Empleado(), ct);
+
+    /// <summary>Obtiene una cotización visible para la sesión.</summary>
+    public Task<PresupuestoVista?> Handle(ConsultarPresupuestoQuery consulta, CancellationToken ct) =>
+        repositorio.ConsultarPresupuesto(consulta.PresupuestoId, Actor(), ct);
+
+    /// <summary>Contrata el servicio y registra simultáneamente su anticipo.</summary>
+    public Task<ulong> Handle(ContratarServicioCommand solicitud, CancellationToken ct) =>
+        repositorio.Contratar(solicitud, Empleado(), ct);
+
+    /// <summary>Completa el registro de un anticipo para una orden previa que carece de pago.</summary>
+    public Task<ulong> Handle(RegistrarAnticipoCommand solicitud, CancellationToken ct) =>
+        repositorio.RegistrarAnticipo(solicitud, Empleado(), ct);
+
+    /// <summary>Permite a gerencia registrar las condiciones de un tipo de servicio.</summary>
+    public Task<ulong> Handle(RegistrarTipoServicioCommand solicitud, CancellationToken ct) =>
+        repositorio.RegistrarTipoServicio(solicitud, Gerente(), ct);
+
+    /// <summary>Recupera los tipos de servicio disponibles para que el personal cotice.</summary>
+    public Task<IReadOnlyList<TipoServicioVista>> Handle(TiposServicioQuery consulta, CancellationToken ct)
     {
-        if (c.Tareas is null) throw new ArgumentException("Las tareas son obligatorias.");
-        ReglasOperacionesTaller.ValidarPresupuesto(c.Descripcion, c.ManoObra, c.Refacciones, c.Tareas.Select(t => t.Peso));
-        if (c.Tareas.Any(t => string.IsNullOrWhiteSpace(t.Descripcion) || t.Descripcion.Length > 300))
-            throw new ArgumentException("Las tareas deben tener descripciones válidas.");
-        return repositorio.CrearPresupuesto(c, Empleado(), ct);
+        Empleado();
+        return repositorio.TiposServicio(ct);
     }
-
-    /// <summary>Autoriza la decisión, sin alterar posteriormente un presupuesto aceptado.</summary>
-    public Task<bool> Handle(DecidirPresupuestoCommand c, CancellationToken ct) =>
-        repositorio.DecidirPresupuesto(c, Empleado(), ct);
-
-    /// <summary>Filtra la lectura por propiedad para impedir acceso a expedientes ajenos.</summary>
-    public Task<PresupuestoVista?> Handle(ConsultarPresupuestoQuery c, CancellationToken ct) =>
-        repositorio.ConsultarPresupuesto(c.PresupuestoId, Actor(), ct);
-
-    /// <summary>Crea una orden solamente desde un presupuesto aceptado.</summary>
-    public Task<ulong> Handle(ContratarServicioCommand c, CancellationToken ct) =>
-        repositorio.Contratar(c.PresupuestoId, Empleado(), ct);
 }
 
-/// <summary>Orquesta el avance técnico y el cierre de órdenes sin acceder a tablas.</summary>
+/// <summary>Coordina la ejecución técnica y el cierre de órdenes.</summary>
 public sealed class EjecucionTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
     IRequestHandler<AsignarMecanicoCommand, bool>, IRequestHandler<ActualizarTareaCommand, bool>,
     IRequestHandler<FinalizarOrdenCommand, bool>, IRequestHandler<EntregarOrdenCommand, bool>,
-    IRequestHandler<ConsultarOrdenQuery, OrdenVista?>
+    IRequestHandler<EstimarEntregaCommand, bool>, IRequestHandler<ConsultarOrdenQuery, OrdenVista?>
 {
-    /// <summary>Asigna un mecánico activo y disponible.</summary>
-    public Task<bool> Handle(AsignarMecanicoCommand c, CancellationToken ct) => repositorio.AsignarMecanico(c, Gerente(), ct);
-    /// <summary>Registra el progreso real de la tarea con evidencia opcional.</summary>
-    public Task<bool> Handle(ActualizarTareaCommand c, CancellationToken ct)
-    {
-        ReglasOperacionesTaller.ValidarPorcentaje(c.Porcentaje);
-        return repositorio.AvanzarTarea(c, Empleado(), ct);
-    }
-    /// <summary>Finaliza una orden únicamente cuando todas las tareas y piezas están resueltas.</summary>
-    public Task<bool> Handle(FinalizarOrdenCommand c, CancellationToken ct) => repositorio.Finalizar(c.OrdenId, Empleado(), ct);
-    /// <summary>Registra la entrega y activa la cobertura de garantía.</summary>
-    public Task<bool> Handle(EntregarOrdenCommand c, CancellationToken ct) => repositorio.Entregar(c, Empleado(), ct);
-    /// <summary>Devuelve el estado real de avance a usuarios autorizados.</summary>
-    public Task<OrdenVista?> Handle(ConsultarOrdenQuery c, CancellationToken ct) => repositorio.ConsultarOrden(c.OrdenId, Actor(), ct);
+    /// <summary>Reasigna al responsable activo por autorización gerencial.</summary>
+    public Task<bool> Handle(AsignarMecanicoCommand solicitud, CancellationToken ct) =>
+        repositorio.AsignarMecanico(solicitud, Gerente(), ct);
+
+    /// <summary>Registra la ejecución verificable del trabajo del mecánico asignado.</summary>
+    public Task<bool> Handle(ActualizarTareaCommand solicitud, CancellationToken ct) =>
+        repositorio.AvanzarTarea(solicitud, Empleado(), ct);
+
+    /// <summary>Actualiza la estimación de entrega sin tocar los pesos del plan.</summary>
+    public Task<bool> Handle(EstimarEntregaCommand solicitud, CancellationToken ct) =>
+        repositorio.EstimarEntrega(solicitud, Empleado(), ct);
+
+    /// <summary>Confirma la finalización técnica según el trabajo realmente realizado.</summary>
+    public Task<bool> Handle(FinalizarOrdenCommand solicitud, CancellationToken ct) =>
+        repositorio.Finalizar(solicitud.OrdenId, Empleado(), ct);
+
+    /// <summary>Confirma la entrega de la unidad por parte del personal.</summary>
+    public Task<bool> Handle(EntregarOrdenCommand solicitud, CancellationToken ct) =>
+        repositorio.Entregar(solicitud, Empleado(), ct);
+
+    /// <summary>Consulta detalles y progreso de una orden accesible a la sesión.</summary>
+    public Task<OrdenVista?> Handle(ConsultarOrdenQuery consulta, CancellationToken ct) =>
+        repositorio.ConsultarOrden(consulta.OrdenId, Actor(), ct);
 }
 
-/// <summary>Opera refacciones y pagos; centraliza las comprobaciones numéricas.</summary>
-public sealed class RecursosTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
-    IRequestHandler<SolicitarRefaccionCommand, ulong>, IRequestHandler<RecibirRefaccionCommand, bool>,
-    IRequestHandler<ConsumirRefaccionCommand, bool>, IRequestHandler<DevolverRefaccionCommand, bool>,
-    IRequestHandler<RegistrarAnticipoCommand, ulong>
+/// <summary>Coordina piezas cotizadas y movimientos del material del proveedor.</summary>
+public sealed class RefaccionesTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
+    IRequestHandler<SolicitarRefaccionCommand, ulong>, IRequestHandler<PedirRefaccionCommand, bool>,
+    IRequestHandler<RecibirRefaccionCommand, bool>, IRequestHandler<ConsumirRefaccionCommand, bool>,
+    IRequestHandler<DevolverRefaccionCommand, bool>
 {
-    /// <summary>Solicita material para un presupuesto antes de su ejecución.</summary>
-    public Task<ulong> Handle(SolicitarRefaccionCommand c, CancellationToken ct)
-    {
-        ReglasOperacionesTaller.ValidarCantidad(c.Cantidad);
-        if (string.IsNullOrWhiteSpace(c.Descripcion) || c.Descripcion.Length > 300 || c.PrecioUnitario < 0)
-            throw new ArgumentException("Refacción o precio inválidos.");
-        return repositorio.SolicitarRefaccion(c, Empleado(), ct);
-    }
-    /// <summary>Recibe material sin exceder la cantidad solicitada.</summary>
-    public Task<bool> Handle(RecibirRefaccionCommand c, CancellationToken ct)
-    {
-        ReglasOperacionesTaller.ValidarCantidad(c.Cantidad);
-        if (c.CostoUnitario < 0) throw new ArgumentException("El costo debe ser no negativo.");
-        return repositorio.RecibirRefaccion(c, Empleado(), ct);
-    }
-    /// <summary>Registra el consumo de unidades recibidas.</summary>
-    public Task<bool> Handle(ConsumirRefaccionCommand c, CancellationToken ct)
-    {
-        ReglasOperacionesTaller.ValidarCantidad(c.Cantidad);
-        return repositorio.ConsumirRefaccion(c, Empleado(), ct);
-    }
-    /// <summary>Devuelve material recibido que no haya sido consumido.</summary>
-    public Task<bool> Handle(DevolverRefaccionCommand c, CancellationToken ct)
-    {
-        ReglasOperacionesTaller.ValidarCantidad(c.Cantidad);
-        return repositorio.DevolverRefaccion(c, Empleado(), ct);
-    }
-    /// <summary>Registra el único anticipo permitido, sin exceder lo pactado.</summary>
-    public Task<ulong> Handle(RegistrarAnticipoCommand c, CancellationToken ct)
-    {
-        ReglasOperacionesTaller.ValidarAnticipo(c.ManoObra, c.Refacciones);
-        return repositorio.RegistrarAnticipo(c, Empleado(), ct);
-    }
+    /// <summary>Agrega una pieza a la cotización antes de confirmar el presupuesto.</summary>
+    public Task<ulong> Handle(SolicitarRefaccionCommand solicitud, CancellationToken ct) =>
+        repositorio.SolicitarRefaccion(solicitud, Empleado(), ct);
+
+    /// <summary>Registra el pedido que el personal hizo al proveedor.</summary>
+    public Task<bool> Handle(PedirRefaccionCommand solicitud, CancellationToken ct) =>
+        repositorio.PedirRefaccion(solicitud.RefaccionId, Empleado(), ct);
+
+    /// <summary>Registra material recibido contra la pieza pedida.</summary>
+    public Task<bool> Handle(RecibirRefaccionCommand solicitud, CancellationToken ct) =>
+        repositorio.RecibirRefaccion(solicitud, Empleado(), ct);
+
+    /// <summary>Registra el uso de unidades recibidas en la reparación.</summary>
+    public Task<bool> Handle(ConsumirRefaccionCommand solicitud, CancellationToken ct) =>
+        repositorio.ConsumirRefaccion(solicitud, Empleado(), ct);
+
+    /// <summary>Registra el retorno real de unidades selladas no consumidas.</summary>
+    public Task<bool> Handle(DevolverRefaccionCommand solicitud, CancellationToken ct) =>
+        repositorio.DevolverRefaccion(solicitud, Empleado(), ct);
 }
 
-/// <summary>Coordina cancelación, postventa y notificaciones con control de acceso.</summary>
+/// <summary>Aplica permisos en cancelaciones, mantenimiento y consultas de seguimiento.</summary>
 public sealed class PostventaTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
     IRequestHandler<SolicitarCancelacionCommand, ulong>, IRequestHandler<ResolverCancelacionCommand, bool>,
-    IRequestHandler<ConsultarCancelacionQuery, CancelacionVista?>,
+    IRequestHandler<RegistrarReembolsoCommand, bool>, IRequestHandler<ConsultarCancelacionQuery, CancelacionVista?>,
     IRequestHandler<ProgramarMantenimientoCommand, ulong>, IRequestHandler<ConsultarMantenimientosQuery, IReadOnlyList<MantenimientoVista>>,
     IRequestHandler<ConsultarNotificacionesQuery, IReadOnlyList<NotificacionVista>>,
     IRequestHandler<MarcarNotificacionLeidaCommand, bool>, IRequestHandler<ConsultarGarantiaQuery, GarantiaVista?>
 {
-    /// <summary>Solicita la cancelación de una orden propia o gestionada por personal.</summary>
-    public Task<ulong> Handle(SolicitarCancelacionCommand c, CancellationToken ct) => repositorio.SolicitarCancelacion(c.OrdenId, Actor(), ct);
-    /// <summary>Resuelve una solicitud con autorización de gerencia.</summary>
-    public Task<bool> Handle(ResolverCancelacionCommand c, CancellationToken ct)
-    {
-        if (!c.Aprobar && string.IsNullOrWhiteSpace(c.MotivoRechazo))
-            throw new ArgumentException("Indica el motivo de rechazo.");
-        return repositorio.ResolverCancelacion(c, Gerente(), ct);
-    }
-    /// <summary>Consulta una solicitud respetando la propiedad de la orden.</summary>
-    public Task<CancelacionVista?> Handle(ConsultarCancelacionQuery c, CancellationToken ct) =>
-        repositorio.ConsultarCancelacion(c.SolicitudId, Actor(), ct);
-    /// <summary>Agenda un mantenimiento para la motocicleta del expediente.</summary>
-    public Task<ulong> Handle(ProgramarMantenimientoCommand c, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(c.Descripcion) || c.Descripcion.Length > 300)
-            throw new ArgumentException("La descripción del mantenimiento es obligatoria.");
-        return repositorio.ProgramarMantenimiento(c, Empleado(), ct);
-    }
-    /// <summary>Lista mantenimientos evitando filtraciones de motocicletas ajenas.</summary>
-    public Task<IReadOnlyList<MantenimientoVista>> Handle(ConsultarMantenimientosQuery c, CancellationToken ct) =>
-        repositorio.Mantenimientos(c.MotocicletaId, Actor(), ct);
+    /// <summary>Registra la petición del titular o de personal que le asiste.</summary>
+    public Task<ulong> Handle(SolicitarCancelacionCommand solicitud, CancellationToken ct) =>
+        repositorio.SolicitarCancelacion(solicitud.OrdenId, Actor(), ct);
+
+    /// <summary>Resuelve la solicitud mediante autorización gerencial.</summary>
+    public Task<bool> Handle(ResolverCancelacionCommand solicitud, CancellationToken ct) =>
+        repositorio.ResolverCancelacion(solicitud, Gerente(), ct);
+
+    /// <summary>Confirma la entrega manual del importe pendiente.</summary>
+    public Task<bool> Handle(RegistrarReembolsoCommand solicitud, CancellationToken ct) =>
+        repositorio.RegistrarReembolso(solicitud, Gerente(), ct);
+
+    /// <summary>Consulta el desglose de una solicitud visible para la sesión.</summary>
+    public Task<CancelacionVista?> Handle(ConsultarCancelacionQuery consulta, CancellationToken ct) =>
+        repositorio.ConsultarCancelacion(consulta.SolicitudId, Actor(), ct);
+
+    /// <summary>Programa un mantenimiento mediante personal autorizado.</summary>
+    public Task<ulong> Handle(ProgramarMantenimientoCommand solicitud, CancellationToken ct) =>
+        repositorio.ProgramarMantenimiento(solicitud, Empleado(), ct);
+
+    /// <summary>Lista el mantenimiento para una motocicleta accesible.</summary>
+    public Task<IReadOnlyList<MantenimientoVista>> Handle(ConsultarMantenimientosQuery consulta, CancellationToken ct) =>
+        repositorio.Mantenimientos(consulta.MotocicletaId, Actor(), ct);
+
     /// <summary>Obtiene notificaciones vinculadas a la cuenta autenticada.</summary>
-    public Task<IReadOnlyList<NotificacionVista>> Handle(ConsultarNotificacionesQuery c, CancellationToken ct) =>
+    public Task<IReadOnlyList<NotificacionVista>> Handle(ConsultarNotificacionesQuery consulta, CancellationToken ct) =>
         repositorio.Notificaciones(Actor(), ct);
-    /// <summary>Marca una notificación únicamente cuando pertenece al cliente.</summary>
-    public Task<bool> Handle(MarcarNotificacionLeidaCommand c, CancellationToken ct) =>
-        repositorio.MarcarNotificacion(c.NotificacionId, Actor(), ct);
-    /// <summary>Consulta condiciones y vigencia de garantía de una orden propia.</summary>
-    public Task<GarantiaVista?> Handle(ConsultarGarantiaQuery c, CancellationToken ct) =>
-        repositorio.ConsultarGarantia(c.OrdenId, Actor(), ct);
+
+    /// <summary>Actualiza el estado de lectura de una notificación propia.</summary>
+    public Task<bool> Handle(MarcarNotificacionLeidaCommand solicitud, CancellationToken ct) =>
+        repositorio.MarcarNotificacion(solicitud.NotificacionId, Actor(), ct);
+
+    /// <summary>Consulta condiciones y estado de una garantía autorizada.</summary>
+    public Task<GarantiaVista?> Handle(ConsultarGarantiaQuery consulta, CancellationToken ct) =>
+        repositorio.ConsultarGarantia(consulta.OrdenId, Actor(), ct);
 }

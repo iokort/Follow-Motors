@@ -1,110 +1,137 @@
 namespace FollowMotors.Infrastructure.Operaciones;
 
+using System.Data;
 using Dapper;
 using FollowMotors.Application.Operaciones;
 using FollowMotors.Domain.Rules.Operaciones;
+using FollowMotors.Domain.Rules.Cancelaciones;
+using FollowMotors.Infrastructure.Database;
+using MySqlConnector;
 
 /// <summary>Solicitudes de cancelación, garantías, mantenimientos y bandeja local de notificaciones.</summary>
 public sealed partial class OperacionesTallerMySql
 {
-    /// <summary>Solicita cancelación una sola vez, comprobando propiedad de la orden.</summary>
-    public async Task<ulong> SolicitarCancelacion(ulong ordenId,ActorTaller actor,CancellationToken ct)
+    /// <summary>Guarda una solicitud idempotente, aplicando el umbral desde el primer intento.</summary>
+    public async Task<ulong> SolicitarCancelacion(ulong ordenId, ActorTaller actor, CancellationToken ct)
     {
-        await using var db=await Abrir(ct);
-        await using var tx=await db.BeginTransactionAsync(ct);
-        var n=await db.ExecuteAsync(new CommandDefinition("""
-            INSERT INTO solicitudes_cancelacion(orden_id,cliente_id)
-            SELECT o.id,a.cliente_id FROM ordenes_servicio o
-            JOIN presupuestos p ON p.id=o.presupuesto_id JOIN atenciones a ON a.id=p.atencion_id
-            JOIN clientes c ON c.id=a.cliente_id
-            WHERE o.id=@ordenId AND o.estado IN('PENDIENTE_PIEZAS','LISTA','EN_EJECUCION')
-              AND (@Rol<>'CLIENTE' OR c.usuario_id=@UsuarioId)
-            """,new {ordenId,actor.Rol,actor.UsuarioId},tx,cancellationToken:ct));
-        if(n!=1) throw new InvalidOperationException("La orden no admite cancelación o no pertenece al solicitante.");
-        var id=await IdNuevo(db,tx,ct);
-        await Auditar(db,tx,actor,"solicitudes_cancelacion",id,"SOLICITAR",ct);
+        await using var db = await Abrir(ct);
+        await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        var orden = await BloquearOrden(db, tx, ordenId, ct);
+        if (orden is null || (actor.Rol == "CLIENTE" && orden.TitularUsuarioId != actor.UsuarioId))
+            throw new KeyNotFoundException("No existe la orden.");
+        ulong? existente = await db.ExecuteScalarAsync<ulong?>(new CommandDefinition("""
+            SELECT id FROM solicitudes_cancelacion WHERE orden_id = @ordenId
+            """, new { ordenId }, tx, cancellationToken: ct));
+        if (existente.HasValue) return existente.Value;
+        if (!orden.Abierta || orden.Pagado is null)
+            throw new InvalidOperationException("Solo se puede solicitar cancelar una reparación contratada y abierta.");
+        decimal avance = Avance(await Tareas(db, tx, orden.PresupuestoId, ct));
+        await db.ExecuteAsync(new CommandDefinition("""
+            INSERT INTO solicitudes_cancelacion (orden_id,cliente_id) VALUES (@Id,@ClienteId)
+            """, orden, tx, cancellationToken: ct));
+        ulong id = await ConsultasMySql.IdNuevoAsync(db, tx, ct);
+        await Auditar(db, tx, actor, "solicitudes_cancelacion", id, "SOLICITAR", ct);
+        if (!PoliticaCancelacion.AvanceCancelable(avance))
+            await RegistrarResolucion(db, tx, orden, id, avance, null, "El avance supera el 60 %.", actor, ct);
         await tx.CommitAsync(ct);
         return id;
     }
 
-    private sealed class DatosCancelacion
+    /// <summary>Resuelve con el avance y consumo actuales bajo el mismo bloqueo que usa el mecánico.</summary>
+    public async Task<bool> ResolverCancelacion(ResolverCancelacionCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        public ulong OrdenId {get;set;}
-        public decimal ManoObra {get;set;}
-        public decimal Abonado {get;set;}
-        public decimal Avance {get;set;}
-        public decimal PiezasUtilizadas {get;set;}
-    }
+        await using var db = await Abrir(ct);
+        await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        ulong? ordenId = await db.ExecuteScalarAsync<ulong?>(new CommandDefinition("""
+            SELECT orden_id FROM solicitudes_cancelacion WHERE id = @SolicitudId
+            """, solicitud, tx, cancellationToken: ct));
+        if (!ordenId.HasValue) return false;
+        var orden = await BloquearOrden(db, tx, ordenId.Value, ct);
+        if (orden is null || orden.Pagado is null) return false;
+        var estado = await db.ExecuteScalarAsync<string>(new CommandDefinition("""
+            SELECT estado FROM solicitudes_cancelacion WHERE id = @SolicitudId
+            """, solicitud, tx, cancellationToken: ct));
+        if (estado != "SOLICITADA") return false;
+        decimal avance = Avance(await Tareas(db, tx, orden.PresupuestoId, ct));
+        string? motivo = solicitud.Aprobar ? null : solicitud.MotivoRechazo?.Trim();
+        if (!orden.Abierta) motivo = "La reparación ya fue cerrada.";
+        else if (!PoliticaCancelacion.AvanceCancelable(avance)) motivo = "El avance supera el 60 %.";
 
-    /// <summary>Congela la orden y calcula el reintegro con el progreso y los materiales realmente usados.</summary>
-    public async Task<bool> ResolverCancelacion(ResolverCancelacionCommand c,ActorTaller actor,CancellationToken ct)
-    {
-        await using var db=await Abrir(ct);
-        await using var tx=await db.BeginTransactionAsync(ct);
-        var datos=await db.QuerySingleOrDefaultAsync<DatosCancelacion>(new CommandDefinition("""
-            SELECT s.orden_id AS OrdenId,p.mano_obra_acordada AS ManoObra,
-            COALESCE(ap.total_pagado,0) AS Abonado,
-            COALESCE((SELECT SUM(t.peso_porcentual*t.avance_tarea/100) FROM tareas_servicio t
-                WHERE t.presupuesto_id=p.id),0) AS Avance,
-            COALESCE((SELECT SUM(r.cantidad_utilizada*r.precio_unitario_cliente)
-                FROM refacciones_servicio r WHERE r.presupuesto_id=p.id),0) AS PiezasUtilizadas
-            FROM solicitudes_cancelacion s JOIN ordenes_servicio o ON o.id=s.orden_id
-            JOIN presupuestos p ON p.id=o.presupuesto_id
-            LEFT JOIN anticipos_reparacion ap ON ap.orden_id=o.id
-            WHERE s.id=@SolicitudId AND s.estado='SOLICITADA'
-            AND o.estado IN('PENDIENTE_PIEZAS','LISTA','EN_EJECUCION')
-            FOR UPDATE
-            """,new {c.SolicitudId},tx,cancellationToken:ct));
-        if(datos is null) return false;
-        var manoObraEjecutada=Math.Round(datos.ManoObra*datos.Avance/100m,2,MidpointRounding.AwayFromZero);
-        var reintegro=ReglasOperacionesTaller.CalcularReembolso(datos.Abonado,manoObraEjecutada,datos.PiezasUtilizadas);
-        var n=await db.ExecuteAsync(new CommandDefinition("""
-            UPDATE solicitudes_cancelacion SET estado=@Estado,
-                progreso_al_resolver=@Avance,costo_mano_obra_realizada=@ManoObraEjecutada,
-                costo_refacciones_usadas=@PiezasUtilizadas,
-                monto_reembolsado=@Reintegro,motivo_rechazo=@MotivoRechazo,
-                resuelta_en=UTC_TIMESTAMP(3)
-            WHERE id=@SolicitudId AND estado='SOLICITADA'
-            """,new {c.SolicitudId,Estado=c.Aprobar?"APROBADA":"RECHAZADA",
-                datos.Avance,ManoObraEjecutada=manoObraEjecutada,datos.PiezasUtilizadas,
-                Reintegro=c.Aprobar?reintegro:(decimal?)null,
-                MotivoRechazo=c.Aprobar?null:c.MotivoRechazo},tx,cancellationToken:ct));
-        if(n!=1) return false;
-        if(c.Aprobar)
+        LiquidacionCancelacion? liquidacion = null;
+        if (motivo is null)
         {
-            await db.ExecuteAsync(new CommandDefinition("""
-                UPDATE ordenes_servicio SET estado='CANCELADA',version=version+1
-                WHERE id=@OrdenId
-                """,new {datos.OrdenId},tx,cancellationToken:ct));
-            await db.ExecuteAsync(new CommandDefinition("""
-                UPDATE atenciones a JOIN presupuestos p ON p.atencion_id=a.id
-                JOIN ordenes_servicio o ON o.presupuesto_id=p.id SET a.estado='CERRADA'
-                WHERE o.id=@OrdenId
-                """,new {datos.OrdenId},tx,cancellationToken:ct));
+            var piezas = await Piezas(db, tx, orden.PresupuestoId, ct);
+            var usadas = piezas.Sum(p => p.Utilizadas * p.PrecioUnitario);
+            liquidacion = PoliticaCancelacion.Liquidar(orden.Pagado.Value, orden.ManoObra, avance, usadas);
         }
-        await db.ExecuteAsync(new CommandDefinition("""
-            INSERT IGNORE INTO notificaciones(cliente_id,orden_id,tipo,mensaje)
-            SELECT s.cliente_id,s.orden_id,'CANCELACION_RESUELTA',
-                CASE WHEN @Aprobar=1 THEN 'Tu cancelación fue aprobada; consulta el reintegro pendiente.'
-                     ELSE 'Tu cancelación fue rechazada; consulta el motivo.' END
-            FROM solicitudes_cancelacion s WHERE s.id=@SolicitudId
-            """,new {c.SolicitudId,c.Aprobar},tx,cancellationToken:ct));
-        await Auditar(db,tx,actor,"solicitudes_cancelacion",c.SolicitudId,
-            c.Aprobar?"APROBAR":"RECHAZAR",ct);
+        await RegistrarResolucion(db, tx, orden, solicitud.SolicitudId, avance, liquidacion, motivo, actor, ct);
         await tx.CommitAsync(ct);
         return true;
     }
 
-    /// <summary>Filtra las cancelaciones por la cuenta titular del expediente.</summary>
-    public async Task<CancelacionVista?> ConsultarCancelacion(ulong id,ActorTaller actor,CancellationToken ct)
+    /// <summary>Liquida o rechaza la solicitud, preserva las piezas sin usar y publica el resultado.</summary>
+    private static async Task RegistrarResolucion(MySqlConnection db, MySqlTransaction tx, OrdenBloqueada orden,
+        ulong id, decimal avance, LiquidacionCancelacion? liquidacion, string? motivo, ActorTaller actor,
+        CancellationToken ct)
     {
-        await using var db=await Abrir(ct);
-        return await db.QuerySingleOrDefaultAsync<CancelacionVista>(new CommandDefinition("""
-            SELECT s.id AS Id,s.orden_id AS OrdenId,s.estado AS Estado,
-                   s.monto_reembolsado AS Reembolso,s.motivo_rechazo AS MotivoRechazo
-            FROM solicitudes_cancelacion s JOIN clientes c ON c.id=s.cliente_id
-            WHERE s.id=@id AND (@Rol<>'CLIENTE' OR c.usuario_id=@UsuarioId)
-            """,new {id,actor.Rol,actor.UsuarioId},cancellationToken:ct));
+        string estado = liquidacion is null ? "RECHAZADA" : "APROBADA";
+        await db.ExecuteAsync(new CommandDefinition("""
+            UPDATE solicitudes_cancelacion SET estado = @estado, progreso_al_resolver = @avance,
+                costo_mano_obra_realizada = @manoObra, costo_refacciones_usadas = @piezas,
+                monto_reembolsado = @reembolso, motivo_rechazo = @motivo, resuelta_en = UTC_TIMESTAMP(3)
+            WHERE id = @id AND estado = 'SOLICITADA'
+            """, new { id, avance, estado, manoObra = liquidacion?.ManoObraEjecutada,
+                piezas = liquidacion?.PiezasUsadas, reembolso = liquidacion?.Reembolso, motivo }, tx,
+            cancellationToken: ct));
+        if (liquidacion is not null)
+            await db.ExecuteAsync(new CommandDefinition("""
+                UPDATE ordenes_servicio o JOIN atenciones a ON a.id = @AtencionId
+                SET o.estado = 'CANCELADA', o.version = o.version + 1, a.estado = 'CERRADA' WHERE o.id = @Id
+                """, new { orden.Id, orden.AtencionId }, tx, cancellationToken: ct));
+        string mensaje = liquidacion is null
+            ? "Tu cancelación fue rechazada. Consulta el motivo en la solicitud."
+            : "Tu cancelación fue aprobada. Consulta la liquidación en la solicitud.";
+        await NotificarOrden(db, tx, orden, "CANCELACION_RESUELTA", mensaje, ct);
+        await Auditar(db, tx, actor, "solicitudes_cancelacion", id, estado, ct,
+            despues: new { avance, liquidacion, motivo });
+    }
+
+    /// <summary>Asienta una devolución manual única por el importe autorizado.</summary>
+    public async Task<bool> RegistrarReembolso(RegistrarReembolsoCommand solicitud, ActorTaller actor, CancellationToken ct)
+    {
+        await using var db = await Abrir(ct);
+        await using var tx = await db.BeginTransactionAsync(ct);
+        var filas = await db.ExecuteAsync(new CommandDefinition("""
+            UPDATE solicitudes_cancelacion SET reembolsada_en = UTC_TIMESTAMP(3)
+            WHERE id = @SolicitudId AND estado = 'APROBADA' AND monto_reembolsado = @Importe AND reembolsada_en IS NULL
+            """, solicitud, tx, cancellationToken: ct));
+        if (filas != 1) return false;
+        await Auditar(db, tx, actor, "solicitudes_cancelacion", solicitud.SolicitudId, "REEMBOLSO_ENTREGADO", ct,
+            despues: new { solicitud.Importe, solicitud.Referencia });
+        await tx.CommitAsync(ct);
+        return true;
+    }
+
+    /// <summary>Devuelve la resolución autorizada con las piezas selladas pendientes de retorno.</summary>
+    public async Task<CancelacionVista?> ConsultarCancelacion(ulong id, ActorTaller actor, CancellationToken ct)
+    {
+        await using var db = await Abrir(ct);
+        await using var tx = await db.BeginTransactionAsync(ct);
+        var vista = await db.QuerySingleOrDefaultAsync<CancelacionVista>(new CommandDefinition("""
+            SELECT s.id AS Id, s.orden_id AS OrdenId, s.estado AS Estado, s.monto_reembolsado AS Reembolso,
+                s.motivo_rechazo AS MotivoRechazo, s.progreso_al_resolver AS Avance,
+                s.costo_mano_obra_realizada AS ManoObraRealizada, s.costo_refacciones_usadas AS PiezasUsadas,
+                s.reembolsada_en AS ReembolsadaEn
+            FROM solicitudes_cancelacion s JOIN clientes c ON c.id = s.cliente_id
+            WHERE s.id = @id AND (@Rol IN ('GERENTE','EMPLEADO') OR c.usuario_id = @UsuarioId)
+            """, new { id, actor.Rol, actor.UsuarioId }, tx, cancellationToken: ct));
+        if (vista?.Estado != "APROBADA") return vista;
+        ulong presupuestoId = await db.ExecuteScalarAsync<ulong>(new CommandDefinition(
+            "SELECT presupuesto_id FROM ordenes_servicio WHERE id = @OrdenId", new { vista.OrdenId },
+            tx, cancellationToken: ct));
+        var pendientes = (await Piezas(db, tx, presupuestoId, ct))
+            .Where(p => p.Recibidas > p.Utilizadas + p.Devueltas).ToArray();
+        return vista with { PiezasPorDevolver = pendientes };
     }
 
     /// <summary>Agrega un próximo mantenimiento asociado al expediente de una motocicleta existente.</summary>
@@ -124,7 +151,7 @@ public sealed partial class OperacionesTallerMySql
             """,new {c.MotocicletaId,c.OrdenOrigenId,c.Descripcion,
                 c.FechaEstimada,c.KilometrajeObjetivo},tx,cancellationToken:ct));
         if(n!=1) throw new InvalidOperationException("Motocicleta u orden de origen inválida.");
-        var id=await IdNuevo(db,tx,ct);
+        var id=await ConsultasMySql.IdNuevoAsync(db,tx,ct);
         await Auditar(db,tx,actor,"mantenimientos_programados",id,"PROGRAMAR",ct);
         await tx.CommitAsync(ct);
         return id;
@@ -175,12 +202,15 @@ public sealed partial class OperacionesTallerMySql
     public async Task<GarantiaVista?> ConsultarGarantia(ulong ordenId,ActorTaller actor,CancellationToken ct)
     {
         await using var db=await Abrir(ct);
-        return await db.QuerySingleOrDefaultAsync<GarantiaVista>(new CommandDefinition("""
+        var garantia = await db.QuerySingleOrDefaultAsync<GarantiaVista>(new CommandDefinition("""
             SELECT g.id AS Id,g.orden_id AS OrdenId,g.aplica AS Aplica,
                 g.duracion_dias AS DuracionDias,g.condiciones AS Condiciones,
-                g.inicia_en AS IniciaEn,g.vence_en AS VenceEn
+                g.inicia_en AS IniciaEn,g.vence_en AS VenceEn,g.referencia_comprobante AS ReferenciaComprobante,
+                o.estado AS EstadoOrden
             FROM garantias_servicio g JOIN ordenes_servicio o ON o.id=g.orden_id
             WHERE o.id=@ordenId AND
-            """+PropiedadOrden,new {ordenId,actor.Rol,actor.UsuarioId},cancellationToken:ct));
+            """ + " " + PropiedadOrden, new { ordenId, actor.Rol, actor.UsuarioId }, cancellationToken: ct));
+        return garantia is null ? null : garantia with { Estado = VigenciaGarantia.Estado(garantia.Aplica,
+            garantia.EstadoOrden, garantia.IniciaEn, garantia.VenceEn, reloj.GetUtcNow().UtcDateTime) };
     }
 }

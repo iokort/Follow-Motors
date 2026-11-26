@@ -187,6 +187,145 @@ def probar_agenda_y_recepcion(gerente, cliente, moto, usuario):
     return atencion, otro, asesor, tecnicos[asignaciones[0]], sin_contrato, otra_moto
 
 
+def ops(method, path, status, *, data=None, token=None):
+    """Ejecuta una operación de taller con sus permisos habituales."""
+    return api(method, "/operaciones" + path, status, data=data, token=token)
+
+
+def nueva_revision(gerente, cliente, moto):
+    """Registra, diagnostica y cobra una segunda atención de la misma motocicleta."""
+    atencion = api("POST", "/atenciones", 201, token=gerente, data={
+        "clienteId": cliente, "motocicletaId": moto, "motivo": "Segunda revisión", "kilometrajeIngreso": 5700})["id"]
+    api("POST", f"/atenciones/{atencion}/diagnostico", 204,
+        data={"hallazgos": "Revisión con diagnóstico verificable"}, token=gerente)
+    api("POST", f"/atenciones/{atencion}/cobro", 200,
+        data={"referenciaComprobante": "REV-PRUEBAS"}, token=gerente)
+    return atencion
+
+
+def probar_taller(gerente, cliente, moto, usuario, contexto):
+    """Verifica anticipo, ejecución ponderada, refacciones, cancelación, entrega y garantía."""
+    atencion, ajeno, asesor, tecnico, _, _ = contexto
+    tipo = ops("POST", "/tipos-servicio", 200, token=gerente, data={
+        "nombre": "Reparación " + CORRIDA, "garantiaDias": 30, "cobertura": "Mano de obra sobre la reparación"})["id"]
+    assert any(t["id"] == tipo for t in ops("GET", "/tipos-servicio", 200, token=asesor))
+
+    def orden_nueva(atencion_id, pesos, mano=1000, costo_piezas=0, probar_restricciones=False):
+        """Cotiza y contrata una revisión pagada, probando incumplimientos si corresponde."""
+        datos = {"atencionId": atencion_id, "tipoServicioId": tipo, "descripcion": "Reparación acordada",
+                 "manoObra": mano, "refacciones": costo_piezas,
+                 "tareas": [{"descripcion": f"Tarea {i}", "peso": peso} for i, peso in enumerate(pesos)]}
+        if probar_restricciones:
+            ops("POST", "/presupuestos", 400, token=gerente,
+                data={**datos, "tareas": [{"descripcion": "Peso incorrecto", "peso": 90}]})
+        presupuesto = ops("POST", "/presupuestos", 201, token=gerente, data=datos)["id"]
+        decision = {"presupuestoId": presupuesto, "aceptar": True}
+        pieza = None
+        if costo_piezas:
+            ops("POST", "/presupuestos/decision", 409, token=asesor, data=decision)
+            pieza = ops("POST", "/refacciones", 200, token=asesor, data={"presupuestoId": presupuesto,
+                        "descripcion": "Pieza cotizada en proveedor", "cantidad": 3, "precioUnitario": 80})["id"]
+        ops("POST", "/presupuestos/decision", 403, token=usuario, data=decision)
+        ops("POST", "/presupuestos/decision", 204, token=asesor, data=decision)
+        anticipo = {"presupuestoId": presupuesto, "manoObra": mano,
+                    "refacciones": costo_piezas, "comprobante": f"ANT-{CORRIDA}-{presupuesto}"}
+        if probar_restricciones:
+            ops("POST", "/ordenes", 409, token=asesor, data={**anticipo, "manoObra": mano - 1})
+        orden = ops("POST", "/ordenes", 200, token=asesor, data=anticipo)["id"]
+        if probar_restricciones:
+            ops("POST", "/ordenes", 409, token=asesor, data=anticipo)
+            ops("POST", "/anticipos", 409, token=asesor, data={**anticipo, "ordenId": orden})
+        return orden, pieza
+
+    def avanzar(orden, tarea, porcentaje, status=204, token=gerente, evidencia="Inspección del trabajo"):
+        """Registra el avance de un paso del plan con su evidencia."""
+        return ops("POST", "/ordenes/tareas/avance", status, token=token,
+                   data={"ordenId": orden, "tareaId": tarea, "porcentaje": porcentaje, "evidencia": evidencia})
+
+    orden, pieza = orden_nueva(atencion, [60, 40], costo_piezas=240, probar_restricciones=True)
+    get_orden = f"/ordenes/{orden}"
+    ops("GET", get_orden, 404, token=ajeno)
+    vista = ops("GET", get_orden, 200, token=usuario)
+    primera, segunda = [t["id"] for t in vista["tareas"]]
+    assert vista["estado"] == "PENDIENTE_PIEZAS"
+    assert ops("GET", f"/garantias/orden/{orden}", 200, token=usuario)["estado"] == "INFORMADA"
+    ops("POST", "/ordenes/entrega", 409, token=asesor, data={"ordenId": orden})
+    avanzar(orden, primera, 100, 409)
+    entrega_pieza = {"refaccionId": pieza, "cantidad": 2, "costoUnitario": 92, "factura": "PROV-1"}
+    ops("POST", "/refacciones/recepcion", 409, token=asesor, data=entrega_pieza)
+    ops("POST", f"/refacciones/{pieza}/pedir", 204, token=asesor)
+    ops("POST", "/refacciones/recepcion", 204, token=asesor, data=entrega_pieza)
+    assert ops("GET", get_orden, 200, token=usuario)["estado"] == "PENDIENTE_PIEZAS"
+    ops("POST", "/refacciones/recepcion", 204, token=asesor,
+        data={**entrega_pieza, "cantidad": 1, "costoUnitario": 99, "factura": "PROV-2"})
+    vista = ops("GET", get_orden, 200, token=usuario)
+    assert vista["estado"] == "LISTA"
+    assert vista["piezas"][0]["precioUnitario"] == 80
+    ops("POST", "/refacciones/consumo", 204, token=tecnico, data={"refaccionId": pieza, "cantidad": 1})
+    avanzar(orden, primera, 40, 403, asesor)
+    avanzar(orden, primera, 40, 400, tecnico, None)
+    avanzar(orden, primera, 40, token=tecnico)
+    assert ops("GET", get_orden, 200, token=usuario)["avance"] == 24
+    assert not any(n["tipo"] == "AVANCE_25" for n in ops("GET", "/notificaciones", 200, token=usuario))
+    avanzar(orden, primera, 50, token=tecnico)
+    avanzar(orden, primera, 50, token=tecnico)
+    assert sum(n["tipo"] == "AVANCE_25" for n in ops("GET", "/notificaciones", 200, token=usuario)) == 1
+    nueva_fecha = (datetime.now(timezone.utc) + timedelta(days=10)).isoformat()
+    ops("PUT", f"{get_orden}/entrega-estimada", 204, token=tecnico, data={"entregaEstimada": nueva_fecha})
+    assert ops("GET", get_orden, 200, token=usuario)["avance"] == 30
+    avanzar(orden, primera, 100)
+    assert ops("GET", get_orden, 200, token=usuario)["avance"] == 60
+    ops("POST", "/cancelaciones", 404, token=ajeno, data={"ordenId": orden})
+    solicitud = ops("POST", "/cancelaciones", 200, token=usuario, data={"ordenId": orden})["id"]
+    assert ops("POST", "/cancelaciones", 200, token=usuario, data={"ordenId": orden})["id"] == solicitud
+    resolver = {"solicitudId": solicitud, "aprobar": True}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        respuestas = list(pool.map(lambda _: ops("POST", "/cancelaciones/resolver", {204, 409},
+                                                 token=gerente, data=resolver)[0], range(2)))
+    assert sorted(respuestas) == [204, 409]
+    cancelacion = f"/cancelaciones/{solicitud}"
+    liquidacion = ops("GET", cancelacion, 200, token=usuario)
+    assert liquidacion["estado"] == "APROBADA" and liquidacion["avance"] == 60
+    assert (liquidacion["manoObraRealizada"], liquidacion["piezasUsadas"], liquidacion["reembolso"]) == (600, 80, 560)
+    assert liquidacion["piezasPorDevolver"][0]["recibidas"] == 3 and liquidacion["reembolsadaEn"] is None
+    avanzar(orden, segunda, 100, 409)
+    ops("POST", "/refacciones/devolucion", 204, token=asesor,
+        data={"refaccionId": pieza, "cantidad": 2, "sellada": True})
+    assert not ops("GET", cancelacion, 200, token=usuario)["piezasPorDevolver"]
+    for status in (204, 409):
+        ops("POST", f"{cancelacion}/reembolso", status, token=gerente, data={"importe": 560, "referencia": "REI-1"})
+    assert ops("GET", cancelacion, 200, token=usuario)["reembolsadaEn"]
+    assert ops("GET", f"/garantias/orden/{orden}", 200, token=usuario)["estado"] == "SIN_COBERTURA"
+
+    otra, _ = orden_nueva(nueva_revision(gerente, cliente, moto), [50, 50], mano=500)
+    t1, t2 = [x["id"] for x in ops("GET", f"/ordenes/{otra}", 200, token=usuario)["tareas"]]
+    avanzar(otra, t1, 100)
+    avanzar(otra, t2, 20.02)
+    tardia = ops("POST", "/cancelaciones", 200, token=usuario, data={"ordenId": otra})["id"]
+    rechazada = ops("GET", f"/cancelaciones/{tardia}", 200, token=usuario)
+    assert rechazada["estado"] == "RECHAZADA" and rechazada["avance"] == 60.01
+    ops("POST", f"/ordenes/{otra}/finalizar", 409, token=gerente)
+    avanzar(otra, t2, 100)
+    ops("POST", f"/ordenes/{otra}/finalizar", 204, token=gerente)
+    ops("POST", "/ordenes/entrega", 204, token=asesor, data={"ordenId": otra})
+    garantia = ops("GET", f"/garantias/orden/{otra}", 200, token=usuario)
+    assert garantia["estado"] == "VIGENTE" and garantia["iniciaEn"] < garantia["venceEn"]
+    ops("GET", f"/garantias/orden/{otra}", 404, token=ajeno)
+
+    concurrente, _ = orden_nueva(nueva_revision(gerente, cliente, moto), [80, 20], mano=500)
+    tarea = ops("GET", f"/ordenes/{concurrente}", 200, token=usuario)["tareas"][0]["id"]
+    id_solicitud = ops("POST", "/cancelaciones", 200, token=usuario, data={"ordenId": concurrente})["id"]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        futuro_avance = pool.submit(avanzar, concurrente, tarea, 100, {204, 409})
+        futuro_resolver = pool.submit(ops, "POST", "/cancelaciones/resolver", 204, token=gerente,
+                                      data={"solicitudId": id_solicitud, "aprobar": True})
+        codigo = futuro_avance.result()[0]
+        futuro_resolver.result()
+    resultado = ops("GET", f"/cancelaciones/{id_solicitud}", 200, token=usuario)
+    assert (codigo, resultado["estado"], resultado["avance"]) in [(204, "RECHAZADA", 80), (409, "APROBADA", 0)]
+    return otra
+
+
 def main():
     """Ejecuta los escenarios de extremo a extremo con cuentas generadas para esta corrida."""
     if os.environ.get("FM_TEST_CONFIRMAR") != "mysql-de-pruebas":
@@ -196,7 +335,8 @@ def main():
     api("GET", "/clientes", 401)
     gerente = inicio(os.environ["FM_TEST_GERENTE"], os.environ["FM_TEST_CLAVE"])["token"]
     cliente, moto, usuario = probar_identidad_y_fichas(gerente)
-    probar_agenda_y_recepcion(gerente, cliente, moto, usuario)
+    contexto = probar_agenda_y_recepcion(gerente, cliente, moto, usuario)
+    probar_taller(gerente, cliente, moto, usuario, contexto)
     print(f"{TOTAL} respuestas HTTP verificadas contra MySQL", flush=True)
 
 
