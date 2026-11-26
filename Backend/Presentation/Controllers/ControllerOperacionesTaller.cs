@@ -147,6 +147,15 @@ public sealed class OperacionesTallerController(ISender mediator) : ControllerBa
     public Task<IActionResult> Reembolso(ulong id, DatosReembolso datos, CancellationToken ct) =>
         Resultado(mediator.Send(new RegistrarReembolsoCommand(id, datos.Importe, datos.Referencia), ct));
 
+    /// <summary>Confirma la realización de un mantenimiento o cancela su programación.</summary>
+    [HttpPut("mantenimientos/{id:long}/estado")]
+    [Authorize(Roles = "GERENTE,EMPLEADO")]
+    public async Task<IActionResult> ResolverMantenimiento(ulong id, EstadoMantenimiento datos, CancellationToken ct)
+    {
+        await mediator.Send(new ResolverMantenimientoCommand(id, datos.Realizado, datos.OrdenId), ct);
+        return NoContent();
+    }
+
     /// <summary>Convierte una transición condicional en HTTP 204 o 409 sin repetir el patrón.</summary>
     private async Task<IActionResult> Resultado(Task<bool> resultado) =>
         await resultado ? NoContent() : Conflict(new {mensaje="Estado o requisitos incompatibles."});
@@ -157,3 +166,6 @@ public sealed record FechaEntrega(DateTimeOffset EntregaEstimada);
 
 /// <summary>Importe y comprobante del reintegro entregado presencialmente.</summary>
 public sealed record DatosReembolso(decimal Importe, string Referencia);
+
+/// <summary>Estado solicitado y evidencia de entrega cuando el mantenimiento se realizó.</summary>
+public sealed record EstadoMantenimiento(bool Realizado, ulong? OrdenId);

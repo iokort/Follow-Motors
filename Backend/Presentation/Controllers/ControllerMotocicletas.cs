@@ -1,6 +1,7 @@
 namespace FollowMotors.Presentation.Controllers.Motocicletas;
 
 using MediatR;
+using FollowMotors.Application.Operaciones;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FollowMotors.Application.Commands.Motocicletas;
@@ -47,4 +48,9 @@ public sealed class MotocicletasController(ISender mediador) : ControllerBase
         await mediador.Send(new ActualizarMotocicletaCommand(id, datos), ct);
         return NoContent();
     }
+
+    /// <summary>Devuelve el historial autorizado de revisiones, reparaciones y entregas.</summary>
+    [HttpGet("{id:long}/historial")]
+    public async Task<IActionResult> Historial(ulong id, int pagina = 1, CancellationToken ct = default) =>
+        Ok(await mediador.Send(new HistorialMotocicletaQuery(id, pagina), ct));
 }

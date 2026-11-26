@@ -344,3 +344,29 @@ CREATE TABLE IF NOT EXISTS sesiones_usuarios (
     KEY idx_sesiones_expira (expira_en),
     CONSTRAINT fk_sesiones_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB;
+
+-- Consentimiento y entregas al canal interno de recordatorios.
+CREATE TABLE IF NOT EXISTS preferencias_recordatorio (
+    cliente_id BIGINT UNSIGNED NOT NULL,
+    habilitado BOOLEAN NOT NULL,
+    actualizado_en DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (cliente_id),
+    CONSTRAINT fk_preferencias_recordatorio_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS recordatorios_taller (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    cliente_id BIGINT UNSIGNED NOT NULL,
+    cita_id BIGINT UNSIGNED NULL,
+    mantenimiento_id BIGINT UNSIGNED NULL,
+    fecha_evento DATETIME(3) NOT NULL,
+    generado_en DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_recordatorio_cita_fecha (cita_id, fecha_evento),
+    UNIQUE KEY uq_recordatorio_mant_fecha (mantenimiento_id, fecha_evento),
+    KEY idx_recordatorios_cliente (cliente_id, fecha_evento),
+    CONSTRAINT fk_recordatorios_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+    CONSTRAINT fk_recordatorios_cita FOREIGN KEY (cita_id) REFERENCES citas(id),
+    CONSTRAINT fk_recordatorios_mantenimiento FOREIGN KEY (mantenimiento_id) REFERENCES mantenimientos_programados(id),
+    CONSTRAINT chk_recordatorios_evento CHECK ((cita_id IS NULL) <> (mantenimiento_id IS NULL))
+) ENGINE=InnoDB;

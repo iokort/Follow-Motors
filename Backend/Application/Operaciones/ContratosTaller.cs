@@ -84,7 +84,7 @@ public sealed record GarantiaVista(ulong Id, ulong OrdenId, bool Aplica, ushort 
 }
 
 /// <summary>Contrato de persistencia transaccional: no define reglas HTTP ni conoce MediatR.</summary>
-public interface IOperacionesTaller
+public interface IPresupuestosTaller
 {
     Task<ulong> CrearPresupuesto(CrearPresupuestoCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> DecidirPresupuesto(DecidirPresupuestoCommand comando, ActorTaller actor, CancellationToken ct);
@@ -92,18 +92,33 @@ public interface IOperacionesTaller
     Task<ulong> Contratar(ContratarServicioCommand comando, ActorTaller actor, CancellationToken ct);
     Task<ulong> RegistrarTipoServicio(RegistrarTipoServicioCommand comando, ActorTaller actor, CancellationToken ct);
     Task<IReadOnlyList<TipoServicioVista>> TiposServicio(CancellationToken ct);
+    Task<ulong> RegistrarAnticipo(RegistrarAnticipoCommand comando, ActorTaller actor, CancellationToken ct);
+}
+
+/// <summary>Persiste asignación, progreso, terminación y entrega de reparaciones.</summary>
+public interface IEjecucionTaller
+{
     Task<bool> AsignarMecanico(AsignarMecanicoCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> AvanzarTarea(ActualizarTareaCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> EstimarEntrega(EstimarEntregaCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> Finalizar(ulong ordenId, ActorTaller actor, CancellationToken ct);
     Task<bool> Entregar(EntregarOrdenCommand comando, ActorTaller actor, CancellationToken ct);
     Task<OrdenVista?> ConsultarOrden(ulong id, ActorTaller actor, CancellationToken ct);
+}
+
+/// <summary>Persiste las piezas de la cotización y los movimientos con el proveedor.</summary>
+public interface IRefaccionesTaller
+{
     Task<ulong> SolicitarRefaccion(SolicitarRefaccionCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> PedirRefaccion(ulong id, ActorTaller actor, CancellationToken ct);
     Task<bool> RecibirRefaccion(RecibirRefaccionCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> ConsumirRefaccion(ConsumirRefaccionCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> DevolverRefaccion(DevolverRefaccionCommand comando, ActorTaller actor, CancellationToken ct);
-    Task<ulong> RegistrarAnticipo(RegistrarAnticipoCommand comando, ActorTaller actor, CancellationToken ct);
+}
+
+/// <summary>Persiste cancelación, reintegro, garantías y consultas de posventa.</summary>
+public interface IPostventaTaller
+{
     Task<ulong> SolicitarCancelacion(ulong ordenId, ActorTaller actor, CancellationToken ct);
     Task<bool> ResolverCancelacion(ResolverCancelacionCommand comando, ActorTaller actor, CancellationToken ct);
     Task<bool> RegistrarReembolso(RegistrarReembolsoCommand comando, ActorTaller actor, CancellationToken ct);

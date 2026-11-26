@@ -2,18 +2,20 @@ namespace FollowMotors.Infrastructure.Operaciones;
 
 using System.Data;
 using Dapper;
+using static FollowMotors.Infrastructure.Operaciones.TallerSql;
 using FollowMotors.Application.Operaciones;
 using FollowMotors.Domain.Rules.Servicios;
+using FollowMotors.Domain.Rules.Seguridad;
 using FollowMotors.Infrastructure.Database;
 using MySqlConnector;
 
 /// <summary>Persiste el presupuesto, el acuerdo presencial y el anticipo junto a sus comprobantes.</summary>
-public sealed partial class OperacionesTallerMySql
+public sealed class RepositorioPresupuestos(ConexionMySql baseDatos) : IPresupuestosTaller
 {
     /// <summary>Guarda un presupuesto y su plan tras verificar que la revisión fue pagada.</summary>
     public async Task<ulong> CrearPresupuesto(CrearPresupuestoCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var atencion = await db.QuerySingleOrDefaultAsync<(string Estado, ulong UsuarioMecanico)>(new CommandDefinition("""
             SELECT a.estado, e.usuario_id FROM atenciones a JOIN empleados e ON e.id = a.mecanico_id
@@ -22,7 +24,7 @@ public sealed partial class OperacionesTallerMySql
             """, solicitud, tx, cancellationToken: ct));
         if (atencion.Estado != "DIAGNOSTICADA")
             throw new InvalidOperationException("La atención requiere diagnóstico y cobro previos.");
-        if (actor.Rol != "GERENTE" && atencion.UsuarioMecanico != actor.UsuarioId)
+        if (!PoliticaPermisos.PuedeRegistrarTrabajo(actor.Rol, actor.UsuarioId, atencion.UsuarioMecanico))
             throw new UnauthorizedAccessException("El mecánico asignado o gerencia prepara la cotización.");
         int filas = await db.ExecuteAsync(new CommandDefinition("""
             INSERT INTO presupuestos (atencion_id,tipo_servicio_id,descripcion_trabajo,mano_obra_acordada,
@@ -47,7 +49,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Confirma el desglose y fija la decisión que el personal documentó en sucursal.</summary>
     public async Task<bool> DecidirPresupuesto(DecidirPresupuestoCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var presupuesto = await BloquearPresupuesto(db, tx, solicitud.PresupuestoId, ct);
         if (presupuesto.Estado != "BORRADOR") return false;
@@ -77,7 +79,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Obtiene los detalles del presupuesto visible para la sesión.</summary>
     public async Task<PresupuestoVista?> ConsultarPresupuesto(ulong id, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(ct);
         var vista = await db.QuerySingleOrDefaultAsync<PresupuestoVista>(new CommandDefinition("""
             SELECT p.id AS Id, p.atencion_id AS AtencionId, p.descripcion_trabajo AS DescripcionTrabajo,
@@ -92,7 +94,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Guarda la orden, el pago completo y la garantía informada como un solo cambio.</summary>
     public async Task<ulong> Contratar(ContratarServicioCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var presupuesto = await BloquearPresupuesto(db, tx, solicitud.PresupuestoId, ct);
         if (presupuesto.Estado != "ACEPTADO")
@@ -121,7 +123,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Registra el pago de una orden previa pendiente de anticipo, con las mismas reglas.</summary>
     public async Task<ulong> RegistrarAnticipo(RegistrarAnticipoCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var orden = await BloquearOrden(db, tx, solicitud.OrdenId, ct)
             ?? throw new KeyNotFoundException("No existe la orden.");
@@ -166,7 +168,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Registra las condiciones de cobertura declaradas por gerencia.</summary>
     public async Task<ulong> RegistrarTipoServicio(RegistrarTipoServicioCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition("""
             INSERT INTO tipos_servicio (nombre,descripcion,garantia_dias,cobertura)
@@ -182,22 +184,10 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Lista servicios activos para preparar presupuestos.</summary>
     public async Task<IReadOnlyList<TipoServicioVista>> TiposServicio(CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         return (await db.QueryAsync<TipoServicioVista>(new CommandDefinition("""
             SELECT id AS Id, nombre AS Nombre, descripcion AS Descripcion, garantia_dias AS GarantiaDias,
                 cobertura AS Cobertura FROM tipos_servicio WHERE activo ORDER BY nombre
             """, cancellationToken: ct))).AsList();
     }
-
-    /// <summary>Congela la cotización para verificar sus piezas y evitar dos decisiones simultáneas.</summary>
-    private static async Task<PresupuestoBloqueado> BloquearPresupuesto(MySqlConnection db, MySqlTransaction tx,
-        ulong id, CancellationToken ct) =>
-        await db.QuerySingleOrDefaultAsync<PresupuestoBloqueado>(new CommandDefinition("""
-            SELECT id AS Id, estado AS Estado, mano_obra_acordada AS ManoObra,
-                refacciones_acordadas AS Refacciones FROM presupuestos WHERE id = @id FOR UPDATE
-            """, new { id }, tx, cancellationToken: ct))
-        ?? throw new KeyNotFoundException("No existe el presupuesto.");
-
-    /// <summary>Importes y estado que se conservan bajo el bloqueo de la cotización.</summary>
-    private sealed record PresupuestoBloqueado(ulong Id, string Estado, decimal ManoObra, decimal Refacciones);
 }

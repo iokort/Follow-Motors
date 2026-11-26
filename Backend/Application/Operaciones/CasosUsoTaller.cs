@@ -33,7 +33,7 @@ public abstract class CasoUsoTaller(IUsuarioActual usuario)
 }
 
 /// <summary>Orquesta el presupuesto, el acuerdo presencial y el anticipo de reparación.</summary>
-public sealed class PresupuestosTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
+public sealed class PresupuestosTallerHandler(IPresupuestosTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
     IRequestHandler<CrearPresupuestoCommand, ulong>, IRequestHandler<DecidirPresupuestoCommand, bool>,
     IRequestHandler<ConsultarPresupuestoQuery, PresupuestoVista?>, IRequestHandler<ContratarServicioCommand, ulong>,
     IRequestHandler<RegistrarAnticipoCommand, ulong>, IRequestHandler<RegistrarTipoServicioCommand, ulong>,
@@ -72,7 +72,7 @@ public sealed class PresupuestosTallerHandler(IOperacionesTaller repositorio, IU
 }
 
 /// <summary>Coordina la ejecución técnica y el cierre de órdenes.</summary>
-public sealed class EjecucionTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
+public sealed class EjecucionTallerHandler(IEjecucionTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
     IRequestHandler<AsignarMecanicoCommand, bool>, IRequestHandler<ActualizarTareaCommand, bool>,
     IRequestHandler<FinalizarOrdenCommand, bool>, IRequestHandler<EntregarOrdenCommand, bool>,
     IRequestHandler<EstimarEntregaCommand, bool>, IRequestHandler<ConsultarOrdenQuery, OrdenVista?>
@@ -103,7 +103,7 @@ public sealed class EjecucionTallerHandler(IOperacionesTaller repositorio, IUsua
 }
 
 /// <summary>Coordina piezas cotizadas y movimientos del material del proveedor.</summary>
-public sealed class RefaccionesTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
+public sealed class RefaccionesTallerHandler(IRefaccionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
     IRequestHandler<SolicitarRefaccionCommand, ulong>, IRequestHandler<PedirRefaccionCommand, bool>,
     IRequestHandler<RecibirRefaccionCommand, bool>, IRequestHandler<ConsumirRefaccionCommand, bool>,
     IRequestHandler<DevolverRefaccionCommand, bool>
@@ -130,7 +130,7 @@ public sealed class RefaccionesTallerHandler(IOperacionesTaller repositorio, IUs
 }
 
 /// <summary>Aplica permisos en cancelaciones, mantenimiento y consultas de seguimiento.</summary>
-public sealed class PostventaTallerHandler(IOperacionesTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
+public sealed class PostventaTallerHandler(IPostventaTaller repositorio, IUsuarioActual usuario) : CasoUsoTaller(usuario),
     IRequestHandler<SolicitarCancelacionCommand, ulong>, IRequestHandler<ResolverCancelacionCommand, bool>,
     IRequestHandler<RegistrarReembolsoCommand, bool>, IRequestHandler<ConsultarCancelacionQuery, CancelacionVista?>,
     IRequestHandler<ProgramarMantenimientoCommand, ulong>, IRequestHandler<ConsultarMantenimientosQuery, IReadOnlyList<MantenimientoVista>>,

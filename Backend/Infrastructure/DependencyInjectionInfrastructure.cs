@@ -29,7 +29,12 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(conexion))
             throw new InvalidOperationException("Configure ConnectionStrings:MySql por variable de entorno.");
         servicios.AddSingleton(new ConexionMySql(conexion));
-        servicios.AddScoped<IOperacionesTaller, OperacionesTallerMySql>();
+        servicios.AddScoped<IRepositorioSeguimiento, RepositorioSeguimiento>();
+        servicios.AddScoped<IRepositorioRecordatorios, RepositorioRecordatorios>();
+        servicios.AddScoped<IPresupuestosTaller, RepositorioPresupuestos>();
+        servicios.AddScoped<IEjecucionTaller, RepositorioEjecucion>();
+        servicios.AddScoped<IRefaccionesTaller, RepositorioRefacciones>();
+        servicios.AddScoped<IPostventaTaller, RepositorioPostventa>();
         servicios.AddScoped<IRepositorioClientes, RepositorioClientes>();
         servicios.AddScoped<IRepositorioCuentas, RepositorioCuentas>();
         servicios.AddScoped<IRepositorioMotocicletas, RepositorioMotocicletas>();

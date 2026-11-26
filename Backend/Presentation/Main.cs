@@ -3,6 +3,9 @@ using FollowMotors.Application;
 using FollowMotors.Application.Abstractions.Autenticacion;
 using FollowMotors.Infrastructure;
 using FollowMotors.Presentation.Autenticacion;
+using FollowMotors.Presentation;
+using FollowMotors.Application.Operaciones;
+using Microsoft.AspNetCore.Authorization;
 using FollowMotors.Presentation.Inicializacion;
 using FollowMotors.Presentation.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,6 +23,14 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton(TimeZoneInfo.FindSystemTimeZoneById(
     builder.Configuration["Taller:ZonaHoraria"] ?? "America/Mexico_City"));
 builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("MySql") ?? "");
+var horasAntes = builder.Configuration.GetValue("Recordatorios:HorasCita", 24);
+var diasAntes = builder.Configuration.GetValue("Recordatorios:DiasMantenimiento", 7);
+if (horasAntes is < 1 or > 720 || diasAntes is < 0 or > 90)
+    throw new InvalidOperationException("La anticipación de recordatorios está fuera del rango válido.");
+builder.Services.AddSingleton(new VentanaRecordatorios(horasAntes, diasAntes));
+builder.Services.AddScoped<GeneradorRecordatorios>();
+if (builder.Configuration.GetValue("Recordatorios:Automaticos", true))
+    builder.Services.AddHostedService<RecordatoriosProgramados>();
 builder.Services.AddCors(opciones => opciones.AddPolicy("AngularLocal", politica => politica
     .WithOrigins("http://localhost:4200", "http://127.0.0.1:4200")
     .AllowAnyHeader().AllowAnyMethod()));
@@ -43,7 +54,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(opciones => opciones.FallbackPolicy =
+    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
 var app = builder.Build();
 app.UseMiddleware<ErroresMiddleware>();
@@ -54,10 +66,10 @@ app.UseAuthorization();
 app.MapControllers();
 // Comprobación técnica de disponibilidad, sin mostrar información privada.
 app.MapGet("/api/estado", () => Results.Ok(new { servicio = "FollowMotors",
-    disponible = true, modo = "mysql" }));
+    disponible = true, modo = "mysql" })).AllowAnonymous();
 
 // Compatibilidad con el inicio de Angular. El modo persistente no publica credenciales.
-app.MapGet("/api/demo/accesos", () => Results.Ok(Array.Empty<object>()));
+app.MapGet("/api/demo/accesos", () => Results.Ok(Array.Empty<object>())).AllowAnonymous();
 
 using (var alcance = app.Services.CreateScope())
 {

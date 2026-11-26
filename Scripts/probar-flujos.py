@@ -3,6 +3,7 @@
 import concurrent.futures
 import json
 import os
+import subprocess
 import sys
 import threading
 import time
@@ -47,9 +48,12 @@ def esperar_api():
     """Espera el arranque del backend antes de probar el contrato HTTP."""
     for _ in range(30):
         try:
-            return api("GET", "/estado", 200)
+            with urlopen(API + "/estado", timeout=4) as respuesta:
+                if respuesta.status == 200:
+                    return api("GET", "/estado", 200)
         except URLError:
-            time.sleep(1)
+            pass
+        time.sleep(1)
     raise RuntimeError("La API no respondió")
 
 
@@ -98,6 +102,7 @@ def probar_identidad_y_fichas(gerente):
     segunda_sesion = inicio(identificador, CLAVE_FIXTURE)["token"]
     api("POST", "/autenticacion/cerrar-sesion", 204, token=segunda_sesion)
     api("GET", "/motocicletas/mis-motocicletas", 401, token=segunda_sesion)
+    api("GET", "/estado", 200, token=segunda_sesion)
     api("GET", "/motocicletas/mis-motocicletas", 200, token=usuario)
     api("DELETE", f"/clientes/{id_otro}", 204, token=gerente)
     api("GET", "/clientes/mi-expediente", 401, token=otro)
@@ -326,6 +331,103 @@ def probar_taller(gerente, cliente, moto, usuario, contexto):
     return otra
 
 
+def probar_seguimiento(gerente, cliente, moto, usuario, contexto, orden_entregada):
+    """Comprueba historial, validación del mantenimiento, recordatorios y reporte gerencial."""
+    _, ajeno, asesor, _, _, moto_ajena = contexto
+    historial = api("GET", f"/motocicletas/{moto}/historial", 200, token=usuario)
+    assert {x["estadoOrden"] for x in historial} >= {"CANCELADA", "ENTREGADA"}
+    assert all(x["tarifaCobrada"] == 280 for x in historial)
+    assert any(x["estadoAtencion"] == "SIN_REPARACION"
+               for x in api("GET", f"/motocicletas/{moto_ajena}/historial", 200, token=ajeno))
+    api("GET", f"/motocicletas/{moto}/historial", 404, token=ajeno)
+
+    ahora = datetime.now(timezone.utc)
+    recordar = {"motocicletaId": moto, "descripcion": "Servicio preventivo acordado",
+                "fechaEstimada": (ahora + timedelta(days=1)).date().isoformat()}
+    completado = ops("POST", "/mantenimientos", 200, token=asesor, data=recordar)["id"]
+    pendiente = ops("POST", "/mantenimientos", 200, token=asesor, data=recordar)["id"]
+    ops("POST", "/mantenimientos", 400, token=asesor, data={**recordar, "fechaEstimada": None})
+    ruta_estado = f"/mantenimientos/{completado}/estado"
+    ops("PUT", ruta_estado, 403, token=usuario, data={"realizado": True, "ordenId": orden_entregada})
+    ops("PUT", ruta_estado, 400, token=asesor, data={"realizado": True})
+    ops("PUT", ruta_estado, 204, token=asesor, data={"realizado": True, "ordenId": orden_entregada})
+    estado = {m["id"]: m["estado"] for m in ops("GET", f"/mantenimientos/motocicleta/{moto}", 200, token=usuario)}
+    assert estado[completado] == "REALIZADO" and estado[pendiente] == "PENDIENTE"
+    assert not ops("GET", f"/mantenimientos/motocicleta/{moto}", 200, token=ajeno)
+
+    def generar(token=gerente):
+        """Ejecuta el generador real y obtiene el número de avisos nuevos."""
+        return api("POST", "/gerencia/recordatorios/generar", 200, token=token)["generados"]
+
+    hora = ahora.replace(microsecond=0) + timedelta(hours=6)
+    datos_franjas = [
+        {"inicio": (hora + timedelta(hours=i)).isoformat(),
+         "fin": (hora + timedelta(hours=i+1)).isoformat(), "capacidad": 1}
+        for i in range(2)
+    ]
+    franja, destino = [api("POST", "/agenda/franjas", 200, data=datos, token=gerente)["id"]
+                        for datos in datos_franjas]
+    cita = api("POST", "/citas", 201, token=asesor, data={
+        "franjaId": franja, "clienteId": cliente, "motocicletaId": moto, "motivo": "Mantenimiento preventivo"})["id"]
+    api("POST", "/gerencia/recordatorios/generar", 403, token=asesor)
+    assert not api("GET", "/recordatorios/preferencia", 200, token=usuario)["habilitado"]
+    assert generar() == 0
+    api("PUT", "/recordatorios/preferencia", 204, token=usuario, data={"habilitado": True})
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        lotes = list(pool.map(lambda _: generar(), range(2)))
+    assert sorted(lotes) == [0, 2]
+    avisos = api("GET", "/recordatorios", 200, token=usuario)
+    assert {a["tipo"]: a["eventoId"] for a in avisos} == {"CITA": cita, "MANTENIMIENTO": pendiente}
+    assert all(a["motocicletaId"] == moto and a["servicio"] for a in avisos)
+    assert not api("GET", "/recordatorios", 200, token=ajeno)
+    api("PUT", f"/citas/{cita}/franja", 204, token=asesor, data={"franjaId": destino})
+    assert all(a["tipo"] != "CITA" for a in api("GET", "/recordatorios", 200, token=usuario))
+    assert generar() == 1 and generar() == 0
+    assert any(a["tipo"] == "CITA" for a in api("GET", "/recordatorios", 200, token=usuario))
+    api("DELETE", f"/citas/{cita}", 204, token=asesor)
+    assert generar() == 0
+    assert all(a["tipo"] != "CITA" for a in api("GET", "/recordatorios", 200, token=usuario))
+    api("PUT", "/recordatorios/preferencia", 204, token=usuario, data={"habilitado": False})
+    assert not api("GET", "/recordatorios", 200, token=usuario)
+
+    desde = (ahora - timedelta(days=1)).replace(microsecond=0)
+    hasta = (ahora + timedelta(days=14)).replace(microsecond=0)
+    ruta = f"/gerencia/reporte-operativo?desde={desde.isoformat()}&hasta={hasta.isoformat()}".replace("+00:00", "Z")
+    api("GET", ruta, 403, token=asesor)
+    reporte = api("GET", ruta, 200, token=gerente)
+    indicadores = {(f["modulo"], f["estado"]): f["total"] for f in reporte}
+    assert indicadores["ORDENES", "ENTREGADA"] >= 1 and indicadores["MANTENIMIENTOS", "REALIZADO"] >= 1
+    comparar_reporte_mysql(indicadores, desde, hasta)
+    auditoria = api("GET", "/auditoria?limite=100", 200, token=gerente)
+    assert any(a["accion"] == "REEMBOLSO_ENTREGADO" for a in auditoria)
+    api("GET", "/auditoria", 403, token=asesor)
+
+
+def comparar_reporte_mysql(indicadores, desde, hasta):
+    """En CI contrasta cada grupo con un conteo SQL independiente del backend."""
+    contenedor = os.getenv("FM_TEST_MYSQL_CONTAINER")
+    if not contenedor:
+        return
+    origenes = {
+        "CITAS": ("citas JOIN franjas_citas ON citas.franja_id = franjas_citas.id", "inicio"),
+        "ORDENES": ("ordenes_servicio", "creada_en"),
+        "CANCELACIONES": ("solicitudes_cancelacion", "solicitada_en"),
+        "MANTENIMIENTOS": ("mantenimientos_programados", "fecha_estimada"),
+    }
+    inicio, fin = (d.strftime("%Y-%m-%d %H:%M:%S") for d in (desde, hasta))
+    consultas = []
+    for modulo, (tabla, fecha) in origenes.items():
+        consultas.append(f"SELECT '{modulo}', estado, COUNT(*) FROM {tabla} "
+                         f"WHERE {fecha} >= '{inicio}' AND {fecha} < '{fin}' GROUP BY estado;")
+    conteos = subprocess.run(
+        ["docker", "exec", "-i", contenedor, "sh", "-c",
+         'MYSQL_PWD="$MYSQL_PASSWORD" mysql -NB -u "$MYSQL_USER" "$MYSQL_DATABASE"'],
+        input="\n".join(consultas), capture_output=True, text=True, check=True, timeout=20)
+    filas = [fila.split("\t") for fila in conteos.stdout.splitlines()]
+    assert indicadores == {(modulo, estado): int(total) for modulo, estado, total in filas}
+    print(f"{len(filas)} grupos del reporte comparados con un conteo MySQL independiente", flush=True)
+
+
 def main():
     """Ejecuta los escenarios de extremo a extremo con cuentas generadas para esta corrida."""
     if os.environ.get("FM_TEST_CONFIRMAR") != "mysql-de-pruebas":
@@ -336,7 +438,8 @@ def main():
     gerente = inicio(os.environ["FM_TEST_GERENTE"], os.environ["FM_TEST_CLAVE"])["token"]
     cliente, moto, usuario = probar_identidad_y_fichas(gerente)
     contexto = probar_agenda_y_recepcion(gerente, cliente, moto, usuario)
-    probar_taller(gerente, cliente, moto, usuario, contexto)
+    orden = probar_taller(gerente, cliente, moto, usuario, contexto)
+    probar_seguimiento(gerente, cliente, moto, usuario, contexto, orden)
     print(f"{TOTAL} respuestas HTTP verificadas contra MySQL", flush=True)
 
 

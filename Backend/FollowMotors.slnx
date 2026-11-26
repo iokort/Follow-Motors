@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="Domain/FollowMotors.Domain.csproj" />
-  <Project Path="Application/FollowMotors.Application.csproj" />
-  <Project Path="Infrastructure/FollowMotors.Infrastructure.csproj" />
-  <Project Path="Presentation/FollowMotors.Presentation.csproj" />
-</Solution>

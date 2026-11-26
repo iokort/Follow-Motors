@@ -2,16 +2,17 @@ namespace FollowMotors.Infrastructure.Operaciones;
 
 using System.Data;
 using Dapper;
+using static FollowMotors.Infrastructure.Operaciones.TallerSql;
 using FollowMotors.Application.Operaciones;
 using FollowMotors.Infrastructure.Database;
 
 /// <summary>Guarda cotización y movimientos de piezas sin cambiar el importe acordado al cliente.</summary>
-public sealed partial class OperacionesTallerMySql
+public sealed class RepositorioRefacciones(ConexionMySql baseDatos) : IRefaccionesTaller
 {
     /// <summary>Agrega una pieza al desglose de un presupuesto que aún se puede modificar.</summary>
     public async Task<ulong> SolicitarRefaccion(SolicitarRefaccionCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var presupuesto = await BloquearPresupuesto(db, tx, solicitud.PresupuestoId, ct);
         if (presupuesto.Estado != "BORRADOR")
@@ -57,7 +58,7 @@ public sealed partial class OperacionesTallerMySql
     {
         if (movimiento != Movimiento.Pedir && cantidad is < 1 or > ushort.MaxValue)
             throw new ArgumentException("Indica una cantidad de refacciones válida.");
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         ulong? ordenId = await db.ExecuteScalarAsync<ulong?>(new CommandDefinition("""
             SELECT o.id FROM ordenes_servicio o JOIN refacciones_servicio r ON r.presupuesto_id = o.presupuesto_id

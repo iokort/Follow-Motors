@@ -34,7 +34,11 @@ public sealed class PoliticaPermisos : IPoliticaPermisos
 
     /// <summary>Determina si una persona puede registrar un diagnóstico asignado.</summary>
     public bool PuedeDiagnosticar(string rol, ulong? empleadoId, ulong mecanicoAsignadoId) =>
-        rol == "GERENTE" || (rol == "EMPLEADO" && empleadoId == mecanicoAsignadoId);
+        PuedeRegistrarTrabajo(rol, empleadoId, mecanicoAsignadoId);
+
+    /// <summary>Autoriza trabajo técnico a gerencia o al responsable que identifica la operación.</summary>
+    public static bool PuedeRegistrarTrabajo(string rol, ulong? persona, ulong responsable) =>
+        rol == "GERENTE" || (rol == "EMPLEADO" && persona == responsable);
 
     /// <summary>Evita mostrar a un cliente información de una moto ajena.</summary>
     public bool PuedeConsultarPropiedad(string rol, ulong? clienteActualId, ulong propietarioId) =>

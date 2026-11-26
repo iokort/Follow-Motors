@@ -2,6 +2,7 @@ namespace FollowMotors.Presentation.Middleware;
 
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using FollowMotors.Application.Abstractions.Autenticacion;
 
 /// <summary>Impide el uso de sesiones revocadas, vencidas o con una cuenta inactiva.</summary>
@@ -10,7 +11,8 @@ public sealed class SesionesActivasMiddleware(RequestDelegate siguiente)
     /// <summary>Comprueba la sesión firmada antes de autorizar acceso a cualquier recurso privado.</summary>
     public async Task InvokeAsync(HttpContext contexto, IRepositorioSesiones sesiones)
     {
-        if (contexto.User.Identity?.IsAuthenticated == true)
+        if (contexto.User.Identity?.IsAuthenticated == true
+            && contexto.GetEndpoint()?.Metadata.GetMetadata<IAllowAnonymous>() is null)
         {
             contexto.Response.Headers.CacheControl = "no-store";
             string? sesion = contexto.User.FindFirstValue(JwtRegisteredClaimNames.Jti);

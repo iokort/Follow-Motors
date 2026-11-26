@@ -24,3 +24,13 @@ public static class VigenciaGarantia
         return ahora < vence.Value ? "VIGENTE" : "VENCIDA";
     }
 }
+
+/// <summary>Estados desde los que un servicio admite trabajos o cambios de planificación.</summary>
+public static class EstadoReparacion
+{
+    /// <summary>Indica que la reparación no se ha cerrado ni cancelado.</summary>
+    public static bool EsAbierta(string estado) => estado is "LISTA" or "EN_EJECUCION" or "PENDIENTE_PIEZAS";
+
+    /// <summary>Exige anticipo y disponibilidad de piezas antes de iniciar o continuar el trabajo.</summary>
+    public static bool PermiteEjecutar(string estado, decimal? pago) => pago.HasValue && estado is "LISTA" or "EN_EJECUCION";
+}

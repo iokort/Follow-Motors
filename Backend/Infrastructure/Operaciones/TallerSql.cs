@@ -4,34 +4,33 @@ using System.Text.Json;
 using Dapper;
 using FollowMotors.Application.Operaciones;
 using FollowMotors.Domain.Rules.Servicios;
+using FollowMotors.Domain.Rules.Seguridad;
+using FollowMotors.Domain.Rules.Operaciones;
 using FollowMotors.Infrastructure.Database;
 using MySqlConnector;
 
-/// <summary>Persistencia de la reparación desde cotización hasta entrega y postventa.</summary>
-public sealed partial class OperacionesTallerMySql(ConexionMySql baseDatos, TimeProvider reloj) : IOperacionesTaller
+/// <summary>Proyecciones y bloqueos compartidos por los repositorios de una reparación.</summary>
+internal static class TallerSql
 {
-    private const string PropiedadPresupuesto = """
+    internal const string PropiedadPresupuesto = """
         (@Rol IN ('GERENTE','EMPLEADO') OR EXISTS (SELECT 1 FROM atenciones a JOIN clientes c ON c.id=a.cliente_id
             WHERE a.id=p.atencion_id AND c.usuario_id=@UsuarioId))
         """;
 
-    private const string PropiedadOrden = """
+    internal const string PropiedadOrden = """
         (@Rol IN ('GERENTE','EMPLEADO') OR EXISTS (SELECT 1 FROM presupuestos p JOIN atenciones a ON a.id=p.atencion_id
             JOIN clientes c ON c.id=a.cliente_id WHERE p.id=o.presupuesto_id AND c.usuario_id=@UsuarioId))
         """;
 
-    /// <summary>Abre una conexión para una operación corta del taller.</summary>
-    private Task<MySqlConnection> Abrir(CancellationToken ct) => baseDatos.AbrirAsync(ct);
-
     /// <summary>Guarda la acción junto con el cambio que la generó.</summary>
-    private static Task Auditar(MySqlConnection db, MySqlTransaction tx, ActorTaller actor,
+    internal static Task Auditar(MySqlConnection db, MySqlTransaction tx, ActorTaller actor,
         string entidad, ulong id, string accion, CancellationToken ct, object? antes = null, object? despues = null) =>
         AuditoriaSql.RegistrarAsync(db, tx, actor.UsuarioId, entidad, id, accion,
             antes is null ? null : JsonSerializer.Serialize(antes),
             despues is null ? null : JsonSerializer.Serialize(despues), ct);
 
     /// <summary>Bloquea primero la orden para serializar trabajo, piezas y resolución de cancelaciones.</summary>
-    private static async Task<OrdenBloqueada?> BloquearOrden(MySqlConnection db, MySqlTransaction tx,
+    internal static async Task<OrdenBloqueada?> BloquearOrden(MySqlConnection db, MySqlTransaction tx,
         ulong id, CancellationToken ct)
     {
         if (await db.ExecuteScalarAsync<ulong?>(new CommandDefinition(
@@ -51,18 +50,18 @@ public sealed partial class OperacionesTallerMySql(ConexionMySql baseDatos, Time
     }
 
     /// <summary>Permite registrar trabajo al responsable actual o a gerencia.</summary>
-    private static void ExigirResponsable(OrdenBloqueada orden, ActorTaller actor)
+    internal static void ExigirResponsable(OrdenBloqueada orden, ActorTaller actor)
     {
-        if (actor.Rol != "GERENTE" && actor.UsuarioId != orden.MecanicoUsuarioId)
+        if (!PoliticaPermisos.PuedeRegistrarTrabajo(actor.Rol, actor.UsuarioId, orden.MecanicoUsuarioId))
             throw new UnauthorizedAccessException("Solo el mecánico asignado o gerencia registra el trabajo.");
     }
 
     /// <summary>Devuelve la evaluación de progreso a partir de todas las tareas persistidas.</summary>
-    private static decimal Avance(IEnumerable<TareaVista> tareas) =>
+    internal static decimal Avance(IEnumerable<TareaVista> tareas) =>
         CalculadoraAvance.Calcular(tareas.Select(t => (t.Peso, t.Porcentaje)));
 
     /// <summary>Consulta las tareas en el orden acordado en el presupuesto.</summary>
-    private static async Task<IReadOnlyList<TareaVista>> Tareas(MySqlConnection db, MySqlTransaction tx,
+    internal static async Task<IReadOnlyList<TareaVista>> Tareas(MySqlConnection db, MySqlTransaction tx,
         ulong presupuestoId, CancellationToken ct) =>
         (await db.QueryAsync<TareaVista>(new CommandDefinition("""
             SELECT id AS Id, descripcion AS Descripcion, peso_porcentual AS Peso, avance_tarea AS Porcentaje,
@@ -71,7 +70,7 @@ public sealed partial class OperacionesTallerMySql(ConexionMySql baseDatos, Time
             """, new { presupuestoId }, tx, cancellationToken: ct))).AsList();
 
     /// <summary>Consulta las piezas acordadas sin exponer la factura ni costos del proveedor.</summary>
-    private static async Task<IReadOnlyList<RefaccionVista>> Piezas(MySqlConnection db, MySqlTransaction tx,
+    internal static async Task<IReadOnlyList<RefaccionVista>> Piezas(MySqlConnection db, MySqlTransaction tx,
         ulong presupuestoId, CancellationToken ct) =>
         (await db.QueryAsync<RefaccionVista>(new CommandDefinition("""
             SELECT id AS Id, descripcion AS Descripcion, cantidad_solicitada AS Solicitadas,
@@ -81,7 +80,7 @@ public sealed partial class OperacionesTallerMySql(ConexionMySql baseDatos, Time
             """, new { presupuestoId }, tx, cancellationToken: ct))).AsList();
 
     /// <summary>Agrega un aviso privado único para la orden y el tipo de evento registrado.</summary>
-    private static Task NotificarOrden(MySqlConnection db, MySqlTransaction tx, OrdenBloqueada orden,
+    internal static Task NotificarOrden(MySqlConnection db, MySqlTransaction tx, OrdenBloqueada orden,
         string tipo, string mensaje, CancellationToken ct) =>
         db.ExecuteAsync(new CommandDefinition("""
             INSERT INTO notificaciones (cliente_id,orden_id,tipo,mensaje)
@@ -89,11 +88,23 @@ public sealed partial class OperacionesTallerMySql(ConexionMySql baseDatos, Time
             """, new { orden.ClienteId, orden.Id, tipo, mensaje }, tx, cancellationToken: ct));
 
     /// <summary>Datos que se mantienen coherentes mientras se conserva el bloqueo sobre la orden.</summary>
-    private sealed record OrdenBloqueada(ulong Id, ulong PresupuestoId, string Estado, ulong AtencionId,
+    internal sealed record OrdenBloqueada(ulong Id, ulong PresupuestoId, string Estado, ulong AtencionId,
         ulong ClienteId, ulong TitularUsuarioId, ulong MecanicoUsuarioId, decimal ManoObra, decimal Refacciones,
         decimal? Pagado, DateTime? AvisoAvance)
     {
-        public bool Abierta => Estado is "LISTA" or "EN_EJECUCION" or "PENDIENTE_PIEZAS";
-        public bool PuedeEjecutarse => Pagado.HasValue && Estado is "LISTA" or "EN_EJECUCION";
+        public bool Abierta => EstadoReparacion.EsAbierta(Estado);
+        public bool PuedeEjecutarse => EstadoReparacion.PermiteEjecutar(Estado, Pagado);
     }
+
+    /// <summary>Congela la cotización para verificar sus piezas y evitar dos decisiones simultáneas.</summary>
+    internal static async Task<PresupuestoBloqueado> BloquearPresupuesto(MySqlConnection db, MySqlTransaction tx,
+        ulong id, CancellationToken ct) =>
+        await db.QuerySingleOrDefaultAsync<PresupuestoBloqueado>(new CommandDefinition("""
+            SELECT id AS Id, estado AS Estado, mano_obra_acordada AS ManoObra,
+                refacciones_acordadas AS Refacciones FROM presupuestos WHERE id = @id FOR UPDATE
+            """, new { id }, tx, cancellationToken: ct))
+        ?? throw new KeyNotFoundException("No existe el presupuesto.");
+
+    /// <summary>Importes y estado que se conservan bajo el bloqueo de la cotización.</summary>
+    internal sealed record PresupuestoBloqueado(ulong Id, string Estado, decimal ManoObra, decimal Refacciones);
 }

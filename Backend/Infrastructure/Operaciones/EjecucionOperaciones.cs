@@ -2,17 +2,18 @@ namespace FollowMotors.Infrastructure.Operaciones;
 
 using System.Data;
 using Dapper;
+using static FollowMotors.Infrastructure.Operaciones.TallerSql;
 using FollowMotors.Application.Operaciones;
 using FollowMotors.Domain.Rules.Servicios;
 using FollowMotors.Infrastructure.Database;
 
 /// <summary>Aplica cambios a órdenes y tareas mientras conserva el bloqueo de la orden correspondiente.</summary>
-public sealed partial class OperacionesTallerMySql
+public sealed class RepositorioEjecucion(ConexionMySql baseDatos) : IEjecucionTaller
 {
     /// <summary>Cambia el responsable por gerencia, usando la misma exclusión que la asignación inicial.</summary>
     public async Task<bool> AsignarMecanico(AsignarMecanicoCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var bloqueo = await BloqueoMySql.AdquirirAsync(db, "mecanicos", ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var orden = await BloquearOrden(db, tx, solicitud.OrdenId, ct);
@@ -32,7 +33,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Registra progreso y emite el aviso de 25 % una sola vez por reparación.</summary>
     public async Task<bool> AvanzarTarea(ActualizarTareaCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var orden = await BloquearOrden(db, tx, solicitud.OrdenId, ct);
         if (orden is null || !orden.PuedeEjecutarse) return false;
@@ -69,7 +70,7 @@ public sealed partial class OperacionesTallerMySql
     {
         var fecha = solicitud.EntregaEstimada.UtcDateTime;
         if (fecha.Year < 1000) throw new ArgumentException("La fecha de entrega es inválida.");
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var orden = await BloquearOrden(db, tx, solicitud.OrdenId, ct);
         if (orden is null || !orden.Abierta) return false;
@@ -85,7 +86,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Marca finalización técnica solo cuando todas las tareas y piezas están resueltas.</summary>
     public async Task<bool> Finalizar(ulong ordenId, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var orden = await BloquearOrden(db, tx, ordenId, ct);
         if (orden is null || !orden.PuedeEjecutarse) return false;
@@ -107,7 +108,7 @@ public sealed partial class OperacionesTallerMySql
     public async Task<bool> Entregar(EntregarOrdenCommand solicitud, ActorTaller actor, CancellationToken ct)
     {
         if (solicitud.Comprobante?.Length > 120) throw new ArgumentException("El comprobante es demasiado largo.");
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var orden = await BloquearOrden(db, tx, solicitud.OrdenId, ct);
         if (orden is null || orden.Estado != "TERMINADA" || orden.Pagado is null) return false;
@@ -130,7 +131,7 @@ public sealed partial class OperacionesTallerMySql
     /// <summary>Devuelve progreso real, tareas, piezas y fecha prevista de una orden autorizada.</summary>
     public async Task<OrdenVista?> ConsultarOrden(ulong id, ActorTaller actor, CancellationToken ct)
     {
-        await using var db = await Abrir(ct);
+        await using var db = await baseDatos.AbrirAsync(ct);
         await using var tx = await db.BeginTransactionAsync(ct);
         var vista = await db.QuerySingleOrDefaultAsync<OrdenVista>(new CommandDefinition("""
             SELECT o.id AS Id, o.presupuesto_id AS PresupuestoId, o.estado AS Estado,
