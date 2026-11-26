@@ -18,11 +18,11 @@ Cerrar la ventana de API detiene el servidor; los registros ficticios se reinici
 
 Toda la información inicial ficticia y las implementaciones temporales de los repositorios están en:
 
-`Infrastructure/Demo/DemoDatosEnMemoria.cs`
+`Backend/Infrastructure/Demo/DemoDatosEnMemoria.cs`
 
-Los demás archivos C# conservan sus responsabilidades; Angular se conecta a los endpoints reales y no contiene una base de datos simulada propia. La estructura sigue organizada en **Domain**, **Application**, **Infrastructure** y **Presentation**. Cuando se active MySQL posteriormente, las implementaciones existentes están en `Infrastructure/Repositories`, y `Infrastructure/DependencyInjectionInfrastructure.cs` mantiene su registro.
+Los demás archivos C# conservan sus responsabilidades; Angular se conecta a los endpoints reales y no contiene una base de datos simulada propia. La estructura sigue organizada en **Domain**, **Application**, **Infrastructure** y **Presentation**. Cuando se active MySQL posteriormente, las implementaciones existentes están en `Backend/Infrastructure/Repositories`, y `Backend/Infrastructure/DependencyInjectionInfrastructure.cs` mantiene su registro.
 
-`Presentation/appsettings.Development.json` activa `Demo:Activado`. `Presentation/Main.cs` utiliza la memoria **solo en el entorno Development**. En un entorno no demo, la API seguirá necesitando `ConnectionStrings:MySql`, configuración de JWT y las variables de inicialización gerencial correspondientes.
+`Backend/Presentation/appsettings.Development.json` activa `Demo:Activado`. `Backend/Presentation/Main.cs` utiliza la memoria **solo en el entorno Development**. En un entorno no demo, la API seguirá necesitando `ConnectionStrings:MySql`, configuración de JWT y las variables de inicialización gerencial correspondientes.
 
 ### Accesos ficticios
 

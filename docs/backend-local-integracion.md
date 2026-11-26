@@ -1,14 +1,14 @@
 # Backend local — operaciones de taller
 
-El sistema utiliza ASP.NET Core 10, MediatR 12, Dapper y MySQL 8. El frontend Angular en \`Frontend/\` permanece sin cambios. El API original sigue funcionando en las rutas \`/api/autenticacion\`, \`/api/clientes\`, \`/api/atenciones\`, etc.
+El sistema utiliza ASP.NET Core 10, MediatR 12, Dapper y MySQL 8. El frontend Angular en `Frontend/` permanece sin cambios. El API original sigue funcionando en las rutas `/api/autenticacion`, `/api/clientes`, `/api/atenciones`, etc.
 
 ## Configuración local
 
 1. Instalar .NET SDK 10, Node.js y MySQL 8.
-2. Importar \`database/schema_eer.sql\` en MySQL local (el esquema conserva su nombre existente).
-3. Definir las variables de entorno \`ConnectionStrings__MySql\`, \`Jwt__Clave\`, \`Jwt__Emisor\` y \`Jwt__Audiencia\`. La contraseña y el secreto JWT nunca se incluyen en Git.
-4. Establecer \`Demo__Activado=false\` en la configuración local para utilizar MySQL; el modo demostración no persiste datos.
-5. Ejecutar el proyecto \`Presentation/\` y Angular desde \`Frontend/\`; configurar el proxy para usar el puerto HTTP seleccionado.
+2. Importar `Backend/database/schema_eer.sql` en MySQL local (el esquema conserva su nombre existente).
+3. Definir las variables de entorno `ConnectionStrings__MySql`, `Jwt__Clave`, `Jwt__Emisor` y `Jwt__Audiencia`. La contraseña y el secreto JWT nunca se incluyen en Git.
+4. Establecer `Demo__Activado=false` en la configuración local para utilizar MySQL; el modo demostración no persiste datos.
+5. Ejecutar el proyecto `Backend/Presentation/` y Angular desde `Frontend/`; configurar el proxy para usar el puerto HTTP seleccionado.
 
 ## Rutas nuevas
 
@@ -33,4 +33,4 @@ Cada operación de varias escrituras se ejecuta con transacción MySQL. Los camb
 
 ## Límites de validación
 
-Los cambios deberán compilarse con \`dotnet build FollowMotors.sln\` y probarse contra MySQL real antes de fusionar. Ningún resultado de integración, aceptación o despliegue se presume sin ejecutar las pruebas.
+Los cambios deberán compilarse con `dotnet build Backend/FollowMotors.sln` y probarse contra MySQL real antes de fusionar. Ningún resultado de integración, aceptación o despliegue se presume sin ejecutar las pruebas.
