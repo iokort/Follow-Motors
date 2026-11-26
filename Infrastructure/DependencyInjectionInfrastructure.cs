@@ -1,6 +1,8 @@
 namespace FollowMotors.Infrastructure;
 
 using Microsoft.Extensions.DependencyInjection;
+using FollowMotors.Application.Operaciones;
+using FollowMotors.Infrastructure.Operaciones;
 using FollowMotors.Application.Abstractions.Autenticacion;
 using FollowMotors.Application.Abstractions.Repositories.Atenciones;
 using FollowMotors.Application.Abstractions.Repositories.Auditoria;
@@ -24,6 +26,7 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(conexion))
             throw new InvalidOperationException("Configure ConnectionStrings:MySql por variable de entorno.");
         servicios.AddSingleton(new ConexionMySql(conexion));
+        servicios.AddScoped<IOperacionesTaller, OperacionesTallerMySql>();
         servicios.AddScoped<IRepositorioClientes, RepositorioClientes>();
         servicios.AddScoped<IRepositorioCuentas, RepositorioCuentas>();
         servicios.AddScoped<IRepositorioMotocicletas, RepositorioMotocicletas>();
