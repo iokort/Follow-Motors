@@ -83,7 +83,7 @@ public sealed class MySqlStore(MySqlDataSource pool) :
         await Update("UPDATE clientes SET nombres=@p0,apellidos=@p1,telefono=@p2 WHERE id=@p3", ct,
             cmd.Nombres.Trim(), cmd.Apellidos.Trim(), cmd.Telefono, id) > 0;
 
-    public Task<IReadOnlyList<Motocicleta>> ListarAsync(long? clienteId, CancellationToken ct) =>
+    Task<IReadOnlyList<Motocicleta>> IMotocicletasStore.ListarAsync(long? clienteId, CancellationToken ct) =>
         List("SELECT id,cliente_id,numero_serie,marca,modelo,anio,kilometraje_actual FROM motocicletas WHERE (@p0 IS NULL OR cliente_id=@p0) ORDER BY id DESC",
             r => new Motocicleta(r.GetInt64(0), r.GetInt64(1), r.GetString(2), r.GetString(3),
                 r.GetString(4), r.IsDBNull(5) ? null : Convert.ToInt32(r.GetValue(5)), Convert.ToInt32(r.GetValue(6))), ct, clienteId);
@@ -101,7 +101,7 @@ public sealed class MySqlStore(MySqlDataSource pool) :
         await Update("UPDATE motocicletas SET marca=@p0,modelo=@p1,anio=@p2,kilometraje_actual=@p3 WHERE id=@p4",
             ct, cmd.Marca.Trim(), cmd.Modelo.Trim(), cmd.Anio, cmd.KilometrajeActual, id) > 0;
 
-    public Task<IReadOnlyList<Cita>> ListarAsync(long? clienteId, CancellationToken ct) =>
+    Task<IReadOnlyList<Cita>> ICitasStore.ListarAsync(long? clienteId, CancellationToken ct) =>
         List("SELECT c.id,c.franja_id,c.cliente_id,c.motocicleta_id,c.motivo,c.estado,f.inicio FROM citas c JOIN franjas_citas f ON f.id=c.franja_id WHERE (@p0 IS NULL OR c.cliente_id=@p0) ORDER BY f.inicio DESC",
             r => new Cita(r.GetInt64(0), r.GetInt64(1), r.GetInt64(2),
                 r.IsDBNull(3) ? null : r.GetInt64(3), r.GetString(4), r.GetString(5), r.GetDateTime(6)), ct, clienteId);
@@ -154,7 +154,7 @@ public sealed class MySqlStore(MySqlDataSource pool) :
         await Update("UPDATE citas SET estado='CANCELADA' WHERE id=@p0 AND estado='CONFIRMADA' AND (@p1 IS NULL OR cliente_id=@p1)",
             ct, id, clienteId) > 0;
 
-    public Task<IReadOnlyList<AtencionResumen>> ListarAsync(long? clienteId, CancellationToken ct) =>
+    Task<IReadOnlyList<AtencionResumen>> IServiciosStore.ListarAsync(long? clienteId, CancellationToken ct) =>
         List("SELECT id,cliente_id,motocicleta_id,estado,motivo,ingresada_en FROM atenciones WHERE (@p0 IS NULL OR cliente_id=@p0) ORDER BY ingresada_en DESC",
             r => new AtencionResumen(r.GetInt64(0), r.GetInt64(1), r.GetInt64(2), r.GetString(3), r.GetString(4), r.GetDateTime(5)), ct, clienteId);
 
