@@ -1,54 +1,31 @@
-name: Integrar fuente de follow.zip
+name: Verificar fuente original Follow Motors
 on:
   push:
     branches: [zip-proyecto]
     paths:
       - '.github/workflows/importar-follow.yml'
-permissions:
-  contents: write
 jobs:
-  importar:
+  backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Obtener rama con ZIP
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          ref: zip-proyecto
-          persist-credentials: true
-      - name: Validar y extraer estructura original
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import zipfile
-          from pathlib import PurePosixPath
-          with zipfile.ZipFile("follow.zip") as archive:
-              files = [x for x in archive.namelist() if not x.endswith("/")]
-              if len(files) < 150:
-                  raise RuntimeError("Archivo ZIP incompleto: " + str(len(files)) + " archivos")
-              for x in archive.namelist():
-                  p = PurePosixPath(x)
-                  if p.is_absolute() or ".." in p.parts or p.parts[0] != "follow":
-                      raise RuntimeError("Ruta no válida en ZIP: " + x)
-              archive.extractall("/tmp/follow-original")
-              print("Archivos del ZIP:", len(files))
-          PY
-          test -f /tmp/follow-original/follow/FollowMotors.sln
-          test -f /tmp/follow-original/follow/Application/DependencyInjectionApplication.cs
-          test -f /tmp/follow-original/follow/Presentation/Main.cs
-          test -f /tmp/follow-original/follow/Frontend/package.json
-          rm -rf Application Domain Infrastructure Presentation
-          cp -a /tmp/follow-original/follow/. ./
-          rm -f follow.zip
-          echo "Originales restaurados:"
-          find Application Domain Infrastructure Presentation Frontend -type f | wc -l
-      - name: Publicar código fuente real en rama del PR
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git status --short
-          git commit -m "SCRUM-2: restaurar los 256 archivos originales de Follow Motors y CI"
-          git push origin HEAD:zip-proyecto
+          dotnet-version: '10.0.x'
+      - name: Restaurar paquetes .NET
+        run: dotnet restore FollowMotors.sln
+      - name: Compilar backend original
+        run: dotnet build FollowMotors.sln --configuration Release --no-restore
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependencias Angular
+        working-directory: Frontend
+        run: npm install --no-audit --no-fund
+      - name: Compilar frontend original
+        working-directory: Frontend
+        run: npm run build
