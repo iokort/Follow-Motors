@@ -13,6 +13,19 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: Restaurar paquetes
-        run: dotnet restore FollowMotors.slnx
-      - name: Compilar solución
-        run: dotnet build FollowMotors.slnx --configuration Release --no-restore
+        run: dotnet restore FollowMotors.sln
+      - name: Compilar backend
+        run: dotnet build FollowMotors.sln --configuration Release --no-restore
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependencias
+        working-directory: Frontend
+        run: npm install --no-audit --no-fund
+      - name: Compilar Angular
+        working-directory: Frontend
+        run: npm run build
