@@ -34,4 +34,25 @@ public sealed class ClientesController(ISender mediador) : ControllerBase
     [Authorize(Roles = "CLIENTE")]
     public async Task<IActionResult> MiExpediente(CancellationToken ct) =>
         Ok(await mediador.Send(new ConsultarExpedientePropioQuery(), ct));
+
+    /// <summary>Busca expedientes para personal autorizado.</summary>
+    [HttpGet]
+    [Authorize(Roles = "GERENTE,EMPLEADO")]
+    public async Task<IActionResult> Buscar(string? buscar, int pagina = 1, CancellationToken ct = default) =>
+        Ok(await mediador.Send(new BuscarClientesQuery(buscar, pagina), ct));
+
+    /// <summary>Devuelve la ficha administrativa del expediente.</summary>
+    [HttpGet("{id:long}")]
+    [Authorize(Roles = "GERENTE,EMPLEADO")]
+    public async Task<IActionResult> Obtener(ulong id, CancellationToken ct) =>
+        Ok(await mediador.Send(new ObtenerClienteQuery(id), ct));
+
+    /// <summary>Actualiza los datos de contacto del expediente.</summary>
+    [HttpPut("{id:long}")]
+    [Authorize(Roles = "GERENTE,EMPLEADO")]
+    public async Task<IActionResult> Actualizar(ulong id, DatosCliente datos, CancellationToken ct)
+    {
+        await mediador.Send(new ActualizarClienteCommand(id, datos), ct);
+        return NoContent();
+    }
 }

@@ -15,13 +15,20 @@ public sealed class RepositorioAtenciones(ConexionMySql baseDatos) : IRepositori
         public decimal Importe { get; set; }
     }
 
-    private const string Seleccion = """
+    internal const string Seleccion = """
         SELECT id AS Id, cliente_id AS ClienteId, motocicleta_id AS MotocicletaId,
             cita_id AS CitaId, mecanico_id AS MecanicoId, motivo AS Motivo,
             kilometraje_ingreso AS KilometrajeIngreso, diagnostico AS TextoDiagnostico,
             estado AS Estado, ingresada_en AS IngresadaEn,
             diagnosticada_en AS DiagnosticadaEn FROM atenciones
         """;
+
+    internal const string TarifaVigente = """
+            FROM tarifas_revision
+            WHERE vigente_desde <= UTC_TIMESTAMP(3)
+              AND (vigente_hasta IS NULL OR vigente_hasta > UTC_TIMESTAMP(3))
+            ORDER BY vigente_desde DESC LIMIT 1
+            """;
 
     /// <summary>Crea el ingreso comprobando mecánico activo y propiedad de la motocicleta.</summary>
     public async Task<ulong> CrearAsync(AtencionTaller atencion, ulong usuarioActorId, CancellationToken ct)
@@ -93,12 +100,7 @@ public sealed class RepositorioAtenciones(ConexionMySql baseDatos) : IRepositori
         if (estado != "DIAGNOSTICADA")
             throw new InvalidOperationException("La revisión no existe o todavía no está diagnosticada.");
         var tarifa = await conexion.QuerySingleOrDefaultAsync<FilaTarifa>(
-            new CommandDefinition("""
-            SELECT id AS Id, importe AS Importe FROM tarifas_revision
-            WHERE vigente_desde <= UTC_TIMESTAMP(3)
-              AND (vigente_hasta IS NULL OR vigente_hasta > UTC_TIMESTAMP(3))
-            ORDER BY vigente_desde DESC LIMIT 1
-            """, transaction: transaccion, cancellationToken: ct));
+            new CommandDefinition("SELECT id AS Id, importe AS Importe " + TarifaVigente, transaction: transaccion, cancellationToken: ct));
         if (tarifa is null || tarifa.Id == 0) throw new InvalidOperationException("No existe tarifa de revisión vigente.");
         await conexion.ExecuteAsync(new CommandDefinition("""
             INSERT INTO cobros_revision (atencion_id, tarifa_id, importe_cobrado,

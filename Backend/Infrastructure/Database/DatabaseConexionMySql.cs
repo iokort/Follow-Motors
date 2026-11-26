@@ -13,3 +13,11 @@ public sealed class ConexionMySql(string cadenaConexion)
         return conexion;
     }
 }
+
+/// <summary>Ayuda a construir parámetros de búsqueda sin interpretar comodines de entrada.</summary>
+internal static class ConsultasMySql
+{
+    /// <summary>Escapa el prefijo para un LIKE parametrizado que usa el carácter !.</summary>
+    internal static string Prefijo(string? texto) =>
+        (texto ?? "").Replace("!", "!!").Replace("%", "!%").Replace("_", "!_") + "%";
+}

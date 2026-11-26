@@ -13,4 +13,10 @@ public interface IRepositorioMotocicletas
 
     /// <summary>Lista las unidades que pertenecen al propietario indicado.</summary>
     Task<IReadOnlyList<Motocicleta>> ListarPorClienteAsync(ulong clienteId, CancellationToken ct);
+
+    /// <summary>Busca unidades por VIN, marca o modelo, con paginación.</summary>
+    Task<IReadOnlyList<Motocicleta>> BuscarAsync(string? texto, int pagina, CancellationToken ct);
+
+    /// <summary>Actualiza la ficha sin reasignar el historial de un propietario a otro.</summary>
+    Task ActualizarAsync(Motocicleta motocicleta, ulong actorId, CancellationToken ct);
 }

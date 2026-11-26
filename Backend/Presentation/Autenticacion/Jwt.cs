@@ -10,7 +10,7 @@ using System.Text;
 public sealed class GeneradorTokensJwt(IConfiguration configuracion) : IGeneradorTokens
 {
     /// <summary>Entrega un token de dos horas con identidad y rol que verificará la API.</summary>
-    public string Generar(ulong usuarioId, string identificador, string rol)
+    public string Generar(ulong usuarioId, string identificador, string rol, string sesionId, DateTime expiraEn)
     {
         var clave = configuracion["Jwt:Clave"]
             ?? throw new InvalidOperationException("No existe clave JWT configurada.");
@@ -21,11 +21,12 @@ public sealed class GeneradorTokensJwt(IConfiguration configuracion) : IGenerado
             new Claim(ClaimTypes.NameIdentifier, usuarioId.ToString()),
             new Claim(ClaimTypes.Name, identificador),
             new Claim(ClaimTypes.Role, rol),
+            new Claim(JwtRegisteredClaimNames.Jti, sesionId),
         };
         var token = new JwtSecurityToken(
             issuer: configuracion["Jwt:Emisor"],
             audience: configuracion["Jwt:Audiencia"],
-            claims: claims, expires: DateTime.UtcNow.AddHours(2),
+            claims: claims, expires: expiraEn,
             signingCredentials: credenciales);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
@@ -36,5 +37,6 @@ public sealed class UsuarioActualHttp(IHttpContextAccessor http) : IUsuarioActua
 {
     public ulong? UsuarioId => ulong.TryParse(
         http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out ulong id) ? id : null;
+    public string? SesionId => http.HttpContext?.User.FindFirstValue(JwtRegisteredClaimNames.Jti);
     public string Rol => http.HttpContext?.User.FindFirstValue(ClaimTypes.Role) ?? "";
 }

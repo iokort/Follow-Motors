@@ -4,9 +4,25 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root-ci-desechable
+          MYSQL_DATABASE: u899160275_follow_motors
+          MYSQL_USER: followmotors_ci
+          MYSQL_PASSWORD: mysql-ci-desechable
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -16,6 +32,32 @@ jobs:
         run: dotnet restore Backend/FollowMotors.sln
       - name: Compilar backend
         run: dotnet build Backend/FollowMotors.sln --configuration Release --no-restore
+      - name: Cargar el esquema en MySQL 8.4
+        env:
+          MYSQL_CONTAINER: ${{ job.services.mysql.id }}
+        run: |
+          docker exec -e MYSQL_PWD=mysql-ci-desechable -i "$MYSQL_CONTAINER" \
+            mysql -u followmotors_ci u899160275_follow_motors < Backend/database/schema_hostinger.sql
+      - name: Verificar API, permisos y persistencia
+        env:
+          ASPNETCORE_URLS: http://127.0.0.1:5148
+          ConnectionStrings__MySql: Server=127.0.0.1;Port=${{ job.services.mysql.ports[3306] }};Database=u899160275_follow_motors;User ID=followmotors_ci;Password=mysql-ci-desechable
+          Bootstrap__Gerente__Identificador: pruebas-ci@follow.motors
+          Bootstrap__Gerente__Nombres: Gerencia
+          Bootstrap__Gerente__Apellidos: Pruebas CI
+          FM_TEST_CONFIRMAR: mysql-de-pruebas
+        run: |
+          export Jwt__Clave="$(openssl rand -hex 32)"
+          export Bootstrap__Gerente__Contrasena="$(openssl rand -hex 20)"
+          export FM_TEST_GERENTE="$Bootstrap__Gerente__Identificador"
+          export FM_TEST_CLAVE="$Bootstrap__Gerente__Contrasena"
+          dotnet run --no-build -c Release --no-launch-profile --project Backend/Presentation > "$RUNNER_TEMP/followmotors-api.log" 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid" 2>/dev/null || true' EXIT
+          if ! python3 Scripts/probar-flujos.py; then
+            cat "$RUNNER_TEMP/followmotors-api.log"
+            exit 1
+          fi
   frontend:
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +67,7 @@ jobs:
           node-version: '22'
       - name: Instalar dependencias
         working-directory: Frontend
-        run: npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund --package-lock=false
       - name: Compilar Angular
         working-directory: Frontend
         run: npm run build

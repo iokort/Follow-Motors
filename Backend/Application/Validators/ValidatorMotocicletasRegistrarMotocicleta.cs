@@ -18,3 +18,14 @@ public sealed class RegistrarMotocicletaValidator : AbstractValidator<RegistrarM
         RuleFor(x => x.Color).MaximumLength(60);
     }
 }
+
+/// <summary>Reutiliza el formato de ficha que aplica el registro de una motocicleta.</summary>
+public sealed class ActualizarMotocicletaValidator : AbstractValidator<ActualizarMotocicletaCommand>
+{
+    /// <summary>Comprueba el ID de ruta y valida la ficha con las reglas compartidas.</summary>
+    public ActualizarMotocicletaValidator(IValidator<RegistrarMotocicletaCommand> ficha)
+    {
+        RuleFor(x => x.Id).GreaterThan(0UL);
+        RuleFor(x => x.Datos).NotNull().SetValidator(ficha);
+    }
+}

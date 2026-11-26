@@ -28,3 +28,16 @@ public sealed class DesactivarCuentaClienteValidator : AbstractValidator<Desacti
         RuleFor(x => x.ClienteId).GreaterThan(0UL);
     }
 }
+
+/// <summary>Verifica la actualización sin aceptar campos de contraseña, estado o rol.</summary>
+public sealed class ActualizarClienteValidator : AbstractValidator<ActualizarClienteCommand>
+{
+    /// <summary>Aplica límites coherentes con las columnas del expediente.</summary>
+    public ActualizarClienteValidator()
+    {
+        RuleFor(x => x.Id).GreaterThan(0UL);
+        RuleFor(x => x.Datos.Nombres).NotEmpty().MaximumLength(120);
+        RuleFor(x => x.Datos.Apellidos).NotEmpty().MaximumLength(120);
+        RuleFor(x => x.Datos.Telefono).MaximumLength(25);
+    }
+}

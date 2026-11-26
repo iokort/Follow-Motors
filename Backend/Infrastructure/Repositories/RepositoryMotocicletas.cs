@@ -9,7 +9,7 @@ using FollowMotors.Infrastructure.Database;
 /// <summary>Persiste unidades multimarca y evita consultas a propietarios ajenos.</summary>
 public sealed class RepositorioMotocicletas(ConexionMySql baseDatos) : IRepositorioMotocicletas
 {
-    private const string Seleccion = """
+    internal const string Seleccion = """
         SELECT id AS Id, cliente_id AS ClienteId, numero_serie AS NumeroSerie,
             placa AS Placa, marca AS Marca, modelo AS Modelo, anio AS Anio,
             color AS Color, kilometraje_actual AS KilometrajeActual,
@@ -55,5 +55,51 @@ public sealed class RepositorioMotocicletas(ConexionMySql baseDatos) : IReposito
             Seleccion + " WHERE cliente_id = @clienteId ORDER BY registrada_en DESC",
             new { clienteId }, cancellationToken: ct));
         return filas.AsList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Motocicleta>> BuscarAsync(string? texto, int pagina, CancellationToken ct)
+    {
+        await using var db = await baseDatos.AbrirAsync(ct);
+        string filtro = ConsultasMySql.Prefijo(texto);
+        int offset = (pagina - 1) * 50;
+        var filas = await db.QueryAsync<Motocicleta>(new CommandDefinition(Seleccion + """
+             WHERE numero_serie LIKE @filtro ESCAPE '!' OR modelo LIKE @filtro ESCAPE '!'
+                OR marca LIKE @filtro ESCAPE '!'
+             ORDER BY id DESC LIMIT 50 OFFSET @offset
+            """, new { filtro, offset }, cancellationToken: ct));
+        return filas.AsList();
+    }
+
+    /// <inheritdoc />
+    public async Task ActualizarAsync(Motocicleta moto, ulong actorId, CancellationToken ct)
+    {
+        await using var db = await baseDatos.AbrirAsync(ct);
+        await using var tx = await db.BeginTransactionAsync(ct);
+        var anterior = await db.QuerySingleOrDefaultAsync<Motocicleta>(new CommandDefinition(
+            Seleccion + " WHERE id = @Id FOR UPDATE", moto, tx, cancellationToken: ct))
+            ?? throw new KeyNotFoundException("No existe la motocicleta.");
+        if (anterior.ClienteId != moto.ClienteId)
+        {
+            var tieneHistorial = await db.ExecuteScalarAsync<bool>(new CommandDefinition("""
+                SELECT EXISTS(SELECT 1 FROM atenciones WHERE motocicleta_id = @Id)
+                    OR EXISTS(SELECT 1 FROM citas WHERE motocicleta_id = @Id)
+                    OR EXISTS(SELECT 1 FROM mantenimientos_programados WHERE motocicleta_id = @Id)
+                """, moto, tx, cancellationToken: ct));
+            if (tieneHistorial)
+                throw new InvalidOperationException("El vínculo no puede cambiar después de registrar actividad.");
+        }
+        int filas = await db.ExecuteAsync(new CommandDefinition("""
+            UPDATE motocicletas m JOIN clientes c ON c.id = @ClienteId
+            JOIN usuarios u ON u.id = c.usuario_id
+            SET m.cliente_id = c.id, m.numero_serie = @NumeroSerie, m.placa = @Placa,
+                m.marca = @Marca, m.modelo = @Modelo, m.anio = @Anio, m.color = @Color,
+                m.kilometraje_actual = @KilometrajeActual
+            WHERE m.id = @Id AND (u.activo OR m.cliente_id = c.id)
+            """, moto, tx, cancellationToken: ct));
+        if (filas == 0) throw new KeyNotFoundException("El nuevo propietario no existe o está inactivo.");
+        await AuditoriaSql.RegistrarAsync(db, tx, actorId, "motocicletas", moto.Id, "ACTUALIZAR",
+            JsonSerializer.Serialize(anterior), JsonSerializer.Serialize(moto with { RegistradaEn = anterior.RegistradaEn }), ct);
+        await tx.CommitAsync(ct);
     }
 }

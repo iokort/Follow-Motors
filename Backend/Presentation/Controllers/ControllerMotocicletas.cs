@@ -27,4 +27,24 @@ public sealed class MotocicletasController(ISender mediador) : ControllerBase
     [Authorize(Roles = "CLIENTE")]
     public async Task<IActionResult> MisMotocicletas(CancellationToken ct) =>
         Ok(await mediador.Send(new ConsultarMisMotocicletasQuery(), ct));
+
+    /// <summary>Consulta una página de unidades para el personal.</summary>
+    [HttpGet]
+    [Authorize(Roles = "GERENTE,EMPLEADO")]
+    public async Task<IActionResult> Buscar(string? buscar, int pagina = 1, CancellationToken ct = default) =>
+        Ok(await mediador.Send(new BuscarMotocicletasQuery(buscar, pagina), ct));
+
+    /// <summary>Devuelve una unidad autorizada para quien realiza la consulta.</summary>
+    [HttpGet("{id:long}")]
+    public async Task<IActionResult> Obtener(ulong id, CancellationToken ct) =>
+        Ok(await mediador.Send(new ObtenerMotocicletaQuery(id), ct));
+
+    /// <summary>Actualiza una ficha sin alterar sus registros históricos.</summary>
+    [HttpPut("{id:long}")]
+    [Authorize(Roles = "GERENTE,EMPLEADO")]
+    public async Task<IActionResult> Actualizar(ulong id, RegistrarMotocicletaCommand datos, CancellationToken ct)
+    {
+        await mediador.Send(new ActualizarMotocicletaCommand(id, datos), ct);
+        return NoContent();
+    }
 }

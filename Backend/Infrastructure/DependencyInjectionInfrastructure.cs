@@ -1,6 +1,8 @@
 namespace FollowMotors.Infrastructure;
 
 using Microsoft.Extensions.DependencyInjection;
+using FollowMotors.Application.Queries.Catalogos;
+using FollowMotors.Infrastructure.Repositories;
 using FollowMotors.Application.Operaciones;
 using FollowMotors.Infrastructure.Operaciones;
 using FollowMotors.Application.Abstractions.Autenticacion;
@@ -34,7 +36,8 @@ public static class DependencyInjection
         servicios.AddScoped<IRepositorioPersonal, RepositorioPersonal>();
         servicios.AddScoped<IRepositorioAuditoria, RepositorioAuditoria>();
         servicios.AddScoped<IProtectorContrasenas, ProtectorContrasenas>();
-        servicios.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
+        servicios.AddScoped<IRepositorioSesiones, RepositorioSesiones>();
+        servicios.AddScoped<IConsultaCatalogoTaller, ConsultaCatalogoTaller>();
         return servicios;
     }
 }

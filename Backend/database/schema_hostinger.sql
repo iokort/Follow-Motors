@@ -332,3 +332,12 @@ CREATE TABLE IF NOT EXISTS auditoria (
     KEY idx_auditoria_entidad (entidad, registro_id),
     CONSTRAINT fk_auditoria_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB;
+-- Sesiones revocables. Esta extensión también se puede ejecutar sobre una instalación existente.
+CREATE TABLE IF NOT EXISTS sesiones_usuarios (
+    id BINARY(16) NOT NULL,
+    usuario_id BIGINT UNSIGNED NOT NULL,
+    expira_en DATETIME(3) NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_sesiones_expira (expira_en),
+    CONSTRAINT fk_sesiones_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB;

@@ -19,7 +19,6 @@ public sealed class InicializadorGerente(IConfiguration configuracion,
         if (contrasena.Length < 12 || string.IsNullOrWhiteSpace(nombres) ||
             string.IsNullOrWhiteSpace(apellidos))
             throw new InvalidOperationException("La configuración inicial de gerente está incompleta o es insegura.");
-        if (await cuentas.ExisteGerenteAsync(ct)) return;
         bool creado = await cuentas.CrearGerenteInicialAsync(identificador.Trim().ToLowerInvariant(),
             protector.GenerarHash(contrasena), nombres.Trim(), apellidos.Trim(), ct);
         if (creado) registro.LogInformation("Se inicializó la cuenta gerencial.");

@@ -31,15 +31,6 @@ public sealed class RepositorioCuentas(ConexionMySql baseDatos) : IRepositorioCu
             """, new { usuarioId }, cancellationToken: ct));
     }
 
-    /// <summary>Comprueba si ya existe una cuenta GERENTE activa.</summary>
-    public async Task<bool> ExisteGerenteAsync(CancellationToken ct)
-    {
-        await using var conexion = await baseDatos.AbrirAsync(ct);
-        return await conexion.ExecuteScalarAsync<int>(new CommandDefinition(
-            "SELECT EXISTS(SELECT 1 FROM usuarios WHERE rol = 'GERENTE' AND activo = 1)",
-            cancellationToken: ct)) == 1;
-    }
-
     /// <summary>Inicializa la primera cuenta gerencial solo al arrancar por configuración local.</summary>
     public async Task<bool> CrearGerenteInicialAsync(string identificador, string hashContrasena,
         string nombres, string apellidos, CancellationToken ct)
@@ -47,7 +38,7 @@ public sealed class RepositorioCuentas(ConexionMySql baseDatos) : IRepositorioCu
         await using var conexion = await baseDatos.AbrirAsync(ct);
         // El bloqueo nombrado impide dos altas iniciales simultáneas entre instancias.
         int bloqueo = await conexion.ExecuteScalarAsync<int>(new CommandDefinition(
-            "SELECT GET_LOCK('followmotors_gerente_inicial', 5)", cancellationToken: ct));
+            "SELECT GET_LOCK(SHA2(CONCAT(DATABASE(), ':gerente'), 256), 5)", cancellationToken: ct));
         if (bloqueo != 1) throw new InvalidOperationException("No se obtuvo el bloqueo de inicialización.");
         try
         {
@@ -74,7 +65,7 @@ public sealed class RepositorioCuentas(ConexionMySql baseDatos) : IRepositorioCu
         finally
         {
             await conexion.ExecuteAsync(new CommandDefinition(
-                "SELECT RELEASE_LOCK('followmotors_gerente_inicial')", cancellationToken: ct));
+                "SELECT RELEASE_LOCK(SHA2(CONCAT(DATABASE(), ':gerente'), 256))", cancellationToken: CancellationToken.None));
         }
     }
 }

@@ -1,25 +1,23 @@
 namespace FollowMotors.Presentation.Middleware;
 
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using FollowMotors.Application.Abstractions.Repositories.Clientes;
+using FollowMotors.Application.Abstractions.Autenticacion;
 
-/// <summary>Comprueba que una cuenta continúe activa antes de ejecutar acciones privadas.</summary>
-public sealed class CuentasActivasMiddleware(RequestDelegate siguiente)
+/// <summary>Impide el uso de sesiones revocadas, vencidas o con una cuenta inactiva.</summary>
+public sealed class SesionesActivasMiddleware(RequestDelegate siguiente)
 {
-    /// <summary>Revoca inmediatamente el acceso de cuentas desactivadas o con rol modificado.</summary>
-    public async Task InvokeAsync(HttpContext contexto, IRepositorioCuentas cuentas)
+    /// <summary>Comprueba la sesión firmada antes de autorizar acceso a cualquier recurso privado.</summary>
+    public async Task InvokeAsync(HttpContext contexto, IRepositorioSesiones sesiones)
     {
         if (contexto.User.Identity?.IsAuthenticated == true)
         {
-            string? idTexto = contexto.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            contexto.Response.Headers.CacheControl = "no-store";
+            string? sesion = contexto.User.FindFirstValue(JwtRegisteredClaimNames.Jti);
             string? rol = contexto.User.FindFirstValue(ClaimTypes.Role);
-            if (!ulong.TryParse(idTexto, out ulong id))
-            {
-                contexto.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return;
-            }
-            var cuenta = await cuentas.ObtenerPorIdAsync(id, contexto.RequestAborted);
-            if (cuenta is null || !cuenta.Activo || cuenta.Rol != rol)
+            if (!ulong.TryParse(contexto.User.FindFirstValue(ClaimTypes.NameIdentifier), out ulong id)
+                || !Guid.TryParseExact(sesion, "N", out _) || rol is null
+                || !await sesiones.EsValidaAsync(id, rol, sesion!, contexto.RequestAborted))
             {
                 contexto.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return;
