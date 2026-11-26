@@ -1,1 +1,1 @@
-<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../Application/FollowMotors.Application.csproj" /></ItemGroup><ItemGroup><PackageReference Include="MySqlConnector" Version="2.4.0" /></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../Application/FollowMotors.Application.csproj" /></ItemGroup><ItemGroup><PackageReference Include="MySqlConnector" Version="2.4.1" /></ItemGroup></Project>
