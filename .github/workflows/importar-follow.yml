@@ -38,46 +38,10 @@ jobs:
           test -f /tmp/follow-original/follow/Presentation/Main.cs
           test -f /tmp/follow-original/follow/Frontend/package.json
           rm -rf Application Domain Infrastructure Presentation
-          rm -f FollowMotors.slnx Directory.Build.props
           cp -a /tmp/follow-original/follow/. ./
           rm -f follow.zip
           echo "Originales restaurados:"
           find Application Domain Infrastructure Presentation Frontend -type f | wc -l
-      - name: Ajustar CI al proyecto original
-        shell: bash
-        run: |
-          cat > .github/workflows/ci.yml <<'YAML'
-          name: CI Follow Motors
-          on:
-            push:
-              branches: [main, develop, zip-proyecto]
-            pull_request:
-              branches: [main, develop]
-          jobs:
-            backend:
-              runs-on: ubuntu-latest
-              steps:
-                - uses: actions/checkout@v4
-                - uses: actions/setup-dotnet@v4
-                  with:
-                    dotnet-version: '10.0.x'
-                - name: Restaurar paquetes
-                  run: dotnet restore FollowMotors.sln
-                - name: Compilar solución
-                  run: dotnet build FollowMotors.sln --configuration Release --no-restore
-            frontend:
-              runs-on: ubuntu-latest
-              steps:
-                - uses: actions/checkout@v4
-                - uses: actions/setup-node@v4
-                  with:
-                    node-version: '22'
-                - name: Instalar paquetes y compilar
-                  working-directory: Frontend
-                  run: |
-                    npm install --no-audit --no-fund
-                    npm run build
-          YAML
       - name: Publicar código fuente real en rama del PR
         shell: bash
         run: |
