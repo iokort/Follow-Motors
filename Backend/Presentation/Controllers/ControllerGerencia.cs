@@ -1,6 +1,7 @@
 namespace FollowMotors.Presentation.Controllers.Gerencia;
 
 using MediatR;
+using FollowMotors.Application.Commands.Atenciones;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FollowMotors.Application.Queries.Gerencia;
@@ -15,4 +16,9 @@ public sealed class GerenciaController(ISender mediador) : ControllerBase
     [HttpGet("mi-perfil")]
     public async Task<IActionResult> MiPerfil(CancellationToken ct) =>
         Ok(await mediador.Send(new ConsultarPerfilGerenteQuery(), ct));
+
+    /// <summary>Establece una tarifa fija para las siguientes revisiones.</summary>
+    [HttpPut("tarifa-revision")]
+    public async Task<IActionResult> TarifaRevision(ConfigurarTarifaRevisionCommand solicitud, CancellationToken ct) =>
+        Ok(new { id = await mediador.Send(solicitud, ct) });
 }

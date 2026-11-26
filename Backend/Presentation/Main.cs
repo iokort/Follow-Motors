@@ -17,6 +17,8 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplication();
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton(TimeZoneInfo.FindSystemTimeZoneById(
+    builder.Configuration["Taller:ZonaHoraria"] ?? "America/Mexico_City"));
 builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("MySql") ?? "");
 builder.Services.AddCors(opciones => opciones.AddPolicy("AngularLocal", politica => politica
     .WithOrigins("http://localhost:4200", "http://127.0.0.1:4200")

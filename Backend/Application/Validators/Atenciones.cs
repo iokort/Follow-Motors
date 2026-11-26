@@ -30,7 +30,6 @@ public sealed class RecepcionarMotocicletaValidator : AbstractValidator<Recepcio
     {
         RuleFor(x => x.ClienteId).GreaterThan(0UL);
         RuleFor(x => x.MotocicletaId).GreaterThan(0UL);
-        RuleFor(x => x.MecanicoId).GreaterThan(0UL);
         RuleFor(x => x.Motivo).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.CitaId).Must(x => !x.HasValue || x.Value > 0);
     }
@@ -45,4 +44,12 @@ public sealed class RegistrarDiagnosticoValidator : AbstractValidator<RegistrarD
         RuleFor(x => x.AtencionId).GreaterThan(0UL);
         RuleFor(x => x.Hallazgos).NotEmpty().MaximumLength(10000);
     }
+}
+
+/// <summary>Impide guardar una tarifa negativa, excedida o con fracciones menores a centavos.</summary>
+public sealed class ConfigurarTarifaRevisionValidator : AbstractValidator<ConfigurarTarifaRevisionCommand>
+{
+    /// <summary>Aplica la precisión DECIMAL(12,2) de la base y admite una revisión sin cargo.</summary>
+    public ConfigurarTarifaRevisionValidator() => RuleFor(x => x.Importe)
+        .GreaterThanOrEqualTo(0m).PrecisionScale(12, 2, true);
 }

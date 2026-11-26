@@ -18,4 +18,10 @@ public interface IRepositorioAtenciones
     /// <summary>Cobra una sola vez la revisión con la tarifa vigente en base de datos.</summary>
     Task<ulong> CobrarRevisionAsync(ulong atencionId, ulong usuarioActorId,
         string? referenciaComprobante, CancellationToken ct);
+
+    /// <summary>Finaliza una revisión pagada sin contrato.</summary>
+    Task CerrarSinReparacionAsync(ulong atencionId, ulong usuarioActorId, CancellationToken ct);
+
+    /// <summary>Modifica la tarifa vigente sin cambiar los cobros registrados.</summary>
+    Task<ulong> ConfigurarTarifaAsync(decimal importe, ulong actorId, CancellationToken ct);
 }

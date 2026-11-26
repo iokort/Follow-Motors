@@ -12,3 +12,9 @@ public sealed record RecepcionarMotocicletaCommand(ulong ClienteId, ulong Motoci
 
 /// <summary>Solicita registrar los hallazgos de una revisión asignada.</summary>
 public sealed record RegistrarDiagnosticoCommand(ulong AtencionId, string Hallazgos) : IRequest<bool>;
+
+/// <summary>Cierra una revisión cuyo cliente no contratará una reparación.</summary>
+public sealed record CerrarRevisionCommand(ulong AtencionId) : IRequest;
+
+/// <summary>Fija una tarifa de revisión aplicable desde el momento del cambio.</summary>
+public sealed record ConfigurarTarifaRevisionCommand(decimal Importe) : IRequest<ulong>;

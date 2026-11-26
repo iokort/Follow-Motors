@@ -28,3 +28,15 @@ public sealed class PoliticaAtenciones : IPoliticaAtenciones
             throw new InvalidOperationException("La revisión debe estar diagnosticada antes de cobrar.");
     }
 }
+
+/// <summary>Identifica a un mecánico elegible y el número de atenciones bajo su responsabilidad.</summary>
+public sealed record CargaMecanico(ulong Id, long AtencionesAbiertas);
+
+/// <summary>Elige al responsable con menor carga, con desempate estable por identificador.</summary>
+public static class AsignacionMecanicos
+{
+    /// <summary>Devuelve el ID del personal menos ocupado o rechaza si el taller no tiene un mecánico disponible.</summary>
+    public static ulong Elegir(IEnumerable<CargaMecanico> candidatos) =>
+        candidatos.OrderBy(x => x.AtencionesAbiertas).ThenBy(x => x.Id).FirstOrDefault()?.Id
+        ?? throw new InvalidOperationException("El taller no tiene mecánicos disponibles.");
+}

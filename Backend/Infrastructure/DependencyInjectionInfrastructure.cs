@@ -2,6 +2,7 @@ namespace FollowMotors.Infrastructure;
 
 using Microsoft.Extensions.DependencyInjection;
 using FollowMotors.Application.Queries.Catalogos;
+using FollowMotors.Application.Agenda;
 using FollowMotors.Infrastructure.Repositories;
 using FollowMotors.Application.Operaciones;
 using FollowMotors.Infrastructure.Operaciones;
@@ -36,6 +37,7 @@ public static class DependencyInjection
         servicios.AddScoped<IRepositorioPersonal, RepositorioPersonal>();
         servicios.AddScoped<IRepositorioAuditoria, RepositorioAuditoria>();
         servicios.AddScoped<IProtectorContrasenas, ProtectorContrasenas>();
+        servicios.AddScoped<IRepositorioAgenda, RepositorioAgenda>();
         servicios.AddScoped<IRepositorioSesiones, RepositorioSesiones>();
         servicios.AddScoped<IConsultaCatalogoTaller, ConsultaCatalogoTaller>();
         return servicios;

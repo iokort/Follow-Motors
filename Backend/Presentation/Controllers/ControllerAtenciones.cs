@@ -45,6 +45,15 @@ public sealed class AtencionesController(ISender mediador) : ControllerBase
         var atencion = await mediador.Send(new ConsultarAtencionQuery(atencionId), ct);
         return atencion is null ? NotFound() : Ok(atencion);
     }
+    /// <summary>Cierra la revisión cobrada que no se convirtió en reparación.</summary>
+    [HttpPost("{atencionId:long}/cerrar-sin-reparacion")]
+    [Authorize(Roles = "GERENTE,EMPLEADO")]
+    public async Task<IActionResult> CerrarRevision(ulong atencionId, CancellationToken ct)
+    {
+        await mediador.Send(new CerrarRevisionCommand(atencionId), ct);
+        return NoContent();
+    }
+
 }
 
 /// <summary>Único dato de entrada necesario para registrar el diagnóstico.</summary>

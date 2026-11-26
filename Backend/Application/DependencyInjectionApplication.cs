@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using FollowMotors.Application.Abstractions.Operaciones;
 using FollowMotors.Application.Behaviors;
 using FollowMotors.Application.Services.Clientes;
-using FollowMotors.Application.Services.Atenciones;
 using FollowMotors.Domain.Rules.Atenciones;
 using FollowMotors.Domain.Rules.Seguridad;
 
@@ -23,7 +22,6 @@ public static class DependencyInjection
         });
         servicios.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         servicios.AddScoped<IRegistroCliente, RegistroCliente>();
-        servicios.AddScoped<IRecepcionTaller, RecepcionTaller>();
         servicios.AddSingleton<IPoliticaPermisos, PoliticaPermisos>();
         servicios.AddSingleton<IPoliticaAtenciones, PoliticaAtenciones>();
         return servicios;
