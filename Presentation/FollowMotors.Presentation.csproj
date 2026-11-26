@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk.Web"><ItemGroup><ProjectReference Include="../Application/FollowMotors.Application.csproj" /><ProjectReference Include="../Infrastructure/FollowMotors.Infrastructure.csproj" /></ItemGroup><ItemGroup><PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" /></ItemGroup></Project>

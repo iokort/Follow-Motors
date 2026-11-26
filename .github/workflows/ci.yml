@@ -1,0 +1,18 @@
+name: CI Follow Motors
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restaurar paquetes
+        run: dotnet restore FollowMotors.slnx
+      - name: Compilar solución
+        run: dotnet build FollowMotors.slnx --configuration Release --no-restore
