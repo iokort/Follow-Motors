@@ -1,1 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../Application/FollowMotors.Application.csproj" /></ItemGroup><ItemGroup><PackageReference Include="MySqlConnector" Version="2.4.1" /></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\FollowMotors.Domain.csproj" />
+    <ProjectReference Include="..\Application\FollowMotors.Application.csproj" />
+    <PackageReference Include="MySqlConnector" Version="2.6.2" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
+  </ItemGroup>
+</Project>
