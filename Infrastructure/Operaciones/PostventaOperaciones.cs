@@ -66,7 +66,7 @@ public sealed partial class OperacionesTallerMySql
                 resuelta_en=UTC_TIMESTAMP(3)
             WHERE id=@SolicitudId AND estado='SOLICITADA'
             """,new {c.SolicitudId,Estado=c.Aprobar?"APROBADA":"RECHAZADA",
-                datos.Avance,ManoObraEjecutada,datos.PiezasUtilizadas,
+                datos.Avance,ManoObraEjecutada=manoObraEjecutada,datos.PiezasUtilizadas,
                 Reintegro=c.Aprobar?reintegro:(decimal?)null,
                 MotivoRechazo=c.Aprobar?null:c.MotivoRechazo},tx,cancellationToken:ct));
         if(n!=1) return false;
