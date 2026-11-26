@@ -1,0 +1,275 @@
+@if (!sesion()) {
+  <div class="auth-page">
+    <div class="auth-brand-side">
+      <div class="brand-lockup"><span class="brand-mark"><span></span><span></span></span><span>FOLLOW<span class="brand-light">MOTORS</span></span></div>
+      <div class="auth-hero">
+        <div class="eyebrow light">PANEL DE OPERACIÓN · DEMOSTRACIÓN ACADÉMICA</div>
+        <h1>El taller, <em>en orden.</em></h1>
+        <p>Gestiona clientes, motocicletas, personal y revisiones desde un solo lugar. Cada acción recorre la API de ASP.NET Core.</p>
+        <div class="hero-flow">
+          <span>ANGULAR</span><i></i><span>API C#</span><i></i><span>MEDIATR</span><i></i><span>DATOS DEMO</span>
+        </div>
+      </div>
+      <div class="hero-footer">FollowMotors · Angular + .NET 10 · Sin conexión MySQL</div>
+    </div>
+    <div class="auth-main">
+      <div class="auth-content">
+        <div class="status-pill" [class.offline]="enLinea() === false">
+          <span class="status-dot"></span>
+          {{ enLinea() === false ? 'API sin conexión' : enLinea() === null ? 'Comprobando API...' : 'API local conectada' }}
+        </div>
+        @if (enLinea() === false) { <button class="link-button retry" (click)="reintentarConexion()">Reintentar conexión ↻</button> }
+        <h2>Iniciar sesión</h2>
+        <p class="muted auth-subtitle">Utiliza una cuenta ficticia para explorar los flujos disponibles según su rol.</p>
+        <div class="field"><label>Identificador</label>
+          <input type="text" autocomplete="username" [(ngModel)]="login.identificador" placeholder="usuario@follow.motors" /></div>
+        <div class="field"><label>Contraseña</label>
+          <input type="password" autocomplete="current-password" [(ngModel)]="login.contrasena"
+            (keyup.enter)="iniciarSesion()" placeholder="Contraseña de demostración" /></div>
+        <button class="btn primary full" [disabled]="ocupado()" (click)="iniciarSesion()">
+          {{ ocupado() ? 'Verificando credenciales...' : 'Entrar al sistema' }} <span>→</span>
+        </button>
+        @if (mensaje()) { <div class="notice" [class.notice-error]="esError()">{{ mensaje() }}</div> }
+        <div class="demo-login">
+          <div class="mini-heading"><span>CUENTAS DE DEMOSTRACIÓN</span><span class="muted">Seleccionar</span></div>
+          <div class="demo-grid">
+            @for (cuenta of cuentasDemo(); track cuenta.identificador) {
+              <button class="demo-account" [class.active]="login.identificador === cuenta.identificador" (click)="usarCuenta(cuenta)">
+                <span class="account-avatar">{{ cuenta.nombre.charAt(0) }}</span>
+                <span class="account-text"><strong>{{ cuenta.nombre }}</strong><small>{{ cuenta.identificador.split('@')[0] }} · {{ cuenta.nombre === 'Luis Navarro' ? 'Mecánico' : (cuenta.rol === 'GERENTE' ? 'Gerente' : (cuenta.rol === 'CLIENTE' ? 'Cliente' : 'Asesor')) }}</small></span>
+                <span class="account-arrow">↗</span>
+              </button>
+            }
+          </div>
+          @if (cuentasDemo().length === 0) { <p class="hint">Los accesos ficticios aparecerán cuando la API esté funcionando.</p> }
+        </div>
+      </div>
+      <footer class="auth-small">Los datos son ficticios y se reinician al cerrar el servidor.</footer>
+    </div>
+  </div>
+} @else {
+  <div class="workspace">
+    <aside class="sidebar">
+      <div class="brand-lockup brand-sidebar"><span class="brand-mark"><span></span><span></span></span><span>FOLLOW<span class="brand-light">MOTORS</span></span></div>
+      <div class="sidebar-caption">ESPACIO DE TRABAJO</div>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <button [class.selected]="vista() === 'inicio'" (click)="cambiarVista('inicio')"><span class="nav-icon">▦</span>Resumen</button>
+        @if (esPersonal()) {
+          <button [class.selected]="vista() === 'clientes'" (click)="cambiarVista('clientes')"><span class="nav-icon">◉</span>Clientes</button>
+          <button [class.selected]="vista() === 'motocicletas'" (click)="cambiarVista('motocicletas')"><span class="nav-icon">◇</span>Motocicletas</button>
+          <button [class.selected]="vista() === 'atenciones'" (click)="cambiarVista('atenciones')"><span class="nav-icon">▤</span>Atenciones</button>
+        }
+        @if (esGerente()) {
+          <div class="nav-divider"></div>
+          <div class="sidebar-caption sidebar-group">GERENCIA</div>
+          <button [class.selected]="vista() === 'personal'" (click)="cambiarVista('personal')"><span class="nav-icon">♙</span>Personal</button>
+          <button [class.selected]="vista() === 'auditoria'" (click)="cambiarVista('auditoria')"><span class="nav-icon">≡</span>Auditoría</button>
+          <button [class.selected]="vista() === 'perfil'" (click)="cambiarVista('perfil')"><span class="nav-icon">◎</span>Mi perfil</button>
+        }
+        @if (!esPersonal()) {
+          <button [class.selected]="vista() === 'expediente'" (click)="cambiarVista('expediente')"><span class="nav-icon">▣</span>Mi expediente</button>
+        }
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="demo-state"><span class="demo-dot"></span><div><b>Modo demostración</b><small>Datos en memoria · Local</small></div></div>
+      <div class="signed-user"><span class="user-avatar">{{ bienvenida().charAt(0).toUpperCase() }}</span>
+        <span class="signed-detail"><strong>{{ bienvenida() }}</strong><small>{{ sesion()?.rol }}</small></span>
+        <button class="logout-mini" title="Cerrar sesión" (click)="cerrarSesion()">↪</button></div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div><span class="top-caption">FOLLOWMOTORS / {{ vista().toUpperCase() }}</span><strong>Panel de demostración</strong></div>
+        <div class="top-actions"><span class="top-online"><span class="status-dot"></span>API local</span><button class="btn quiet" (click)="refrescar()">↻ <span class="refresh-label">Actualizar</span></button></div>
+      </header>
+
+      <main class="content">
+        @if (mensaje()) { <div class="notice floating" [class.notice-error]="esError()"><span>{{ mensaje() }}</span><button title="Cerrar mensaje" (click)="mensaje.set('')">×</button></div> }
+        @if (vista() === 'inicio') {
+          <div class="heading-row"><div><div class="eyebrow">VISTA GENERAL</div><h1>Bienvenido, {{ bienvenida() }}.</h1><p class="muted">Operaciones reales de la API con persistencia temporal en C#.</p></div>
+            <button class="btn outlined" (click)="refrescar()">↻ Actualizar datos</button></div>
+          @if (esPersonal()) {
+            <div class="stats-grid">
+              <div class="stat-card"><div class="stat-kicker">CLIENTES</div><div class="stat-value">{{ datos()?.clientes?.length ?? 0 }}</div><span>Expedientes registrados</span></div>
+              <div class="stat-card"><div class="stat-kicker">MOTOCICLETAS</div><div class="stat-value">{{ datos()?.motocicletas?.length ?? 0 }}</div><span>Unidades vinculadas</span></div>
+              <div class="stat-card"><div class="stat-kicker">ATENCIONES</div><div class="stat-value">{{ datos()?.atenciones?.length ?? 0 }}</div><span>Ingresos al taller</span></div>
+              <div class="stat-card"><div class="stat-kicker">REVISIONES COBRADAS</div><div class="stat-value">{{ datos()?.cobros?.length ?? 0 }}</div><span>Tarifa demo: ${{ datos()?.tarifaRevision ?? 350 }}</span></div>
+            </div>
+            <div class="two-columns dashboard-columns">
+              <section class="panel"><div class="panel-heading"><div><div class="eyebrow">TRABAJO ACTUAL</div><h2>Últimas atenciones</h2></div><button class="link-button" (click)="cambiarVista('atenciones')">Ver todas →</button></div>
+                <div class="table-wrap"><table><thead><tr><th>ID</th><th>Motocicleta</th><th>Estado</th><th>Ingreso</th></tr></thead><tbody>
+                  @for (atencion of atencionesRecientes(); track atencion.id) {
+                    <tr><td class="mono">#{{ atencion.id }}</td><td>{{ atencion.motocicletaId }}</td><td><span class="pill" [class.green]="atencion.estado === 'DIAGNOSTICADA'">{{ atencion.estado }}</span></td><td>{{ fecha(atencion.ingresadaEn) }}</td></tr>
+                  } @empty { <tr><td colspan="4" class="empty">Todavía no hay atenciones.</td></tr> }
+                </tbody></table></div>
+              </section>
+              <section class="panel next-steps"><div class="eyebrow">CÓMO MOSTRARLO AL PROFESOR</div><h2>Demostración sugerida</h2>
+                <div class="number-step"><span>01</span><div><b>Autenticación</b><small>Inicia sesión y muestra el JWT y los roles.</small></div></div>
+                <div class="number-step"><span>02</span><div><b>Alta de clientes y motos</b><small>Registra un cliente y asígnale una motocicleta.</small></div></div>
+                <div class="number-step"><span>03</span><div><b>Atención y auditoría</b><small>Recibe, diagnostica, cobra y consulta la trazabilidad.</small></div></div>
+                <p class="hint">Debajo de cada módulo encontrarás el recorrido C# archivo por archivo.</p>
+              </section>
+            </div>
+          } @else {
+            <section class="panel personal-welcome"><div class="eyebrow">PORTAL DEL PROPIETARIO</div><h2>Tus registros, sin datos ajenos</h2>
+              <p class="muted">La API utiliza tu identidad del JWT. No acepta un ID de cliente introducido por el navegador.</p>
+              <button class="btn primary" (click)="cambiarVista('expediente')">Abrir mi expediente →</button></section>
+          }
+        }
+
+        @if (vista() === 'clientes' && esPersonal()) {
+          <div class="heading-row"><div><div class="eyebrow">US01 · ALTA PRESENCIAL</div><h1>Clientes</h1><p class="muted">El personal registra clientes; únicamente el gerente puede desactivar cuentas.</p></div>
+            <span class="subtle-count">{{ datos()?.clientes?.length ?? 0 }} registros</span></div>
+          <div class="two-columns">
+            <section class="panel"><div class="panel-heading"><h2>Registrar cliente</h2><span class="pill">Command + Validator</span></div>
+              <div class="form-grid"><div class="field"><label>Nombres</label><input [(ngModel)]="nuevoCliente.nombres" placeholder="Nombre(s)" /></div>
+                <div class="field"><label>Apellidos</label><input [(ngModel)]="nuevoCliente.apellidos" placeholder="Apellidos" /></div>
+                <div class="field full-span"><label>Identificador</label><input [(ngModel)]="nuevoCliente.identificador" placeholder="nombre@follow.motors" /></div>
+                <div class="field"><label>Contraseña inicial</label><input type="password" [(ngModel)]="nuevoCliente.contrasena" placeholder="Mínimo 12 caracteres" /></div>
+                <div class="field"><label>Teléfono (opcional)</label><input [(ngModel)]="nuevoCliente.telefono" placeholder="10 dígitos" /></div>
+              </div><button class="btn primary" [disabled]="ocupado()" (click)="crearCliente()">Registrar cliente →</button>
+              <p class="hint">No se requiere moto ni cita. El identificador es ficticio y no recibe correos.</p>
+            </section>
+            <section class="panel"><div class="panel-heading"><h2>Expedientes existentes</h2><span class="pill">{{ datos()?.clientes?.length ?? 0 }}</span></div>
+              <div class="table-wrap"><table><thead><tr><th>ID</th><th>Cliente</th><th>Estado</th><th></th></tr></thead><tbody>
+                @for (cliente of datos()?.clientes ?? []; track cliente.id) {
+                  <tr><td class="mono">#{{ cliente.id }}</td><td><strong>{{ cliente.nombres }} {{ cliente.apellidos }}</strong><small class="under-cell">{{ cliente.identificador }}</small></td>
+                    <td><span class="pill" [class.green]="cliente.activo">{{ cliente.activo ? 'Activa' : 'Inactiva' }}</span></td>
+                    <td>@if (esGerente() && cliente.activo) {<button class="link-button danger" (click)="desactivarCliente(cliente)">Desactivar</button>}</td></tr>
+                } @empty { <tr><td colspan="4" class="empty">Sin clientes</td></tr> }
+              </tbody></table></div>
+            </section>
+          </div>
+        }
+
+        @if (vista() === 'personal' && esGerente()) {
+          <div class="heading-row"><div><div class="eyebrow">EXCLUSIVO GERENCIA</div><h1>Personal del taller</h1><p class="muted">Creación de empleados y mecánicos, con autorización GERENTE desde la API.</p></div></div>
+          <div class="two-columns"><section class="panel"><div class="panel-heading"><h2>Agregar personal</h2><span class="pill">Rol protegido</span></div>
+              <div class="form-grid"><div class="field"><label>Nombres</label><input [(ngModel)]="nuevoEmpleado.nombres" placeholder="Nombre(s)" /></div>
+                <div class="field"><label>Apellidos</label><input [(ngModel)]="nuevoEmpleado.apellidos" placeholder="Apellidos" /></div>
+                <div class="field full-span"><label>Identificador</label><input [(ngModel)]="nuevoEmpleado.identificador" placeholder="empleado@follow.motors" /></div>
+                <div class="field full-span"><label>Contraseña</label><input [(ngModel)]="nuevoEmpleado.contrasena" type="password" placeholder="Mínimo 12 caracteres" /></div>
+                <label class="toggle-row full-span"><input type="checkbox" [(ngModel)]="nuevoEmpleado.esMecanico" /><span>Este empleado es mecánico</span></label></div>
+              <button class="btn primary" [disabled]="ocupado()" (click)="crearEmpleado()">Crear empleado →</button>
+            </section>
+            <section class="panel"><div class="panel-heading"><h2>Equipo registrado</h2><span class="pill">{{ datos()?.personal?.length ?? 0 }} personas</span></div>
+              <div class="people-list">@for (persona of datos()?.personal ?? []; track persona.id) {
+                <div class="person-row"><span class="avatar">{{ persona.nombres.charAt(0) }}</span><span><strong>{{ persona.nombres }} {{ persona.apellidos }}</strong><small>{{ persona.rol === 'GERENTE' ? 'Gerente' : persona.esMecanico ? 'Mecánico' : 'Asesor / Empleado' }}</small></span><span class="mono muted">#{{ persona.id }}</span></div>
+              } @empty {<div class="empty">Sin personal</div>}</div>
+            </section></div>
+        }
+
+        @if (vista() === 'motocicletas' && esPersonal()) {
+          <div class="heading-row"><div><div class="eyebrow">US02 · EXPEDIENTES</div><h1>Motocicletas</h1><p class="muted">Unidades multimarca con VIN único y cliente propietario validado.</p></div></div>
+          <div class="two-columns"><section class="panel"><div class="panel-heading"><h2>Registrar motocicleta</h2><span class="pill">Propiedad validada</span></div>
+              <div class="form-grid"><div class="field full-span"><label>Propietario</label><select [(ngModel)]="nuevaMoto.clienteId">
+                @for (cliente of clientesActivos(); track cliente.id) {<option [ngValue]="cliente.id">#{{ cliente.id }} · {{ cliente.nombres }} {{ cliente.apellidos }}</option>}
+              </select></div><div class="field full-span"><label>Número de serie / VIN</label><input [(ngModel)]="nuevaMoto.numeroSerie" placeholder="Identificador único" /></div>
+              <div class="field"><label>Marca</label><input [(ngModel)]="nuevaMoto.marca" placeholder="CFMOTO, Yamaha..." /></div>
+              <div class="field"><label>Modelo</label><input [(ngModel)]="nuevaMoto.modelo" placeholder="Modelo" /></div>
+              <div class="field"><label>Año</label><input type="number" [(ngModel)]="nuevaMoto.anio" min="1900" max="2150" /></div>
+              <div class="field"><label>Kilometraje</label><input type="number" [(ngModel)]="nuevaMoto.kilometrajeActual" min="0" /></div>
+              <div class="field"><label>Placa (opcional)</label><input [(ngModel)]="nuevaMoto.placa" /></div>
+              <div class="field"><label>Color (opcional)</label><input [(ngModel)]="nuevaMoto.color" /></div></div>
+              <button class="btn primary" [disabled]="ocupado() || clientesActivos().length === 0" (click)="crearMotocicleta()">Vincular motocicleta →</button>
+            </section><section class="panel"><div class="panel-heading"><h2>Unidades registradas</h2><span class="pill">{{ datos()?.motocicletas?.length ?? 0 }}</span></div>
+              <div class="vehicle-list">@for (moto of datos()?.motocicletas ?? []; track moto.id) {
+                <div class="vehicle-row"><div class="vehicle-icon">◈</div><div><strong>{{ moto.marca }} {{ moto.modelo }}</strong><small>{{ moto.numeroSerie }} · {{ moto.anio ?? 'Sin año' }}</small><small>Propietario: {{ nombreCliente(moto.clienteId) }}</small></div><span class="pill">#{{ moto.id }}</span></div>
+              } @empty {<p class="empty">Sin motocicletas registradas</p>}</div>
+            </section></div>
+        }
+
+        @if (vista() === 'atenciones' && esPersonal()) {
+          <div class="heading-row"><div><div class="eyebrow">US06 · RECEPCIÓN / DIAGNÓSTICO / COBRO</div><h1>Atenciones</h1><p class="muted">La recepción, el diagnóstico y el cobro siguen las reglas del backend.</p></div></div>
+          <div class="two-columns"><section class="panel"><div class="panel-heading"><h2>Nuevo ingreso</h2><span class="pill">Recepción</span></div>
+              <div class="form-grid"><div class="field full-span"><label>Cliente</label><select [(ngModel)]="nuevaAtencion.clienteId" (ngModelChange)="seleccionarClienteAtencion()">
+                @for (cliente of clientesActivos(); track cliente.id) {<option [ngValue]="cliente.id">#{{ cliente.id }} · {{ cliente.nombres }} {{ cliente.apellidos }}</option>}
+              </select></div>
+              <div class="field full-span"><label>Motocicleta del cliente</label><select [(ngModel)]="nuevaAtencion.motocicletaId">
+                @for (moto of motosDelCliente(nuevaAtencion.clienteId); track moto.id) {<option [ngValue]="moto.id">#{{ moto.id }} · {{ moto.marca }} {{ moto.modelo }}</option>}
+              </select></div><div class="field full-span"><label>Mecánico responsable</label><select [(ngModel)]="nuevaAtencion.mecanicoId">
+                @for (mecanico of mecanicos(); track mecanico.id) {<option [ngValue]="mecanico.id">#{{ mecanico.id }} · {{ mecanico.nombres }} {{ mecanico.apellidos }}</option>}
+              </select></div><div class="field"><label>Kilometraje de ingreso</label><input type="number" min="0" [(ngModel)]="nuevaAtencion.kilometrajeIngreso" /></div>
+              <div class="field full-span"><label>Motivo de ingreso</label><textarea [(ngModel)]="nuevaAtencion.motivo" rows="3" placeholder="¿Por qué ingresa al taller?"></textarea></div></div>
+              <button class="btn primary" [disabled]="ocupado() || !mecanicos().length" (click)="recibirMoto()">Registrar recepción →</button>
+            </section>
+            <section class="panel"><div class="panel-heading"><h2>Atenciones registradas</h2><span class="pill">{{ datos()?.atenciones?.length ?? 0 }}</span></div>
+              <div class="table-wrap"><table><thead><tr><th>ID</th><th>Cliente</th><th>Estado</th><th></th></tr></thead><tbody>
+                @for (atencion of datos()?.atenciones ?? []; track atencion.id) {
+                  <tr><td class="mono">#{{ atencion.id }}</td><td>{{ nombreCliente(atencion.clienteId) }}<small class="under-cell">{{ nombreMecanico(atencion.mecanicoId) }}</small></td>
+                    <td><span class="pill" [class.green]="atencion.estado === 'DIAGNOSTICADA'">{{ atencion.estado }}</span></td>
+                    <td><button class="link-button" (click)="prepararDiagnostico(atencion)">Usar →</button></td></tr>
+                } @empty {<tr><td colspan="4" class="empty">Sin atenciones</td></tr>}
+              </tbody></table></div>
+              <p class="hint">Selecciona “Usar” para tomar el ID de una atención y diagnosticarla o cobrarla.</p>
+            </section></div>
+          <div id="operaciones-atencion" class="operations-grid">
+            <section class="panel"><div class="panel-heading"><h2>Registrar diagnóstico</h2><span class="pill">Paso 2</span></div>
+              <div class="field"><label>Atención #</label><input type="number" [(ngModel)]="diagnostico.atencionId" min="1" /></div>
+              <div class="field"><label>Hallazgos del mecánico</label><textarea [(ngModel)]="diagnostico.hallazgos" rows="3" placeholder="Descripción técnica de lo encontrado"></textarea></div>
+              <button class="btn outlined" [disabled]="ocupado()" (click)="registrarDiagnostico()">Guardar diagnóstico →</button></section>
+            <section class="panel"><div class="panel-heading"><h2>Cobrar revisión</h2><span class="pill">Paso 3</span></div>
+              <div class="field"><label>Atención #</label><input type="number" [(ngModel)]="cobro.atencionId" min="1" /></div>
+              <div class="field"><label>Referencia de comprobante</label><input [(ngModel)]="cobro.referenciaComprobante" placeholder="Folio de ejemplo (opcional)" /></div>
+              <p class="hint">Importe fijo: ${{ datos()?.tarifaRevision ?? 350 }} MXN · Evita cobros duplicados.</p>
+              <button class="btn outlined" [disabled]="ocupado()" (click)="cobrarRevision()">Registrar cobro →</button></section>
+            <section class="panel"><div class="panel-heading"><h2>Consultar atención</h2><span class="pill">Paso 4</span></div>
+              <div class="field"><label>Atención #</label><input type="number" [(ngModel)]="consultarId" min="1" /></div>
+              <button class="btn outlined" [disabled]="ocupado()" (click)="consultarAtencion()">Consultar →</button>
+              @if (atencionConsultada(); as detalle) {<div class="result-card"><b>Atención #{{ detalle.id }}</b><span>{{ detalle.estado }}</span><p>{{ detalle.motivo }}</p><small>{{ detalle.textoDiagnostico || 'Pendiente de diagnóstico' }}</small></div>}
+            </section>
+          </div>
+        }
+
+        @if (vista() === 'auditoria' && esGerente()) {
+          <div class="heading-row"><div><div class="eyebrow">TRAZABILIDAD · SOLO GERENTE</div><h1>Registro de auditoría</h1><p class="muted">Altas, cambios y cobros dejan un registro verificable con usuario, fecha y acción.</p></div>
+            <button class="btn outlined" (click)="cargarAuditoria()">↻ Actualizar</button></div>
+          <section class="panel"><div class="table-wrap"><table><thead><tr><th>Registro</th><th>Acción</th><th>Entidad</th><th>Actor</th><th>Fecha</th></tr></thead><tbody>
+            @for (registro of auditorias(); track registro.id) {
+              <tr><td class="mono">#{{ registro.id }}</td><td><span class="action-label">{{ registro.accion.replaceAll('_', ' ') }}</span></td><td>{{ registro.entidad }} · #{{ registro.registroId }}</td><td>Usuario #{{ registro.usuarioId ?? 'Sistema' }}</td><td>{{ fecha(registro.registradaEn) }}</td></tr>
+            } @empty {<tr><td colspan="5" class="empty">No hay cambios registrados.</td></tr>}
+          </tbody></table></div></section>
+        }
+
+        @if (vista() === 'perfil' && esGerente()) {
+          <div class="heading-row"><div><div class="eyebrow">GERENCIA</div><h1>Mi perfil</h1><p class="muted">El backend obtiene tu perfil a partir del JWT, sin consultar un ID proporcionado por el usuario.</p></div></div>
+          <div class="profile-card panel"><span class="profile-avatar">{{ perfil()?.nombres?.charAt(0) ?? 'G' }}</span><div><div class="eyebrow">PERFIL AUTORIZADO</div>
+            <h2>{{ perfil()?.nombres }} {{ perfil()?.apellidos }}</h2><p class="muted">Gerente · ID #{{ perfil()?.id }} · {{ perfil()?.disponible ? 'Disponible' : 'No disponible' }}</p>
+            <button class="btn outlined" (click)="cargarPerfil()">Consultar nuevamente →</button></div></div>
+        }
+
+        @if (vista() === 'expediente' && !esPersonal()) {
+          <div class="heading-row"><div><div class="eyebrow">US03 · DATOS PRIVADOS</div><h1>Mi expediente</h1><p class="muted">Solo se presentan motocicletas vinculadas al cliente autenticado.</p></div>
+            <button class="btn outlined" (click)="cargarExpediente()">↻ Actualizar</button></div>
+          <section class="panel expediente-heading"><span class="profile-avatar smaller">{{ miExpediente()?.cliente?.nombres?.charAt(0) ?? 'C' }}</span>
+            <div><h2>{{ miExpediente()?.cliente?.nombres }} {{ miExpediente()?.cliente?.apellidos }}</h2><p class="muted">Cliente #{{ miExpediente()?.cliente?.id }} · {{ sesion()?.identificador }}</p></div>
+            <span class="pill green">Acceso autorizado</span></section>
+          <div class="panel-heading outside-heading"><h2>Mis motocicletas</h2><button class="link-button" (click)="consultarMisMotocicletas()">Probar Query específica →</button></div>
+          <div class="vehicle-cards">
+            @for (moto of miExpediente()?.motocicletas ?? []; track moto.id) {
+              <div class="panel moto-card"><div class="vehicle-icon big">◇</div><strong>{{ moto.marca }} {{ moto.modelo }}</strong>
+                <span class="muted">{{ moto.anio }} · {{ moto.color ?? 'Color no registrado' }}</span><div class="moto-meta"><span>Serie</span><b>{{ moto.numeroSerie }}</b></div><div class="moto-meta"><span>Kilometraje</span><b>{{ moto.kilometrajeActual | number }} km</b></div></div>
+            } @empty {<div class="panel empty-state"><strong>Sin motocicletas todavía</strong><p class="muted">Puedes iniciar sesión sin tener una moto registrada. El personal puede vincularte una después.</p></div>}
+          </div>
+          <section class="panel limited-section"><div class="eyebrow">CONSULTA DE ATENCIÓN</div><h2>Buscar una atención por ID</h2><p class="muted">Si intentas consultar la atención de otra persona, el backend rechazará el acceso.</p>
+            <div class="inline-form"><input type="number" min="1" [(ngModel)]="consultarId" /><button class="btn outlined" (click)="consultarAtencion()">Consultar atención →</button></div>
+            @if (atencionConsultada(); as detalle) {<div class="result-card"><b>Atención #{{ detalle.id }}</b><p>{{ detalle.motivo }} · {{ detalle.estado }}</p></div>}
+          </section>
+        }
+
+        <section class="flow-panel">
+          <div class="flow-head"><div><div class="eyebrow">TRAZABILIDAD DEL CÓDIGO</div><h2>Recorrido del caso de uso</h2></div><span class="pill">SOLID · CQRS · MEDIATR</span></div>
+          @if (flujoActivo(); as flujo) {
+            <div class="flow-summary"><div><b>{{ flujo.titulo }}</b><p>{{ flujo.objetivo }}</p></div><code>{{ flujo.ruta }}</code></div>
+            <div class="file-flow">
+              @for (archivo of flujo.archivos; track $index) {
+                <div class="flow-step"><span class="step-number">{{ $index + 1 }}</span><span class="file-name">{{ archivo }}</span>@if (!$last) {<span class="step-arrow">→</span>}</div>
+              }
+            </div>
+          } @else {<p class="muted">Realiza una operación para mostrar su recorrido.</p>}
+          <div class="flow-footer">La interfaz envía HTTP. Los Controllers delegan en MediatR; el Handler usa interfaces y la persistencia de demo está en un solo archivo C#.</div>
+        </section>
+      </main>
+    </div>
+  </div>
+}
